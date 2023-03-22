@@ -1,5 +1,4 @@
-from setuptools import find_packages
-from setuptools import setup
+from setuptools import find_packages, setup
 
 setup(
     name="latent-geometry",
@@ -10,11 +9,12 @@ setup(
     license="MIT",
     classifiers=[
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     packages=find_packages(),
     package_dir={"": "src"},
     install_requires=[],
-    python_requires='>=3.8',
+    python_requires=">=3.8",
     setup_requires=["wheel"],
     extras_require={
         "dev": [
