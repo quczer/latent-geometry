@@ -16,6 +16,7 @@ class AbstractManifold(ABC):
         ----------
         zs : (N, D) ndarray
             Points on the manifold.
+            
         Returns
         ----------
         matrices : (N, D, D) ndarray
