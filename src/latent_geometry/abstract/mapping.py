@@ -29,5 +29,5 @@ class AbstractMapping(ABC):
         Returns
         ----------
         jacobians : (N, D, D) ndarray
-            Transformations' jacobians.
+            Jacobians of the transformation computed near zs.
         """
