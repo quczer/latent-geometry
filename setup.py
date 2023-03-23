@@ -13,9 +13,8 @@ setup(
     ],
     packages=find_packages(),
     package_dir={"": "src"},
-    install_requires=[],
+    install_requires=["numpy>=1.24.2"],
     python_requires=">=3.8",
-    setup_requires=["wheel"],
     extras_require={
         "dev": [
             "black[jupyter]",
