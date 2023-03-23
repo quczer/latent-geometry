@@ -14,10 +14,10 @@ class AbstractManifold(ABC):
         """
         Parameters
         ----------
-        z : (N, D) ndarray
+        zs : (N, D) ndarray
             Points on the manifold.
         Returns
         ----------
-        matrix : (N, D, D) ndarray
-            Array of matrices representing inner products around corresponding zs.
+        matrices : (N, D, D) ndarray
+            Matrices representing inner products around corresponding zs.
         """
