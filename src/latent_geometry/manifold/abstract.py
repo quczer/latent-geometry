@@ -19,16 +19,17 @@ class Manifold(ABC):
             End point on the manifold.
 
         Returns
-        ----------
+        -------
         path : callable (float,) -> (D,) ndarray
             Time-parametrized path that is a function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the geodesic on the manifold.
 
-            path(0.0) = z_a
+            `path(0.0) == z_a`
 
-            path(1.0) = z_b
+            `path(1.0) == z_b`
         """
+        ...
 
     @abstractmethod
     def compute_path_given_direction(
@@ -46,11 +47,12 @@ class Manifold(ABC):
             Start velocity at point z.
 
         Returns
-        ----------
+        -------
         path : callable (float,) -> (D,) ndarray
             Time-parametrized path that is a function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the path on the manifold.
 
-            path(0.0) = z
+            `path(0.0) == z`
         """
+        ...

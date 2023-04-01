@@ -7,7 +7,7 @@ class Connection(ABC):
     """Class for affine connections.
 
     Notes
-    ---------
+    -----
     https://github.com/geomstats/geomstats/blob/master/geomstats/geometry/connection.py
     """
 
@@ -44,7 +44,6 @@ class Connection(ABC):
         acceleration : (D,) ndarray
             Acceleration in the given state.
         """
-
         raise NotImplementedError  # TODO
 
     def exponential_map(
@@ -68,7 +67,6 @@ class Connection(ABC):
         end_point : (D,) ndarray
             Point on the manifold.
         """
-
         raise NotImplementedError  # TODO
 
     def logarithm_map(
@@ -93,5 +91,4 @@ class Connection(ABC):
         tangent_vec : (D,) ndarray
             Tangent vector at the base point.
         """
-
         raise NotImplementedError  # TODO

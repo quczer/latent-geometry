@@ -6,7 +6,7 @@ from latent_geometry.mapping.abstract import Mapping
 
 
 class SphereImmersion(Mapping):
-    """(phi, theta) -> (x, y, z) on the sphere in R^3"""
+    """(phi, theta) -> (x, y, z) on the sphere in R^3."""
 
     def __call__(self, z: np.ndarray) -> np.ndarray:
         return self.immerse(torch.tensor(z)).detach().numpy()

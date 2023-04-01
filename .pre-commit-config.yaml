@@ -13,3 +13,10 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 4.0.0
+    hooks:
+      - id: pydocstyle
+        args:
+          - --convention=numpy
+          - --add-ignore=D100,D101,D102,D104,D205,D400

@@ -43,7 +43,6 @@ class Metric(ABC):
         float
             The inner-product.
         """
-
         inner_prod_matrix = self.metric_matrix(base_point)
         inner_prod = np.inner(tangent_vec_a, inner_prod_matrix @ tangent_vec_b)
         return inner_prod
@@ -82,7 +81,6 @@ class PullbackMetric(Connection, Metric, ABC):
         (D, D) ndarray
             Inverse of the inner-product matrix.
         """
-
         metric_matrix = self.metric_matrix(base_point)
         cometric_matrix = np.linalg.inv(metric_matrix)
         return cometric_matrix
@@ -112,7 +110,6 @@ class PullbackMetric(Connection, Metric, ABC):
         gamma: (D, D, D) ndarray
             Christoffel symbols, where the contravariant index is first.
         """
-
         cometric_mat_at_point = self.cometric_matrix(base_point)
         metric_derivative_at_point = self.metric_matrix_derivative(base_point)
 
