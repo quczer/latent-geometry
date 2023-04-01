@@ -8,6 +8,11 @@ Latent-geometry was tested under Linux running python 3.9. Other python versions
 ```console
 pip install -e .[dev]
 ```
+Then install pre-commit hooks. This will ensure that all developers stick to the same code standards. Hooks are defined in `.pre-commit-config.yaml`. Run:
+
+```console
+pre-commit install
+```
 
 For use-only purposes installation run:
 ```console
