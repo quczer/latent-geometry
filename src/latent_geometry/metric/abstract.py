@@ -31,11 +31,11 @@ class Metric(ABC):
 
         Parameters
         ----------
-        tangent_vec_a: (D,) ndarray
+        tangent_vec_a : (D,) ndarray
             Tangent vector at a base point.
-        tangent_vec_b: (D,) ndarray
+        tangent_vec_b : (D,) ndarray
             Tangent vector at a base point.
-        base_point: (D,) ndarray
+        base_point : (D,) ndarray
             Base point on the manifold.
 
         Returns
@@ -102,12 +102,12 @@ class PullbackMetric(Connection, Metric, ABC):
 
         Parameters
         ----------
-        base_point: (D,) ndarray
+        base_point : (D,) ndarray
             Base point on the manifold.
 
         Returns
         -------
-        gamma: (D, D, D) ndarray
+        gamma : (D, D, D) ndarray
             Christoffel symbols, where the contravariant index is first.
         """
         cometric_mat_at_point = self.cometric_matrix(base_point)
