@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.func import jacfwd, jacrev
+from torch.func import jacfwd
 
 from latent_geometry.mapping.abstract import Mapping
 
@@ -19,19 +19,13 @@ class TorchModelMapping(Mapping):
 
     def jacobian(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
-        jacobian_torch = jacrev(self._call_flat_model)(z_torch)
+        jacobian_torch = jacfwd(self._call_flat_model)(z_torch)
         return self._to_numpy(jacobian_torch)
 
-    def metric_matrix_derivative(self, z: np.ndarray) -> np.ndarray:
+    def hessian(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
-
-        def metric_matrix(x: torch.Tensor) -> torch.Tensor:
-            J = jacrev(self._call_flat_model)
-            matrix = torch.mm(J(x).t(), J(x))
-            return matrix
-
-        matrix_derivative = jacfwd(metric_matrix)(z_torch)
-        return self._to_numpy(matrix_derivative)
+        hessian_torch = jacfwd(jacfwd(self._call_flat_model))(z_torch)
+        return self._to_numpy(hessian_torch)
 
     def _call_flat_model(self, x: torch.Tensor) -> torch.Tensor:
         """Reshapes data so that we can pretend that model's input and output is 1D."""

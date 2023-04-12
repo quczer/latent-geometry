@@ -21,7 +21,7 @@ class Mapping(ABC):
 
     @abstractmethod
     def jacobian(self, z: np.ndarray) -> np.ndarray:
-        """Compute mapping's jacobian matrix.
+        r"""Compute mapping's jacobian matrix.
 
         Parameters
         ----------
@@ -30,13 +30,16 @@ class Mapping(ABC):
 
         Returns
         -------
-        jacobian : (D', D) ndarray
-            Jacobian of the mapping computed at z.
+        J : (D', D) ndarray
+            Jacobian of the mapping computed at z, where index
+            of the derivation is put second.
+
+            :math: `J_{ij} = \partial_j g_i`.
         """
 
     @abstractmethod
-    def metric_matrix_derivative(self, z: np.ndarray) -> np.ndarray:
-        r"""Given the jacobian J of the mapping compute jacobian of J^T @ J wrt. to z.
+    def hessian(self, z: np.ndarray) -> np.ndarray:
+        r"""Compute mapping's hessian tensor.
 
         Parameters
         ----------
@@ -45,7 +48,9 @@ class Mapping(ABC):
 
         Returns
         -------
-        (D, D, D) ndarray
-            Derivative of the inner-product matrix, where the index
-            k of the derivation is last: math:`mat_{ijk} = \partial_k g_{ij}`.
+        H : (D', D, D) ndarray
+            Hessian of the mapping computed at z, where indices
+            of the derivation are put last.
+
+            :math: `H_{ijk} = \partial_{jk} g_i`.
         """
