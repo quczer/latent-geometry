@@ -25,7 +25,7 @@ class SphereImmersion(Mapping):
         z_tensor = torch.tensor(z)
         return jacrev(self.immerse)(z_tensor).numpy()
 
-    def hessian(self, z: np.ndarray) -> np.ndarray:
+    def second_derivative(self, z: np.ndarray) -> np.ndarray:
         z_tensor = torch.tensor(z)
         return jacrev(jacrev(self.immerse))(z_tensor).numpy()
 

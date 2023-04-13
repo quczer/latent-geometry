@@ -140,14 +140,16 @@ class MappingPullbackMetric(PullbackMetric, ABC):
         """Map from latent to ambient space."""
 
     def metric_matrix(self, base_point: np.ndarray) -> np.ndarray:
+        ambient_point = self.mapping(base_point)
         J = self.mapping.jacobian(base_point)
-        A = self.ambient_metric.metric_matrix(base_point)
+        A = self.ambient_metric.metric_matrix(ambient_point)
         return J.T @ A @ J
 
     def metric_matrix_derivative(self, base_point: np.ndarray) -> np.ndarray:
+        ambient_point = self.mapping(base_point)
         J = self.mapping.jacobian(base_point)
-        H = self.mapping.hessian(base_point)
-        A = self.ambient_metric.metric_matrix(base_point)
+        H = self.mapping.second_derivative(base_point)
+        A = self.ambient_metric.metric_matrix(ambient_point)
 
         term_1 = np.einsum("rs,rik,sj->ijk", A, H, J)
         term_2 = np.einsum("rs,sjk,ri->ijk", A, H, J)

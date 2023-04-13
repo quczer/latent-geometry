@@ -22,10 +22,10 @@ class TorchModelMapping(Mapping):
         jacobian_torch = jacrev(self._call_flat_model)(z_torch)
         return self._to_numpy(jacobian_torch)
 
-    def hessian(self, z: np.ndarray) -> np.ndarray:
+    def second_derivative(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
-        hessian_torch = jacfwd(jacrev(self._call_flat_model))(z_torch)
-        return self._to_numpy(hessian_torch)
+        second_derivative_torch = jacfwd(jacrev(self._call_flat_model))(z_torch)
+        return self._to_numpy(second_derivative_torch)
 
     def _call_flat_model(self, x: torch.Tensor) -> torch.Tensor:
         """Reshapes data so that we can pretend that model's input and output is 1D."""

@@ -38,8 +38,8 @@ class Mapping(ABC):
         """
 
     @abstractmethod
-    def hessian(self, z: np.ndarray) -> np.ndarray:
-        r"""Compute mapping's hessian tensor.
+    def second_derivative(self, z: np.ndarray) -> np.ndarray:
+        r"""Compute mapping's second derivative tensor.
 
         Parameters
         ----------
@@ -49,8 +49,8 @@ class Mapping(ABC):
         Returns
         -------
         H : (D', D, D) ndarray
-            Hessian of the mapping computed at z, where indices
-            of the derivation are put last.
+            The second derivative of the mapping computed at z,
+            where indices of the derivation are put last.
 
             :math: `H_{ijk} = \partial_{jk} g_i`.
         """
