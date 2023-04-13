@@ -21,7 +21,7 @@ class Manifold(ABC):
         Returns
         -------
         path : callable (float,) -> (D,) ndarray
-            Time-parametrized path that is a function that takes a float
+            Time-parametrized path; function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the geodesic on the manifold.
 

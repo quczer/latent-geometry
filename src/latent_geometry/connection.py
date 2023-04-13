@@ -30,7 +30,7 @@ class Connection(ABC):
         """
 
     def acceleration(self, position: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        """Compute the geodesic ODE associated with the connection.
+        """Compute the acceleration vector given position and velocity.
 
         Parameters
         ----------
