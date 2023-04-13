@@ -20,6 +20,7 @@ setup(
     ],
     python_requires=">=3.9",
     extras_require={
+        "test": ["pytest"],
         "dev": [
             "black[jupyter]",
             "flake8",
@@ -28,6 +29,6 @@ setup(
             "ipykernel",
             "pre-commit",
             "pytest",
-        ]
+        ],
     },
 )
