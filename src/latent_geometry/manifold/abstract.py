@@ -9,7 +9,7 @@ class Manifold(ABC):
     def compute_geodesic(
         self, z_a: np.ndarray, z_b: np.ndarray
     ) -> Callable[[float], np.ndarray]:
-        """Compute the geodesic from z_a to z_b.
+        """Compute the geodesic from `z_a` to `z_b`.
 
         Parameters
         ----------
@@ -35,9 +35,9 @@ class Manifold(ABC):
     def compute_path_given_direction(
         self, z: np.ndarray, velocity_vec: np.ndarray
     ) -> Callable[[float], np.ndarray]:
-        """Compute the path on the manifold starting from z
-        and following the direction velocity_vec.
-        Magnitude of velocity_vec will affect path's parametrization.
+        """Compute the path on the manifold starting from `z`
+        and following the direction `velocity_vec`.
+        Magnitude of `velocity_vec` will affect path's parametrization.
 
         Parameters
         ----------
