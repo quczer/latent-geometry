@@ -6,7 +6,8 @@ setup(
     description="Python package for latent space exploration using Riemann geometry.",
     author="Michal Kucharczyk, Jacek Rutkowski",
     author_email="kucharczi@gmail.com",
-    license="MIT",
+    license="GPLv3",
+    license_file="LICENSE",
     classifiers=[
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
