@@ -9,10 +9,11 @@ setup(
     license="GPLv3",
     license_file="LICENSE",
     classifiers=[
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
-    packages=find_packages(),
+    packages=find_packages("src"),
     package_dir={"": "src"},
     install_requires=[
         # "geomstats[backends] @ git+https://github.com/geomstats/geomstats@master",
