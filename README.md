@@ -28,8 +28,8 @@ pre-commit install
 To run all tests (recommended):
 ```console
 pytest
-```console
-To run only tests in file `test/test_something.py`:
 ```
+To run only tests in file `test/test_something.py`:
+```console
 pytest test/test_something.py
 ```
