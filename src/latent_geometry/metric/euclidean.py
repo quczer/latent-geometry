@@ -1,16 +1,26 @@
 import numpy as np
 
 from latent_geometry.mapping.abstract import Mapping
-from latent_geometry.metric.abstract import PullbackMetric
+from latent_geometry.metric.abstract import MappingPullbackMetric, Metric
 
 
-class EuclideanPullbackMetric(PullbackMetric):
-    def __init__(self, mapping: Mapping):
-        self.mapping = mapping
+class EuclideanMetric(Metric):
+    def __init__(self, dimension: int):
+        self.dimension = dimension
 
     def metric_matrix(self, base_point: np.ndarray) -> np.ndarray:
-        J = self.mapping.jacobian(base_point)
-        return J.T @ J  # TODO: dk if works
+        return np.eye(N=self.dimension)
 
-    def metric_matrix_derivative(self, base_point: np.ndarray) -> np.ndarray:
-        return self.mapping.metric_matrix_derivative(base_point)  # TODO: dk if works
+
+class EuclideanPullbackMetric(MappingPullbackMetric):
+    def __init__(self, out_dim: int, mapping: Mapping):
+        self._mapping = mapping
+        self._ambient_metric = EuclideanMetric(out_dim)
+
+    @property
+    def mapping(self) -> Mapping:
+        return self._mapping
+
+    @property
+    def ambient_metric(self) -> Metric:
+        return self._ambient_metric

@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.func import jacfwd
+from torch.func import jacfwd, jacrev
 
 from latent_geometry.mapping.abstract import Mapping
 
@@ -19,12 +19,12 @@ class TorchModelMapping(Mapping):
 
     def jacobian(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
-        jacobian_torch = jacfwd(self._call_flat_model)(z_torch)
+        jacobian_torch = jacrev(self._call_flat_model)(z_torch)
         return self._to_numpy(jacobian_torch)
 
     def hessian(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
-        hessian_torch = jacfwd(jacfwd(self._call_flat_model))(z_torch)
+        hessian_torch = jacfwd(jacrev(self._call_flat_model))(z_torch)
         return self._to_numpy(hessian_torch)
 
     def _call_flat_model(self, x: torch.Tensor) -> torch.Tensor:
@@ -35,7 +35,7 @@ class TorchModelMapping(Mapping):
 
     @staticmethod
     def _to_torch(x: np.ndarray) -> torch.Tensor:
-        return torch.tensor(x)
+        return torch.tensor(x).float()
 
     @staticmethod
     def _to_numpy(x_tensor: torch.Tensor) -> np.ndarray:
