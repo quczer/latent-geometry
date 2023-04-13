@@ -16,7 +16,7 @@ class Mapping(ABC):
         Returns
         -------
         x : (D',) ndarray
-            Point from the codomain - usually ambient space.
+            Mapped point from the codomain - usually ambient space.
         """
 
     @abstractmethod
