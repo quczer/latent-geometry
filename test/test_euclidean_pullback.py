@@ -90,10 +90,10 @@ def test_metric_matrix_derivative_on_torch_model(simple_net, z):
         return torch.mm(J.t(), J)
 
     z_torch = torch_mapping._to_torch(z)
-    # DM_torch_gt = jacfwd(compute_metric_matrix_torch)(z_torch)
+    DM_torch_gt = jacfwd(compute_metric_matrix_torch)(z_torch)
 
-    # DM_gt = torch_mapping._to_numpy(DM_torch_gt)
+    DM_gt = torch_mapping._to_numpy(DM_torch_gt)
     DM_computed = metric.metric_matrix_derivative(z)
 
-    # assert np.allclose(DM_gt, DM_computed)
+    assert np.allclose(DM_gt, DM_computed)
     assert np.abs(DM_computed).sum() > 0
