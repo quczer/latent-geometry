@@ -22,3 +22,14 @@ Pre-commit hooks will ensure that all developers stick to the same code standard
 ```console
 pre-commit install
 ```
+
+- testing
+
+To run all tests (recommended):
+```console
+pytest
+```
+To run only tests in file `test/test_something.py`:
+```
+pytest test/test_something.py
+```

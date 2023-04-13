@@ -20,6 +20,14 @@ setup(
     ],
     python_requires=">=3.9",
     extras_require={
-        "dev": ["black[jupyter]", "flake8", "isort", "mypy", "ipykernel", "pre-commit"]
+        "dev": [
+            "black[jupyter]",
+            "flake8",
+            "isort",
+            "mypy",
+            "ipykernel",
+            "pre-commit",
+            "pytest",
+        ]
     },
 )
