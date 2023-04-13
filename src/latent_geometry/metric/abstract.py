@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from latent_geometry.connection import Connection
+from latent_geometry.mapping.abstract import Mapping
 
 
 class Metric(ABC):
@@ -49,6 +50,11 @@ class Metric(ABC):
 
 
 class PullbackMetric(Connection, Metric, ABC):
+    @property
+    @abstractmethod
+    def ambient_metric(self) -> Metric:
+        """Ambient metric we pull back from."""
+
     @abstractmethod
     def metric_matrix_derivative(self, base_point: np.ndarray) -> np.ndarray:
         r"""Compute derivative of the inner product matrix at a base point.
@@ -125,3 +131,26 @@ class PullbackMetric(Connection, Metric, ABC):
 
         christoffels = 0.5 * (term_1 + term_2 + term_3)
         return christoffels
+
+
+class MappingPullbackMetric(PullbackMetric, ABC):
+    @property
+    @abstractmethod
+    def mapping(self) -> Mapping:
+        """Map from latent to ambient space."""
+
+    def metric_matrix(self, base_point: np.ndarray) -> np.ndarray:
+        ambient_point = self.mapping(base_point)
+        J = self.mapping.jacobian(base_point)
+        A = self.ambient_metric.metric_matrix(ambient_point)
+        return J.T @ A @ J
+
+    def metric_matrix_derivative(self, base_point: np.ndarray) -> np.ndarray:
+        ambient_point = self.mapping(base_point)
+        J = self.mapping.jacobian(base_point)
+        H = self.mapping.second_derivative(base_point)
+        A = self.ambient_metric.metric_matrix(ambient_point)
+
+        term_1 = np.einsum("rs,rik,sj->ijk", A, H, J)
+        term_2 = np.einsum("rs,sjk,ri->ijk", A, H, J)
+        return term_1 + term_2

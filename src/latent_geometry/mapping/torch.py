@@ -22,16 +22,10 @@ class TorchModelMapping(Mapping):
         jacobian_torch = jacrev(self._call_flat_model)(z_torch)
         return self._to_numpy(jacobian_torch)
 
-    def metric_matrix_derivative(self, z: np.ndarray) -> np.ndarray:
+    def second_derivative(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
-
-        def metric_matrix(x: torch.Tensor) -> torch.Tensor:
-            J = jacrev(self._call_flat_model)
-            matrix = torch.mm(J(x).t(), J(x))
-            return matrix
-
-        matrix_derivative = jacfwd(metric_matrix)(z_torch)
-        return self._to_numpy(matrix_derivative)
+        second_derivative_torch = jacfwd(jacrev(self._call_flat_model))(z_torch)
+        return self._to_numpy(second_derivative_torch)
 
     def _call_flat_model(self, x: torch.Tensor) -> torch.Tensor:
         """Reshapes data so that we can pretend that model's input and output is 1D."""
@@ -41,7 +35,7 @@ class TorchModelMapping(Mapping):
 
     @staticmethod
     def _to_torch(x: np.ndarray) -> torch.Tensor:
-        return torch.tensor(x)
+        return torch.tensor(x).float()
 
     @staticmethod
     def _to_numpy(x_tensor: torch.Tensor) -> np.ndarray:

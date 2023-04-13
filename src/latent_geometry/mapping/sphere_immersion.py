@@ -25,6 +25,10 @@ class SphereImmersion(Mapping):
         z_tensor = torch.tensor(z)
         return jacrev(self.immerse)(z_tensor).numpy()
 
+    def second_derivative(self, z: np.ndarray) -> np.ndarray:
+        z_tensor = torch.tensor(z)
+        return jacrev(jacrev(self.immerse))(z_tensor).numpy()
+
     def metric_matrix_derivative(self, z: np.ndarray) -> np.ndarray:
         z_tensor = torch.tensor(z)
 
