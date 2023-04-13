@@ -17,6 +17,7 @@ repos:
     rev: 4.0.0
     hooks:
       - id: pydocstyle
+        files: ^src/
         args:
           - --convention=numpy
           - --add-ignore=D100,D101,D102,D104,D205,D400
