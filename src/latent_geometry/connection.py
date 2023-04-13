@@ -42,9 +42,12 @@ class Connection(ABC):
         Returns
         -------
         acceleration : (D,) ndarray
-            Acceleration in the given state.
+            Acceleration vector in the given state.
         """
-        raise NotImplementedError  # TODO
+        gamma = self.christoffels(position)
+        # TODO: check that the following works
+        acceleration = np.einsum("ijk,j,k->i", gamma, velocity, -velocity)
+        return acceleration
 
     def exponential_map(
         self, tangent_vec: np.ndarray, base_point: np.ndarray
