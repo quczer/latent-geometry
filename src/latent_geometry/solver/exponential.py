@@ -60,18 +60,6 @@ class IVPExponentialSolver(ExponentialSolver):
         return solve_ivp(fun, t_span, y0, method=self.method, dense_output=True)
 
     @staticmethod
-    def _wrap_path_solution(
-        ode_solution: Callable[[float], np.ndarray]
-    ) -> Callable[[float], np.ndarray]:
-        """In `ode_solution` values are both position and velocity - we only need position."""
-
-        def gamma(t: float) -> np.ndarray:
-            x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
-            return x
-
-        return gamma
-
-    @staticmethod
     def _create_fun(
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
@@ -82,6 +70,18 @@ class IVPExponentialSolver(ExponentialSolver):
             return y_prime
 
         return fun
+
+    @staticmethod
+    def _wrap_path_solution(
+        ode_solution: Callable[[float], np.ndarray]
+    ) -> Callable[[float], np.ndarray]:
+        """In `ode_solution` values are both position and velocity - we only need position."""
+
+        def gamma(t: float) -> np.ndarray:
+            x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
+            return x
+
+        return gamma
 
     @staticmethod
     def _pack_state(
