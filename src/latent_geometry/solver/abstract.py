@@ -4,6 +4,10 @@ from typing import Callable
 import numpy as np
 
 
+class SolverFailedException(Exception):
+    pass
+
+
 class ExponentialSolver(ABC):
     @abstractmethod
     def integrate_path(
@@ -30,6 +34,11 @@ class ExponentialSolver(ABC):
             Time-parametrized path; function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the path.
+
+        Raises
+        ------
+        SolverFailedException
+            If solution could not be found.
         """
         ...
 
@@ -58,9 +67,10 @@ class LogarithmSolver(ABC):
             Time-parametrized path; function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the path.
+
+        Raises
+        ------
+        SolverFailedException
+            If solution could not be found.
         """
         ...
-
-
-class SolverFailedException(Exception):
-    pass
