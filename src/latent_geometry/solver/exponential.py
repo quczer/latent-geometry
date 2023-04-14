@@ -6,7 +6,7 @@ from scipy.integrate import solve_ivp
 from latent_geometry.solver.abstract import ExponentialSolver, SolverFailedException
 
 
-class IVPSolver(ExponentialSolver):
+class IVPExponentialSolver(ExponentialSolver):
     def __init__(
         self,
         method: Literal["RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA"] = "RK45",
@@ -21,7 +21,7 @@ class IVPSolver(ExponentialSolver):
     ) -> Callable[[float], np.ndarray]:
         result = self._solve(position, velocity, acceleration_fun)
         if result.success:
-            return result.sol
+            return self._wrap_path_solution(result.sol)
         else:
             raise SolverFailedException(result.message)
 
@@ -57,15 +57,28 @@ class IVPSolver(ExponentialSolver):
         t_span = (0.0, 1.0)
         y0 = self._pack_state(position, velocity)
         fun = self._create_fun(acceleration_fun)
-        return solve_ivp(fun, t_span, y0, method=self.method)
+        return solve_ivp(fun, t_span, y0, method=self.method, dense_output=True)
 
+    @staticmethod
+    def _wrap_path_solution(
+        ode_solution: Callable[[float], np.ndarray]
+    ) -> Callable[[float], np.ndarray]:
+        """In `ode_solution` values are both position and velocity - we only need position."""
+
+        def gamma(t: float) -> np.ndarray:
+            x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
+            return x
+
+        return gamma
+
+    @staticmethod
     def _create_fun(
-        self, acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
+        acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
         def fun(t: float, y: np.ndarray) -> np.ndarray:
-            x, v = self._unpack_state(y)
+            x, v = IVPExponentialSolver._unpack_state(y)
             a = acceleration_fun(x, v)
-            y_prime = self._pack_state(v, a)
+            y_prime = IVPExponentialSolver._pack_state(v, a)
             return y_prime
 
         return fun
@@ -75,11 +88,11 @@ class IVPSolver(ExponentialSolver):
         position: np.ndarray,
         velocity: np.ndarray,
     ) -> np.ndarray:
-        return np.vstack((position, velocity))
+        return np.concatenate((position, velocity))
 
     @staticmethod
     def _unpack_state(
         state: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray]:
-        x, v = np.vsplit(state, 2)
+        x, v = np.split(state, 2)
         return x, v

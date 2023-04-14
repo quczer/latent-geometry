@@ -40,7 +40,6 @@ class ExponentialSolver(ABC):
         SolverFailedException
             If solution could not be found.
         """
-        ...
 
 
 class LogarithmSolver(ABC):
@@ -73,4 +72,3 @@ class LogarithmSolver(ABC):
         SolverFailedException
             If solution could not be found.
         """
-        ...

@@ -32,6 +32,7 @@ setup(
             "ipykernel",
             "pre-commit",
             "pytest",
+            "matplotlib",
         ],
     },
 )

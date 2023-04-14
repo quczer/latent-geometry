@@ -29,7 +29,6 @@ class Manifold(ABC):
 
             `path(1.0) == z_b`
         """
-        ...
 
     @abstractmethod
     def compute_path_given_direction(
@@ -55,4 +54,3 @@ class Manifold(ABC):
 
             `path(0.0) == z`
         """
-        ...
