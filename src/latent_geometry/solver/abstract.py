@@ -4,7 +4,7 @@ from typing import Callable
 import numpy as np
 
 
-class ExponentialSolver(ABC):
+class IVPSolver(ABC):
     @abstractmethod
     def integrate_path(
         self,
@@ -12,7 +12,7 @@ class ExponentialSolver(ABC):
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
     ) -> Callable[[float], np.ndarray]:
-        """Compute the path given starting position and velocity following
+        """Compute the path given starting position and velocity, following
         the acceleration.
 
         Parameters
@@ -29,6 +29,34 @@ class ExponentialSolver(ABC):
         path : callable (float,) -> (D,) ndarray
             Time-parametrized path; function that takes a float
             from [0, TODO] interval and returns the correspoding point of
+            the path.
+        """
+        ...
+
+
+class BVPSolver(ABC):
+    @abstractmethod
+    def find_path(
+        self,
+        start_position: np.ndarray,
+        finish_position: np.ndarray,
+        acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
+    ) -> Callable[[float], np.ndarray]:
+        """Compute the path given starting position and finishing position,
+        following the acceleration.
+
+        Parameters
+        ----------
+        start_position : (D,) ndarray
+        finish_position : (D,) ndarray
+        acceleration_fun : callable ((D,) ndarray, (D,) ndarray) -> (D,) ndarray
+            Acceleration at any given position and velocity.
+
+        Returns
+        -------
+        path : callable (float,) -> (D,) ndarray
+            Time-parametrized path; function that takes a float
+            from [0, 1] interval and returns the correspoding point of
             the path.
         """
         ...
