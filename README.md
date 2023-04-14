@@ -37,3 +37,8 @@ pre-commit install
     ```console
     pytest test/test_something.py::test_function
     ```
+
+- type checking (using `mypy`):
+```console
+mypy src
+```
