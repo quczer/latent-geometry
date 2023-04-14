@@ -46,7 +46,7 @@ class IVPExponentialSolver(ExponentialSolver):
         ```
         then
         ```
-        y(t0) = (x(t0), y(t0)) = (position, velocity)
+        y(t0) = (x(t0), v(t0)) = (position, velocity)
         dy / dt = (v, a) = (v, a(x, v))
         ```
         so
