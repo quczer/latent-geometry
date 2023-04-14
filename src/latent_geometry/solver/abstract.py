@@ -4,7 +4,7 @@ from typing import Callable
 import numpy as np
 
 
-class IVPSolver(ABC):
+class ExponentialSolver(ABC):
     @abstractmethod
     def integrate_path(
         self,
@@ -28,13 +28,13 @@ class IVPSolver(ABC):
         -------
         path : callable (float,) -> (D,) ndarray
             Time-parametrized path; function that takes a float
-            from [0, TODO] interval and returns the correspoding point of
+            from [0, 1] interval and returns the correspoding point of
             the path.
         """
         ...
 
 
-class BVPSolver(ABC):
+class LogarithmSolver(ABC):
     @abstractmethod
     def find_path(
         self,
@@ -60,3 +60,7 @@ class BVPSolver(ABC):
             the path.
         """
         ...
+
+
+class SolverFailedException(Exception):
+    pass
