@@ -13,7 +13,7 @@ class IVPExponentialSolver(ExponentialSolver):
     ):
         self.method = method
 
-    def integrate_path(
+    def mark_path(
         self,
         position: np.ndarray,
         velocity: np.ndarray,

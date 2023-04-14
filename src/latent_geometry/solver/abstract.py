@@ -10,7 +10,7 @@ class SolverFailedException(Exception):
 
 class ExponentialSolver(ABC):
     @abstractmethod
-    def integrate_path(
+    def mark_path(
         self,
         position: np.ndarray,
         velocity: np.ndarray,

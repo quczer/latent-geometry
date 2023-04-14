@@ -28,7 +28,7 @@ def test_on_unit_circle(
     def acceleration_fun(x, v):
         return -x * np.linalg.norm(v) ** 2
 
-    gamma = exponential_solver.integrate_path(x, v, acceleration_fun)
+    gamma = exponential_solver.mark_path(x, v, acceleration_fun)
 
     for t, theta_t in zip(
         np.linspace(0.0, 1.0, NUM_EVALS),
