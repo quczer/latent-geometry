@@ -8,7 +8,7 @@ from latent_geometry.metric.euclidean import EuclideanPullbackMetric
 
 @pytest.fixture
 def simple_net():
-    """Returns torch.nn.Module mapping: (B, 1, 8, 8) -> (B, 128)"""
+    """Returns torch.nn.Module mapping: (B, 1, 4, 4) -> (B, 128)"""
     import torch
     import torch.nn as nn
     import torch.nn.functional as F
@@ -16,15 +16,13 @@ def simple_net():
     class Net(nn.Module):
         def __init__(self):
             super(Net, self).__init__()
-            self.conv1 = nn.Conv2d(1, 6, 5)
-            self.conv2 = nn.Conv2d(6, 16, 4)
-            self.fc1 = nn.Linear(16, 32)
+            self.conv1 = nn.Conv2d(1, 6, 3)
+            self.fc1 = nn.Linear(24, 32)
             self.fc2 = nn.Linear(32, 64)
             self.fc3 = nn.Linear(64, 128)
 
         def forward(self, x):
             x = F.sigmoid(self.conv1(x))
-            x = F.sigmoid(self.conv2(x))
             x = torch.flatten(x, 1)
             x = F.sigmoid(self.fc1(x))
             x = F.sigmoid(self.fc2(x))
@@ -35,8 +33,8 @@ def simple_net():
 
 
 def random_vector():
-    """Returns random 64-vector (np.ndarray)"""
-    return np.random.rand(64)
+    """Returns random 16-vector (np.ndarray)"""
+    return np.random.rand(16)
 
 
 @pytest.mark.parametrize(
@@ -59,13 +57,13 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
 @pytest.mark.parametrize(
     "z",
     [
-        np.arange(64),
+        np.arange(16),
         random_vector(),
         random_vector(),
     ],
 )
 def test_metric_matrix_on_torch_model(simple_net, z):
-    metric = EuclideanPullbackMetric(128, TorchModelMapping(simple_net, (1, 1, 8, 8)))
+    metric = EuclideanPullbackMetric(128, TorchModelMapping(simple_net, (1, 1, 4, 4)))
     J = metric.mapping.jacobian(z)
     M = metric.metric_matrix(z)
 
@@ -75,14 +73,15 @@ def test_metric_matrix_on_torch_model(simple_net, z):
 @pytest.mark.parametrize(
     "z",
     [
-        np.arange(64),
+        np.arange(16),
+        random_vector(),
     ],
 )
 def test_metric_matrix_derivative_on_torch_model(simple_net, z):
     import torch
     from torch.func import jacfwd, jacrev
 
-    torch_mapping = TorchModelMapping(simple_net, (1, 1, 8, 8))
+    torch_mapping = TorchModelMapping(simple_net, (1, 1, 4, 4))
     metric = EuclideanPullbackMetric(128, torch_mapping)
 
     def compute_metric_matrix_torch(z_torch):
