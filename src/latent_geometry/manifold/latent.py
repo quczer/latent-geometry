@@ -20,5 +20,5 @@ class LatentManifold(Manifold):
         return path
 
     def path_given_direction(self, z: np.ndarray, velocity_vec: np.ndarray) -> Path:
-        path = self._exp_solver.mark_path(z, velocity_vec, self.metric.acceleration)
+        path = self._exp_solver.compute_path(z, velocity_vec, self.metric.acceleration)
         return path

@@ -28,7 +28,7 @@ def test_on_unit_circle(
     def acceleration_fun(x, v):
         return -x * np.linalg.norm(v) ** 2
 
-    path = exponential_solver.mark_path(x, v, acceleration_fun)
+    path = exponential_solver.compute_path(x, v, acceleration_fun)
     xs, _, _ = path.get_moments(NUM_EVALS)
 
     for x_t, theta_t in zip(
