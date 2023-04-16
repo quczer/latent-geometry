@@ -1,7 +1,8 @@
 import numpy as np
 
 from latent_geometry.mapping.abstract import Mapping
-from latent_geometry.metric.abstract import MappingPullbackMetric, Metric
+from latent_geometry.metric.abstract import Metric
+from latent_geometry.metric.manifold import ManifoldMetric
 
 
 class EuclideanMetric(Metric):
@@ -12,15 +13,6 @@ class EuclideanMetric(Metric):
         return np.eye(N=self.dimension)
 
 
-class EuclideanPullbackMetric(MappingPullbackMetric):
+class EuclideanPullbackMetric(ManifoldMetric):
     def __init__(self, mapping: Mapping):
-        self._mapping = mapping
-        self._ambient_metric = EuclideanMetric(mapping.out_dim)
-
-    @property
-    def mapping(self) -> Mapping:
-        return self._mapping
-
-    @property
-    def ambient_metric(self) -> Metric:
-        return self._ambient_metric
+        super().__init__(mapping, EuclideanMetric(mapping.out_dim))
