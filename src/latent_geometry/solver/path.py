@@ -8,26 +8,28 @@ class Path:
 
     Attributes
     ----------
-    length: float
+    length : float
         The length of the path. It is the integral
         of velocity over [0, 1] time interval.
 
     Methods
     -------
-    __call__(t): (float,) -> (D,) ndarray
+    __call__(t) : (float,) -> (D,) ndarray
         Given t - time from [0, 1] interval, returns
         the corresponding point on the path.
 
-    velocity(t): (float,) -> (D,) ndarray
+    velocity(t) : (float,) -> (D,) ndarray
         Given t - time from [0, 1] interval, returns
         the velocity at the corresponding point on the path.
 
-    acceleration(t): (float,) -> (D,) ndarray
+    acceleration(t) : (float,) -> (D,) ndarray
         Given t - time from [0, 1] interval, returns
-        the acceleration at the corresponding point on the path.
+        the acceleration at the corresponding point on the path,
+        with corresponding velocity.
     """
 
     _INTEGRATE_INTERVALS = 100
+    _INTERPOLATE_POINTS = 30
 
     def __init__(
         self,
