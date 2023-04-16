@@ -3,11 +3,8 @@ from typing import Callable, Literal
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from latent_geometry.solver.abstract import (
-    ExponentialSolver,
-    Path,
-    SolverFailedException,
-)
+from latent_geometry.solver.abstract import ExponentialSolver, SolverFailedException
+from latent_geometry.solver.path import Path
 
 
 class IVPExponentialSolver(ExponentialSolver):
