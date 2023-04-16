@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from latent_geometry.solver.path import Path
+from latent_geometry.path import Path
 
 
 @pytest.mark.parametrize(

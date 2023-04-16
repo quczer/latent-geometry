@@ -3,8 +3,8 @@ from typing import Callable, Iterable
 import numpy as np
 from scipy.integrate import solve_bvp
 
+from latent_geometry.path import Path
 from latent_geometry.solver.abstract import LogarithmSolver, SolverFailedException
-from latent_geometry.solver.path import Path
 
 
 class BVPLogarithmSolver(LogarithmSolver):
