@@ -28,12 +28,12 @@ def test_on_unit_circle(
     def acceleration_fun(x, v):
         return -x * np.linalg.norm(v) ** 2
 
-    gamma = exponential_solver.mark_path(x, v, acceleration_fun)
+    path = exponential_solver.mark_path(x, v, acceleration_fun)
+    xs, _, _ = path.get_moments(NUM_EVALS)
 
-    for t, theta_t in zip(
-        np.linspace(0.0, 1.0, NUM_EVALS),
+    for x_t, theta_t in zip(
+        xs,
         np.linspace(start_theta, final_theta, NUM_EVALS),
     ):
-        xt = gamma(t)
         expected_x = np.array([np.cos(theta_t), np.sin(theta_t)])
-        assert np.allclose(xt, expected_x, atol=0.01)
+        assert np.allclose(x_t, expected_x, atol=0.01)
