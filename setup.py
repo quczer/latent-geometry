@@ -23,7 +23,7 @@ setup(
     ],
     python_requires=">=3.9",
     extras_require={
-        "test": ["pytest"],
+        "test": ["pytest", "mypy"],
         "dev": [
             "black[jupyter]",
             "flake8",
