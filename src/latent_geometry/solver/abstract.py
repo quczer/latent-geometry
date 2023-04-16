@@ -23,8 +23,27 @@ class Path:
 
     acceleration(t): (float,) -> (D,) ndarray
         Given t - time from [0, 1] interval, returns
-        the acceleration at the corresponding point on the path.git
+        the acceleration at the corresponding point on the path.
     """
+
+    def __init__(
+        self,
+        x_fun: Callable[[float], np.ndarray],
+        v_fun: Callable[[float], np.ndarray],
+        a_fun: Callable[[float], np.ndarray],
+    ):
+        self.x_fun = x_fun
+        self.v_fun = v_fun
+        self.a_fun = a_fun
+
+    def __call__(self, t: float) -> np.ndarray:
+        return self.x_fun(t)
+
+    def velocity(self, t: float) -> np.ndarray:
+        return self.v_fun(t)
+
+    def acceleration(self, t: float) -> np.ndarray:
+        return self.a_fun(t)
 
 
 class ExponentialSolver(ABC):
@@ -34,7 +53,7 @@ class ExponentialSolver(ABC):
         position: np.ndarray,
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Callable[[float], np.ndarray]:
+    ) -> Path:
         """Compute the path given starting position and velocity, following
         the acceleration.
 
@@ -68,7 +87,7 @@ class LogarithmSolver(ABC):
         start_position: np.ndarray,
         finish_position: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Callable[[float], np.ndarray]:
+    ) -> Path:
         """Compute the path given starting position and finishing position,
         following the acceleration.
 
