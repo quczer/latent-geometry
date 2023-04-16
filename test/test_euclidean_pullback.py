@@ -32,7 +32,7 @@ def simple_net():
     return Net()
 
 
-def random_vector():
+def random_16d_vector():
     """Returns random 16-vector (np.ndarray)"""
     return np.random.rand(16)
 
@@ -58,8 +58,8 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
     "z",
     [
         np.arange(16),
-        random_vector(),
-        random_vector(),
+        random_16d_vector(),
+        random_16d_vector(),
     ],
 )
 def test_metric_matrix_on_torch_model(simple_net, z):
@@ -76,7 +76,7 @@ def test_metric_matrix_on_torch_model(simple_net, z):
     "z",
     [
         np.arange(16),
-        random_vector(),
+        random_16d_vector(),
     ],
 )
 def test_metric_matrix_derivative_on_torch_model(simple_net, z):
