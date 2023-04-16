@@ -8,6 +8,25 @@ class SolverFailedException(Exception):
     pass
 
 
+class Path:
+    """Time parametrized path.
+
+    Methods
+    -------
+    __call__(t): (float,) -> (D,) ndarray
+        Given t - time from [0, 1] interval, returns
+        the corresponding point on the path.
+
+    velocity(t): (float,) -> (D,) ndarray
+        Given t - time from [0, 1] interval, returns
+        the velocity at the corresponding point on the path.
+
+    acceleration(t): (float,) -> (D,) ndarray
+        Given t - time from [0, 1] interval, returns
+        the acceleration at the corresponding point on the path.git
+    """
+
+
 class ExponentialSolver(ABC):
     @abstractmethod
     def mark_path(
