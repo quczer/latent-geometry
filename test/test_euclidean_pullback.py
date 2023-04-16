@@ -47,7 +47,7 @@ def random_vector():
 )
 def test_metric_matrix_derivative_on_sphere_immersion(z):
     sphere_immersion = SphereImmersion()
-    metric = EuclideanPullbackMetric(3, sphere_immersion)
+    metric = EuclideanPullbackMetric(sphere_immersion)
 
     DM_gt = sphere_immersion.metric_matrix_derivative(z)
     DM_computed = metric.metric_matrix_derivative(z)
@@ -64,7 +64,7 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
 )
 def test_metric_matrix_on_torch_model(simple_net, z):
     metric = EuclideanPullbackMetric(
-        128, TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
+        TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
     )
     J = metric.mapping.jacobian(z)
     M = metric.metric_matrix(z)
@@ -84,7 +84,7 @@ def test_metric_matrix_derivative_on_torch_model(simple_net, z):
     from torch.func import jacfwd, jacrev
 
     torch_mapping = TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
-    metric = EuclideanPullbackMetric(128, torch_mapping)
+    metric = EuclideanPullbackMetric(torch_mapping)
 
     def compute_metric_matrix_torch(z_torch):
         J = jacrev(torch_mapping._call_flat_model)(z_torch)

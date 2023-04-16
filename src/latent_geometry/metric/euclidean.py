@@ -13,9 +13,9 @@ class EuclideanMetric(Metric):
 
 
 class EuclideanPullbackMetric(MappingPullbackMetric):
-    def __init__(self, out_dim: int, mapping: Mapping):
+    def __init__(self, mapping: Mapping):
         self._mapping = mapping
-        self._ambient_metric = EuclideanMetric(out_dim)
+        self._ambient_metric = EuclideanMetric(mapping.out_dim)
 
     @property
     def mapping(self) -> Mapping:
