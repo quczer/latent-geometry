@@ -3,7 +3,11 @@ from typing import Callable, Literal
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from latent_geometry.solver.abstract import ExponentialSolver, SolverFailedException
+from latent_geometry.solver.abstract import (
+    ExponentialSolver,
+    Path,
+    SolverFailedException,
+)
 
 
 class IVPExponentialSolver(ExponentialSolver):
@@ -18,10 +22,10 @@ class IVPExponentialSolver(ExponentialSolver):
         position: np.ndarray,
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Callable[[float], np.ndarray]:
+    ) -> Path:
         result = self._solve(position, velocity, acceleration_fun)
         if result.success:
-            return self._wrap_path_solution(result.sol)
+            return self._create_path(result.sol, acceleration_fun)
         else:
             raise SolverFailedException(result.message)
 
@@ -72,16 +76,23 @@ class IVPExponentialSolver(ExponentialSolver):
         return fun
 
     @staticmethod
-    def _wrap_path_solution(
-        ode_solution: Callable[[float], np.ndarray]
-    ) -> Callable[[float], np.ndarray]:
-        """In `ode_solution` values are both position and velocity - we only need position."""
-
-        def gamma(t: float) -> np.ndarray:
+    def _create_path(
+        ode_solution: Callable[[float], np.ndarray],
+        acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
+    ) -> Path:
+        def x_fun(t: float) -> np.ndarray:
             x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
             return x
 
-        return gamma
+        def v_fun(t: float) -> np.ndarray:
+            x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
+            return v
+
+        def a_fun(t: float) -> np.ndarray:
+            x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
+            return acceleration_fun(x, v)
+
+        return Path(x_fun, v_fun, a_fun)
 
     @staticmethod
     def _pack_state(
