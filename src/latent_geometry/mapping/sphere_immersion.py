@@ -39,3 +39,11 @@ class SphereImmersion(Mapping):
 
         matrix_derivative = jacrev(metric_matrix)(z_tensor)
         return matrix_derivative.numpy()
+
+    @property
+    def in_dim(self) -> int:
+        return 2
+
+    @property
+    def out_dim(self) -> int:
+        return 3
