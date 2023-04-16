@@ -8,7 +8,7 @@ class Connection(ABC):
 
     Notes
     -----
-    https://github.com/geomstats/geomstats/blob/master/geomstats/geometry/connection.py
+    Inspired by: https://github.com/geomstats/geomstats/blob/master/geomstats/geometry/connection.py
     """
 
     @abstractmethod
@@ -45,6 +45,5 @@ class Connection(ABC):
             Acceleration vector in the given state.
         """
         gamma = self.christoffels(position)
-        # TODO: check that the following works
         acceleration = np.einsum("ijk,j,k->i", gamma, velocity, -velocity)
         return acceleration
