@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from latent_geometry.manifold.latent import LatentManifold
-from latent_geometry.mapping.sphere_immersion import SphereImmersion
-from latent_geometry.metric.euclidean import EuclideanMetric
+from latent_geometry.manifold import LatentManifold
+from latent_geometry.mapping import SphereImmersion
+from latent_geometry.metric import EuclideanMetric
 
 
 @pytest.fixture

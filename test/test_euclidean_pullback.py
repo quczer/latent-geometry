@@ -1,9 +1,8 @@
 import numpy as np
 import pytest
 
-from latent_geometry.mapping.sphere_immersion import SphereImmersion
-from latent_geometry.mapping.torch import TorchModelMapping
-from latent_geometry.metric.euclidean import EuclideanPullbackMetric
+from latent_geometry.mapping import SphereImmersion, TorchModelMapping
+from latent_geometry.metric import EuclideanPullbackMetric
 
 
 @pytest.fixture

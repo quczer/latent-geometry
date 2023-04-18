@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from latent_geometry.solver.exponential import IVPExponentialSolver
+from latent_geometry.solver import IVPExponentialSolver
 
 
 @pytest.fixture
