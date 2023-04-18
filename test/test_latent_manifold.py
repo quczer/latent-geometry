@@ -20,8 +20,6 @@ def random_point_on_the_sphere():
 def on_the_same_big_circle(xs: list[np.ndarray]) -> bool:
     def find_plane(x1, x2, x3) -> np.ndarray:
         A = np.vstack([x1, x2, x3])
-        print(A)
-        print(x1, x2, x3)
         coefs = np.linalg.solve(A, np.zeros((3,)))
         return coefs
 
