@@ -12,11 +12,6 @@ def sphere_manifold():
     return LatentManifold(SphereImmersion(), EuclideanMetric(3))
 
 
-def random_point_on_the_sphere():
-    p = np.random.randn(3)
-    return p / np.linalg.norm(p)
-
-
 def on_the_same_big_circle(xs: list[np.ndarray]) -> bool:
     def find_plane(x1, x2, x3) -> np.ndarray:
         A = np.vstack([x1, x2, x3])
@@ -54,8 +49,11 @@ def test_exponential_mapping_on_the_sphere(
     "amb_start,amb_end",
     [
         (np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0])),
-        (random_point_on_the_sphere(), random_point_on_the_sphere()),
-        (random_point_on_the_sphere(), random_point_on_the_sphere()),
+        (np.array([1 / np.sqrt(2), 0.0, 1 / np.sqrt(2)]), np.array([1.0, 0.0, 0.0])),
+        (
+            np.array([0.0, -1.0, 0.0]),
+            np.array([1 / np.sqrt(3), -1 / np.sqrt(3), -1 / np.sqrt(3)]),
+        ),
     ],
 )
 def test_logarithm_mapping_on_the_sphere(
