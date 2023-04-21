@@ -30,6 +30,7 @@ setup(
             "ipykernel",
             "pre-commit",
             "pytest",
+            "dvc[gdrive]",
         ],
     },
 )
