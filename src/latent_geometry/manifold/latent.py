@@ -20,7 +20,16 @@ class LatentManifold(Manifold):
         return path
 
     def path_given_direction(
-        self, z: np.ndarray, velocity_vec: np.ndarray
+        self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
     ) -> SolverResultPath:
-        path = self._exp_solver.compute_path(z, velocity_vec, self.metric.acceleration)
+        velocity = self._adjust_vector_magnitude(z, velocity_vec, length)
+        path = self._exp_solver.compute_path(z, velocity, self.metric.acceleration)
         return path
+
+    def _adjust_vector_magnitude(
+        self, base_point: np.ndarray, vec: np.ndarray, length: float
+    ) -> np.ndarray:
+        pullback_length = self.metric.vector_length(
+            tangent_vec=vec, base_point=base_point
+        )
+        return vec / pullback_length * length
