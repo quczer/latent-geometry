@@ -4,7 +4,7 @@ from typing import Callable, Final, Optional
 import numpy as np
 
 
-class Path:
+class SolverResultPath:
     """Time parametrized path.
 
     Attributes
@@ -63,7 +63,7 @@ class Path:
         """
 
         if n_points is None:
-            n_points = Path._N_PATH_POINTS
+            n_points = SolverResultPath._N_PATH_POINTS
 
         xs, vs, accs = [], [], []
         for t in np.linspace(0.0, 1.0, n_points):
@@ -74,13 +74,13 @@ class Path:
 
     @property
     def length(self) -> float:
-        return Path._integrate_length(self.velocity)
+        return SolverResultPath._integrate_length(self.velocity)
 
     @staticmethod
     @cache
     def _integrate_length(v_fun: Callable[[float], np.ndarray]) -> float:
         len_ = 0.0
-        dt = 1.0 / Path._INTEGRATE_INTERVALS
-        for t in np.linspace(0.0, 1.0, Path._INTEGRATE_INTERVALS):
+        dt = 1.0 / SolverResultPath._INTEGRATE_INTERVALS
+        for t in np.linspace(0.0, 1.0, SolverResultPath._INTEGRATE_INTERVALS):
             len_ += float(np.linalg.norm(v_fun(t))) * dt
         return len_

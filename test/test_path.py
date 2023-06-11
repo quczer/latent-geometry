@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from latent_geometry.path import Path
+from latent_geometry.path import SolverResultPath
 
 
 @pytest.mark.parametrize(
@@ -23,5 +23,5 @@ def test_integration_on_the_circle(theta):
             * theta**2
         )
 
-    path = Path(x_fun, v_fun, a_fun)
+    path = SolverResultPath(x_fun, v_fun, a_fun)
     assert np.isclose(path.length, theta)

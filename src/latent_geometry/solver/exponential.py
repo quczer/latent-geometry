@@ -3,7 +3,7 @@ from typing import Callable, Literal
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from latent_geometry.path import Path
+from latent_geometry.path import SolverResultPath
 from latent_geometry.solver.abstract import ExponentialSolver, SolverFailedException
 
 
@@ -19,7 +19,7 @@ class IVPExponentialSolver(ExponentialSolver):
         position: np.ndarray,
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         try:
             result = self._solve(position, velocity, acceleration_fun)
             if result.success:
@@ -79,7 +79,7 @@ class IVPExponentialSolver(ExponentialSolver):
     def _create_path(
         ode_solution: Callable[[float], np.ndarray],
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         def x_fun(t: float) -> np.ndarray:
             x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
             return x
@@ -92,7 +92,7 @@ class IVPExponentialSolver(ExponentialSolver):
             x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
             return acceleration_fun(x, v)
 
-        return Path(x_fun, v_fun, a_fun)
+        return SolverResultPath(x_fun, v_fun, a_fun)
 
     @staticmethod
     def _pack_state(

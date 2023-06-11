@@ -3,7 +3,7 @@ from typing import Callable, Iterable
 import numpy as np
 from scipy.integrate import solve_bvp
 
-from latent_geometry.path import Path
+from latent_geometry.path import SolverResultPath
 from latent_geometry.solver.abstract import LogarithmSolver, SolverFailedException
 
 
@@ -17,7 +17,7 @@ class BVPLogarithmSolver(LogarithmSolver):
         start_position: np.ndarray,
         finish_position: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         try:
             result = self._solve(start_position, finish_position, acceleration_fun)
             if result.success:
@@ -122,7 +122,7 @@ class BVPLogarithmSolver(LogarithmSolver):
     def _create_path(
         ode_solution: Callable[[float], np.ndarray],
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         def x_fun(t: float) -> np.ndarray:
             x, v = BVPLogarithmSolver._unpack_state(ode_solution(t))
             return x
@@ -135,7 +135,7 @@ class BVPLogarithmSolver(LogarithmSolver):
             x, v = BVPLogarithmSolver._unpack_state(ode_solution(t))
             return acceleration_fun(x, v)
 
-        return Path(x_fun, v_fun, a_fun)
+        return SolverResultPath(x_fun, v_fun, a_fun)
 
     @staticmethod
     def _pack_state(
