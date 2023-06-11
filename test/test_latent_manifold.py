@@ -1,8 +1,11 @@
 import numpy as np
 import pytest
+import torch
+from torch import nn
 
 from latent_geometry.manifold import LatentManifold
 from latent_geometry.mapping import SphereImmersion
+from latent_geometry.mapping.torch import TorchModelMapping
 from latent_geometry.metric import EuclideanMetric
 
 
@@ -10,6 +13,19 @@ from latent_geometry.metric import EuclideanMetric
 def sphere_manifold():
     """Returns a manifold from sphere immersion with euclidean ambient metric."""
     return LatentManifold(SphereImmersion(), EuclideanMetric(3))
+
+
+@pytest.fixture
+def hilly_2d_manifold():
+    class Hilly2dNet(nn.Module):
+        def forward(self, in_):
+            x, y = in_
+            z = torch.max(torch.sin(x) + torch.cos(y), torch.tensor(0))
+            return torch.stack([x, y, z])
+
+    return LatentManifold(
+        TorchModelMapping(Hilly2dNet(), (2,), (3,)), EuclideanMetric(3)
+    )
 
 
 def on_the_same_big_circle(xs: list[np.ndarray]) -> bool:
@@ -66,3 +82,22 @@ def test_logarithm_mapping_on_the_sphere(
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [sphere_immersion(z) for z in zs]
     assert on_the_same_big_circle(xs)
+
+
+@pytest.mark.parametrize(
+    "base_point,theta,vector_length",
+    [
+        (np.array([1, 0]), 1.0, 2),
+        (np.array([-1, 0]), 1.0, 1),
+        (np.array([1, -2]), -1.0, 3),
+        (np.array([1, -2]), 0.0, 0.2),
+    ],
+)
+def test_exponential_mapping_on_hilly_2d_graph(
+    base_point, theta, vector_length, hilly_2d_manifold: LatentManifold
+):
+    direction = np.array([np.cos(theta), np.sin(theta)])
+    path = hilly_2d_manifold.path_given_direction(base_point, direction, vector_length)
+    assert np.allclose(path(0.0), base_point)
+    assert np.isclose(path.manifold_length, vector_length, rtol=0.001)
+    assert path.euclidean_length <= path.manifold_length
