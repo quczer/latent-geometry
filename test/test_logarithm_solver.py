@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from latent_geometry.solver.logarithm import BVPLogarithmSolver
+from latent_geometry.solver import BVPLogarithmSolver
 
 
 @pytest.fixture

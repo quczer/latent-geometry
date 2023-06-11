@@ -3,7 +3,7 @@ from typing import Callable
 
 import numpy as np
 
-from latent_geometry.path import Path
+from latent_geometry.path import SolverResultPath
 
 
 class SolverFailedException(Exception):
@@ -12,12 +12,12 @@ class SolverFailedException(Exception):
 
 class ExponentialSolver(ABC):
     @abstractmethod
-    def mark_path(
+    def compute_path(
         self,
         position: np.ndarray,
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         """Compute the path given starting position and velocity, following
         the acceleration.
 
@@ -51,7 +51,7 @@ class LogarithmSolver(ABC):
         start_position: np.ndarray,
         finish_position: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         """Compute the path given starting position and finishing position,
         following the acceleration.
 

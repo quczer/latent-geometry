@@ -3,11 +3,13 @@ from typing import Callable, Iterable
 import numpy as np
 from scipy.integrate import solve_bvp
 
-from latent_geometry.path import Path
+from latent_geometry.path import SolverResultPath
 from latent_geometry.solver.abstract import LogarithmSolver, SolverFailedException
 
 
 class BVPLogarithmSolver(LogarithmSolver):
+    MAX_SCIPY_NODES = 10_000
+
     def __init__(self, n_mesh_nodes: int = 2):
         assert n_mesh_nodes >= 2
         self.n_mesh_nodes = n_mesh_nodes
@@ -17,12 +19,15 @@ class BVPLogarithmSolver(LogarithmSolver):
         start_position: np.ndarray,
         finish_position: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
-        result = self._solve(start_position, finish_position, acceleration_fun)
-        if result.success:
-            return self._create_path(result.sol, acceleration_fun)
-        else:
-            raise SolverFailedException(result.message)
+    ) -> SolverResultPath:
+        try:
+            result = self._solve(start_position, finish_position, acceleration_fun)
+            if result.success:
+                return self._create_path(result.sol, acceleration_fun)
+            else:
+                raise SolverFailedException(result.message)
+        except Exception as e:
+            raise SolverFailedException(e)
 
     def _solve(
         self,
@@ -67,15 +72,23 @@ class BVPLogarithmSolver(LogarithmSolver):
         k - some number of mesh nodes the solver desires to evaluate in.
         """
         t_span = np.linspace(0.0, 1.0, self.n_mesh_nodes)
-        y = self._create_y(start_position, finish_position)
+        points_on_initial_curve = self._create_initial_guess(
+            start_position, finish_position
+        )
         fun = self._create_fun(acceleration_fun)
         bc = self._create_boundary_condition(start_position, finish_position)
-        return solve_bvp(fun, bc, x=t_span, y=y, max_nodes=10_000)
+        return solve_bvp(
+            fun,
+            bc=bc,
+            x=t_span,
+            y=points_on_initial_curve,
+            max_nodes=BVPLogarithmSolver.MAX_SCIPY_NODES,
+        )
 
-    def _create_y(
+    def _create_initial_guess(
         self, start_position: np.ndarray, finish_position: np.ndarray
     ) -> np.ndarray:
-        """Try to help the solver and propose linear path as the initial guess."""
+        """Try to help the solver and propose points along linear path as the initial guess."""
 
         translation = finish_position - start_position
         ys = []
@@ -119,7 +132,7 @@ class BVPLogarithmSolver(LogarithmSolver):
     def _create_path(
         ode_solution: Callable[[float], np.ndarray],
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         def x_fun(t: float) -> np.ndarray:
             x, v = BVPLogarithmSolver._unpack_state(ode_solution(t))
             return x
@@ -132,7 +145,7 @@ class BVPLogarithmSolver(LogarithmSolver):
             x, v = BVPLogarithmSolver._unpack_state(ode_solution(t))
             return acceleration_fun(x, v)
 
-        return Path(x_fun, v_fun, a_fun)
+        return SolverResultPath(x_fun, v_fun, a_fun)
 
     @staticmethod
     def _pack_state(

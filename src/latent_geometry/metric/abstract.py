@@ -48,6 +48,23 @@ class Metric(ABC):
         inner_prod = np.inner(tangent_vec_a, inner_prod_matrix @ tangent_vec_b)
         return inner_prod
 
+    def vector_length(self, tangent_vec: np.ndarray, base_point: np.ndarray) -> float:
+        """Length of a tangent vector at a base point.
+
+        Parameters
+        ----------
+        tangent_vec : (D,) ndarray
+            Tangent vector at a base point.
+        base_point : (D,) ndarray
+            Base point on the manifold.
+
+        Returns
+        -------
+        float
+            Length of the vector.
+        """
+        return np.sqrt(self.inner_product(tangent_vec, tangent_vec, base_point))
+
 
 class PullbackMetric(Connection, Metric, ABC):
     @property

@@ -54,3 +54,13 @@ class Mapping(ABC):
 
             :math: `H_{ijk} = \partial_{jk} g_i`.
         """
+
+    @property
+    @abstractmethod
+    def in_dim(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def out_dim(self) -> int:
+        ...

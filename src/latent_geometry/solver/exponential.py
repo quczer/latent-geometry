@@ -3,7 +3,7 @@ from typing import Callable, Literal
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from latent_geometry.path import Path
+from latent_geometry.path import SolverResultPath
 from latent_geometry.solver.abstract import ExponentialSolver, SolverFailedException
 
 
@@ -14,17 +14,20 @@ class IVPExponentialSolver(ExponentialSolver):
     ):
         self.method = method
 
-    def mark_path(
+    def compute_path(
         self,
         position: np.ndarray,
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
-        result = self._solve(position, velocity, acceleration_fun)
-        if result.success:
-            return self._create_path(result.sol, acceleration_fun)
-        else:
-            raise SolverFailedException(result.message)
+    ) -> SolverResultPath:
+        try:
+            result = self._solve(position, velocity, acceleration_fun)
+            if result.success:
+                return self._create_path(result.sol, acceleration_fun)
+            else:
+                raise SolverFailedException(result.message)
+        except Exception as e:
+            raise SolverFailedException(e)
 
     def _solve(
         self,
@@ -56,16 +59,18 @@ class IVPExponentialSolver(ExponentialSolver):
         ```
         """
         t_span = (0.0, 1.0)
-        y0 = self._pack_state(position, velocity)
-        fun = self._create_fun(acceleration_fun)
-        return solve_ivp(fun, t_span, y0, method=self.method, dense_output=True)
+        initial_state = self._pack_state(position, velocity)
+        fun = self._create_solver_fun(acceleration_fun)
+        return solve_ivp(
+            fun, t_span, initial_state, method=self.method, dense_output=True
+        )
 
     @staticmethod
-    def _create_fun(
+    def _create_solver_fun(
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
-        def fun(t: float, y: np.ndarray) -> np.ndarray:
-            x, v = IVPExponentialSolver._unpack_state(y)
+        def fun(t: float, state: np.ndarray) -> np.ndarray:
+            x, v = IVPExponentialSolver._unpack_state(state)
             a = acceleration_fun(x, v)
             y_prime = IVPExponentialSolver._pack_state(v, a)
             return y_prime
@@ -76,7 +81,7 @@ class IVPExponentialSolver(ExponentialSolver):
     def _create_path(
         ode_solution: Callable[[float], np.ndarray],
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
-    ) -> Path:
+    ) -> SolverResultPath:
         def x_fun(t: float) -> np.ndarray:
             x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
             return x
@@ -89,7 +94,7 @@ class IVPExponentialSolver(ExponentialSolver):
             x, v = IVPExponentialSolver._unpack_state(ode_solution(t))
             return acceleration_fun(x, v)
 
-        return Path(x_fun, v_fun, a_fun)
+        return SolverResultPath(x_fun, v_fun, a_fun)
 
     @staticmethod
     def _pack_state(

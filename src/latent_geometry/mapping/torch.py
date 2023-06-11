@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -7,9 +9,10 @@ from latent_geometry.mapping.abstract import Mapping
 
 
 class TorchModelMapping(Mapping):
-    def __init__(self, model: nn.Module, in_shape: tuple[int]):
+    def __init__(self, model: nn.Module, in_shape: tuple[int], out_shape: tuple[int]):
         self.model = model
         self.in_shape = in_shape
+        self.out_shape = out_shape
 
     def __call__(self, z: np.ndarray) -> np.ndarray:
         z_torch = self._to_torch(z)
@@ -32,6 +35,14 @@ class TorchModelMapping(Mapping):
         in_ = x.reshape(self.in_shape)
         out_ = self.model(in_)
         return out_.reshape(-1)
+
+    @property
+    def in_dim(self) -> int:
+        return math.prod(self.in_shape)
+
+    @property
+    def out_dim(self) -> int:
+        return math.prod(self.out_shape)
 
     @staticmethod
     def _to_torch(x: np.ndarray) -> torch.Tensor:

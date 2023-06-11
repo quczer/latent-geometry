@@ -11,6 +11,14 @@ class SphereImmersion(Mapping):
     def __call__(self, z: np.ndarray) -> np.ndarray:
         return self.immerse(torch.tensor(z)).detach().numpy()
 
+    @staticmethod
+    def inv(vec: np.ndarray) -> np.ndarray:
+        """Inverse of __call__; (x, y, z) -> (phi, theta)."""
+        x, y, z = vec
+        theta = np.arccos(z)
+        phi = np.arccos(x / np.sin(theta))
+        return np.array([phi, theta])
+
     def immerse(self, z: torch.Tensor) -> torch.Tensor:
         phi, theta = z
         return torch.stack(
@@ -39,3 +47,11 @@ class SphereImmersion(Mapping):
 
         matrix_derivative = jacrev(metric_matrix)(z_tensor)
         return matrix_derivative.numpy()
+
+    @property
+    def in_dim(self) -> int:
+        return 2
+
+    @property
+    def out_dim(self) -> int:
+        return 3

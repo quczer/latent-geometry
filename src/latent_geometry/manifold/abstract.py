@@ -6,7 +6,7 @@ import numpy as np
 
 class Manifold(ABC):
     @abstractmethod
-    def compute_geodesic(
+    def geodesic(
         self, z_a: np.ndarray, z_b: np.ndarray
     ) -> Callable[[float], np.ndarray]:
         """Compute the geodesic from `z_a` to `z_b`.
@@ -31,19 +31,19 @@ class Manifold(ABC):
         """
 
     @abstractmethod
-    def compute_path_given_direction(
-        self, z: np.ndarray, velocity_vec: np.ndarray
+    def path_given_direction(
+        self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
     ) -> Callable[[float], np.ndarray]:
         """Compute the path on the manifold starting from `z`
         and following the direction `velocity_vec`.
-        Magnitude of `velocity_vec` will affect path's parametrization.
 
         Parameters
         ----------
         z : (D,) ndarray
-            Start point on the manifold.
+            Starting point on the manifold.
         velocity_vec : (D,) ndarray
-            Start velocity at point z.
+            Starting velocity direction at point z.
+        length: float, default: 1.0
 
         Returns
         -------

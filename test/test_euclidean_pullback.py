@@ -1,9 +1,8 @@
 import numpy as np
 import pytest
 
-from latent_geometry.mapping.sphere_immersion import SphereImmersion
-from latent_geometry.mapping.torch import TorchModelMapping
-from latent_geometry.metric.euclidean import EuclideanPullbackMetric
+from latent_geometry.mapping import SphereImmersion, TorchModelMapping
+from latent_geometry.metric import EuclideanPullbackMetric
 
 
 @pytest.fixture
@@ -32,7 +31,7 @@ def simple_net():
     return Net()
 
 
-def random_vector():
+def random_16d_vector():
     """Returns random 16-vector (np.ndarray)"""
     return np.random.rand(16)
 
@@ -47,7 +46,7 @@ def random_vector():
 )
 def test_metric_matrix_derivative_on_sphere_immersion(z):
     sphere_immersion = SphereImmersion()
-    metric = EuclideanPullbackMetric(3, sphere_immersion)
+    metric = EuclideanPullbackMetric(sphere_immersion)
 
     DM_gt = sphere_immersion.metric_matrix_derivative(z)
     DM_computed = metric.metric_matrix_derivative(z)
@@ -58,12 +57,14 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
     "z",
     [
         np.arange(16),
-        random_vector(),
-        random_vector(),
+        random_16d_vector(),
+        random_16d_vector(),
     ],
 )
 def test_metric_matrix_on_torch_model(simple_net, z):
-    metric = EuclideanPullbackMetric(128, TorchModelMapping(simple_net, (1, 1, 4, 4)))
+    metric = EuclideanPullbackMetric(
+        TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
+    )
     J = metric.mapping.jacobian(z)
     M = metric.metric_matrix(z)
 
@@ -74,15 +75,15 @@ def test_metric_matrix_on_torch_model(simple_net, z):
     "z",
     [
         np.arange(16),
-        random_vector(),
+        random_16d_vector(),
     ],
 )
 def test_metric_matrix_derivative_on_torch_model(simple_net, z):
     import torch
     from torch.func import jacfwd, jacrev
 
-    torch_mapping = TorchModelMapping(simple_net, (1, 1, 4, 4))
-    metric = EuclideanPullbackMetric(128, torch_mapping)
+    torch_mapping = TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
+    metric = EuclideanPullbackMetric(torch_mapping)
 
     def compute_metric_matrix_torch(z_torch):
         J = jacrev(torch_mapping._call_flat_model)(z_torch)
