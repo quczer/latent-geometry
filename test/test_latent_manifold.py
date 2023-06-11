@@ -40,7 +40,7 @@ def test_exponential_mapping_on_the_sphere(
 
     z = np.array([theta, phi])
     path = sphere_manifold.path_given_direction(z, vec)
-    zs, _, _ = path.get_moments()
+    zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [sphere_immersion(z) for z in zs]
     assert on_the_same_big_circle(xs)
 
@@ -63,6 +63,6 @@ def test_logarithm_mapping_on_the_sphere(
 
     z_start, z_end = sphere_immersion.inv(amb_start), SphereImmersion.inv(amb_end)
     path = sphere_manifold.geodesic(z_start, z_end)
-    zs, _, _ = path.get_moments()
+    zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [sphere_immersion(z) for z in zs]
     assert on_the_same_big_circle(xs)

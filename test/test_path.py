@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from latent_geometry.path import SolverResultPath
+from latent_geometry.metric.euclidean import EuclideanMetric
+from latent_geometry.path import ManifoldPath
 
 
 @pytest.mark.parametrize(
@@ -23,5 +24,7 @@ def test_integration_on_the_circle(theta):
             * theta**2
         )
 
-    path = SolverResultPath(x_fun, v_fun, a_fun)
-    assert np.isclose(path.length, theta)
+    metric = EuclideanMetric(2)
+    path = ManifoldPath(x_fun, v_fun, metric, metric)
+    assert np.isclose(path.euclidean_length, theta)
+    assert np.isclose(path.manifold_length, theta)

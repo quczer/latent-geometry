@@ -1,17 +1,21 @@
 from functools import cache
-from typing import Callable, Final, Optional
+from typing import Callable, Final
 
 import numpy as np
 
+from latent_geometry.metric import Metric
 
-class SolverResultPath:
+
+class ManifoldPath:
     """Time parametrized path.
 
     Attributes
     ----------
-    length : float
-        The length of the path. It is the integral
-        of velocity over [0, 1] time interval.
+    euclidean_length : float
+        The length of the path wrt. euclidean latent metric.
+
+    manifold_length : float
+        The length of the path wrt. the metric of the manifold.
 
     Methods
     -------
@@ -30,17 +34,18 @@ class SolverResultPath:
     """
 
     _INTEGRATE_INTERVALS = 100
-    _N_PATH_POINTS = 30
 
     def __init__(
         self,
         x_fun: Callable[[float], np.ndarray],
         v_fun: Callable[[float], np.ndarray],
-        a_fun: Callable[[float], np.ndarray],
+        manifold_metric: Metric,
+        euclidean_metric: Metric,
     ):
         self._x_fun: Final = x_fun
         self._v_fun: Final = v_fun
-        self._a_fun: Final = a_fun
+        self._manifold_metric = manifold_metric
+        self._euclidean_metric = euclidean_metric
 
     def __call__(self, t: float) -> np.ndarray:
         return self._x_fun(t)
@@ -48,39 +53,20 @@ class SolverResultPath:
     def velocity(self, t: float) -> np.ndarray:
         return self._v_fun(t)
 
-    def acceleration(self, t: float) -> np.ndarray:
-        return self._a_fun(t)
-
-    def get_moments(
-        self, n_points: Optional[int] = None
-    ) -> tuple[list[np.ndarray], list[np.ndarray], list[np.ndarray]]:
-        """Compute position, velocity and acceleration on `n_points`
-        evenly distributed (wrt. time) points of the path.
-
-        Parameters
-        ----------
-        n_points : int, optional
-        """
-
-        if n_points is None:
-            n_points = SolverResultPath._N_PATH_POINTS
-
-        xs, vs, accs = [], [], []
-        for t in np.linspace(0.0, 1.0, n_points):
-            xs.append(self(t))
-            vs.append(self.velocity(t))
-            accs.append(self.acceleration(t))
-        return xs, vs, accs
+    @property
+    def euclidean_length(self) -> float:
+        return self._integrate_length(self._euclidean_metric)
 
     @property
-    def length(self) -> float:
-        return SolverResultPath._integrate_length(self.velocity)
+    def manifold_length(self) -> float:
+        return self._integrate_length(self._manifold_metric)
 
-    @staticmethod
     @cache
-    def _integrate_length(v_fun: Callable[[float], np.ndarray]) -> float:
+    def _integrate_length(self, metric: Metric) -> float:
         len_ = 0.0
-        dt = 1.0 / SolverResultPath._INTEGRATE_INTERVALS
-        for t in np.linspace(0.0, 1.0, SolverResultPath._INTEGRATE_INTERVALS):
-            len_ += float(np.linalg.norm(v_fun(t))) * dt
+        dt = 1.0 / ManifoldPath._INTEGRATE_INTERVALS
+        for t in np.linspace(0.0, 1.0, ManifoldPath._INTEGRATE_INTERVALS):
+            x = self(t)
+            v = self.velocity(t)
+            len_ += metric.vector_length(v, x) * dt
         return len_
