@@ -3,7 +3,7 @@ from typing import Callable
 
 import numpy as np
 
-from latent_geometry.path import SolverResultPath
+from latent_geometry.solver.result import SolverResultPath
 
 
 class SolverFailedException(Exception):
