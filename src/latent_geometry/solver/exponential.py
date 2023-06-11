@@ -59,16 +59,18 @@ class IVPExponentialSolver(ExponentialSolver):
         ```
         """
         t_span = (0.0, 1.0)
-        y0 = self._pack_state(position, velocity)
-        fun = self._create_fun(acceleration_fun)
-        return solve_ivp(fun, t_span, y0, method=self.method, dense_output=True)
+        initial_state = self._pack_state(position, velocity)
+        fun = self._create_solver_fun(acceleration_fun)
+        return solve_ivp(
+            fun, t_span, initial_state, method=self.method, dense_output=True
+        )
 
     @staticmethod
-    def _create_fun(
+    def _create_solver_fun(
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
-        def fun(t: float, y: np.ndarray) -> np.ndarray:
-            x, v = IVPExponentialSolver._unpack_state(y)
+        def fun(t: float, state: np.ndarray) -> np.ndarray:
+            x, v = IVPExponentialSolver._unpack_state(state)
             a = acceleration_fun(x, v)
             y_prime = IVPExponentialSolver._pack_state(v, a)
             return y_prime
