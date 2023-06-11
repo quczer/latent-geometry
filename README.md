@@ -42,3 +42,20 @@ pre-commit install
 ```console
 mypy src
 ```
+# Data
+Tu pull data and saved models simply run
+```console
+dvc pull
+```
+
+If you are a developer (with proper access) and want to share changes in data run either
+```console
+dvc add data
+```
+or
+```console
+dvc add models
+```
+and then commit changes using `git`.
+
+For more details please visit https://dvc.org/doc/start/data-management/data-versioning.

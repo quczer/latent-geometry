@@ -16,7 +16,6 @@ setup(
     packages=find_packages("src"),
     package_dir={"": "src"},
     install_requires=[
-        # "geomstats[backends] @ git+https://github.com/geomstats/geomstats@master",
         "torch>=2.0.0",
         "numpy>=1.24.2",
         "scipy>=1.10.1",
@@ -33,6 +32,7 @@ setup(
             "pre-commit",
             "pytest",
             "matplotlib",
+            "dvc[gdrive]",
         ],
     },
 )
