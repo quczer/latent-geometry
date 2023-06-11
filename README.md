@@ -38,6 +38,10 @@ pre-commit install
     pytest test/test_something.py::test_function
     ```
 
+- type checking (using `mypy`):
+```console
+mypy src
+```
 # Data
 Tu pull data and saved models simply run
 ```console

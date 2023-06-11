@@ -1,4 +1,4 @@
-name: Run pytest
+name: tests
 
 on: [pull_request]
 
@@ -20,3 +20,6 @@ jobs:
     - name: Run pytest
       run: |
         pytest
+    - name: Run mypy
+      run: |
+        mypy src

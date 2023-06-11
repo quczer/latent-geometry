@@ -18,10 +18,11 @@ setup(
     install_requires=[
         "torch>=2.0.0",
         "numpy>=1.24.2",
+        "scipy>=1.10.1",
     ],
     python_requires=">=3.9",
     extras_require={
-        "test": ["pytest"],
+        "test": ["pytest", "mypy"],
         "dev": [
             "black[jupyter]",
             "flake8",
@@ -30,6 +31,7 @@ setup(
             "ipykernel",
             "pre-commit",
             "pytest",
+            "matplotlib",
             "dvc[gdrive]",
         ],
     },

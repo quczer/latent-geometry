@@ -30,7 +30,7 @@ class Connection(ABC):
         """
 
     def acceleration(self, position: np.ndarray, velocity: np.ndarray) -> np.ndarray:
-        """Compute the geodesic ODE associated with the connection.
+        """Compute the acceleration vector given position and velocity.
 
         Parameters
         ----------
@@ -42,53 +42,9 @@ class Connection(ABC):
         Returns
         -------
         acceleration : (D,) ndarray
-            Acceleration in the given state.
+            Acceleration vector in the given state.
         """
-        raise NotImplementedError  # TODO
-
-    def exponential_map(
-        self, tangent_vec: np.ndarray, base_point: np.ndarray
-    ) -> np.ndarray:
-        """Exponential map associated with the affine connection.
-
-        Exponential map at base_point of tangent_vec computed by integration
-        of the geodesic equation (initial value problem), using
-        Christoffel symbols.
-
-        Parameters
-        ----------
-        tangent_vec : (D,) ndarray
-            Tangent vector at the base point.
-        base_point : (D,) ndarray
-            Point on the manifold.
-
-        Returns
-        -------
-        end_point : (D,) ndarray
-            Point on the manifold.
-        """
-        raise NotImplementedError  # TODO
-
-    def logarithm_map(
-        self,
-        end_point: np.ndarray,
-        base_point: np.ndarray,
-    ) -> np.ndarray:
-        """Logarithm map associated with the affine connection.
-
-        Solve the boundary value problem associated with the geodesic equation
-        using Christoffel symbols.
-
-        Parameters
-        ----------
-        end_point : (D,) ndarray
-            Point on the manifold.
-        base_point : (D,) ndarray
-            Point on the manifold.
-
-        Returns
-        -------
-        tangent_vec : (D,) ndarray
-            Tangent vector at the base point.
-        """
-        raise NotImplementedError  # TODO
+        gamma = self.christoffels(position)
+        # TODO: check that the following works
+        acceleration = np.einsum("ijk,j,k->i", gamma, velocity, -velocity)
+        return acceleration
