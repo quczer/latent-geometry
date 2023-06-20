@@ -61,7 +61,6 @@ class ManifoldPath:
     def manifold_length(self) -> float:
         return self._integrate_length(self._manifold_metric)
 
-    @cache
     def _integrate_length(self, metric: Metric) -> float:
         len_ = 0.0
         dt = 1.0 / ManifoldPath._INTEGRATE_INTERVALS
