@@ -1,4 +1,4 @@
-from typing import Callable, Literal, tuple
+from typing import Callable, Literal, Tuple
 
 import numpy as np
 from scipy.integrate import solve_ivp
