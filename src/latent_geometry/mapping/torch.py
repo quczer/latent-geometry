@@ -44,10 +44,12 @@ class TorchModelMapping(Mapping):
     def out_dim(self) -> int:
         return math.prod(self.out_shape)
 
-    @staticmethod
-    def _to_torch(x: np.ndarray) -> torch.Tensor:
-        return torch.tensor(x).float()
+    def _to_torch(self, x: np.ndarray) -> torch.Tensor:
+        return torch.tensor(x).to(self._get_model_device()).float()
 
     @staticmethod
     def _to_numpy(x_tensor: torch.Tensor) -> np.ndarray:
-        return x_tensor.detach().numpy()
+        return x_tensor.detach().cpu().numpy()
+
+    def _get_model_device(self):
+        return next(self.model.parameters()).device
