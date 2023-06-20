@@ -39,3 +39,16 @@ def get_circles(
         circle = partial(eval_circle, tck=tck)
         circles.append(circle)
     return circles
+
+
+def get_geodesics(
+    centers_1: np.ndarray,
+    centers_2: np.ndarray,
+    manifold: Manifold,
+) -> list[Callable[[float], np.ndarray]]:
+    lines = []
+    for (center_1, center_2) in \
+            zip(centers_1, centers_2):
+        path = manifold.geodesic(center_1, center_2)
+        lines.append(path)
+    return lines
