@@ -47,8 +47,7 @@ def get_geodesics(
     manifold: Manifold,
 ) -> list[Callable[[float], np.ndarray]]:
     lines = []
-    for (center_1, center_2) in \
-            zip(centers_1, centers_2):
+    for center_1, center_2 in zip(centers_1, centers_2):
         path = manifold.geodesic(center_1, center_2)
         lines.append(path)
     return lines
