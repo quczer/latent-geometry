@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List
 
 import numpy as np
 import plotly.graph_objects as go
@@ -54,8 +54,8 @@ def create_topology_fig(
 
 
 def create_topology_fig_geodesics(
-    centers1: list[np.ndarray],
-    centers2: list[np.ndarray],
+    centers1: List[np.ndarray],
+    centers2: List[np.ndarray],
     manifold: Manifold,
     background_trace: go.Scatter,
 ) -> go.Figure:

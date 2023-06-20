@@ -1,4 +1,5 @@
 import math
+from typing import Tuple
 
 import numpy as np
 import torch
@@ -9,7 +10,7 @@ from latent_geometry.mapping.abstract import Mapping
 
 
 class TorchModelMapping(Mapping):
-    def __init__(self, model: nn.Module, in_shape: tuple[int], out_shape: tuple[int]):
+    def __init__(self, model: nn.Module, in_shape: Tuple[int], out_shape: Tuple[int]):
         self.model = model
         self.in_shape = in_shape
         self.out_shape = out_shape

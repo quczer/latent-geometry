@@ -1,4 +1,4 @@
-from typing import Callable, Literal
+from typing import Callable, Literal, tuple
 
 import numpy as np
 from scipy.integrate import solve_ivp
@@ -113,6 +113,6 @@ class IVPExponentialSolver(ExponentialSolver):
     @staticmethod
     def _unpack_state(
         state: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         x, v = np.split(state, 2)
         return x, v
