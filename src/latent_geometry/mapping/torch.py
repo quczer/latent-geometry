@@ -51,5 +51,5 @@ class TorchModelMapping(Mapping):
     def _to_numpy(x_tensor: torch.Tensor) -> np.ndarray:
         return x_tensor.detach().cpu().numpy()
 
-    def _get_model_device(self):
+    def _get_model_device(self) -> torch.device:
         return next(self.model.parameters()).device
