@@ -54,26 +54,13 @@ def create_topology_fig(
 
 
 def create_topology_fig_geodesics(
-    centers_1: np.ndarray,
-    centers_2,
+    centers1: list[np.ndarray],
+    centers2: list[np.ndarray],
     manifold: Manifold,
     background_trace: go.Scatter,
-    # num_lines: int,
-    # num_circles: int,
-    # line_length: float = 2.5,
-    # show_lines: bool = True,
-    # show_circles: bool = True,
 ) -> go.Figure:
-    geodesics = get_geodesics(centers_1, centers_2, manifold)
-    # lines = get_lines(center, num_lines, manifold, length=line_length)
-    # circles = get_circles(lines, num_circles)
-
+    geodesics = get_geodesics(centers1, centers2, manifold)
     traces = [background_trace]
-    # if show_lines:
-    #     traces.extend([create_scatter_object_given_path(line) for line in lines])
-    # if show_circles:
-    #     traces.extend([create_scatter_object_given_path(circle) for circle in circles])
-
     traces.extend(
         [create_scatter_object_given_path(geodesic) for geodesic in geodesics]
     )

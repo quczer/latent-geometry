@@ -42,12 +42,12 @@ def get_circles(
 
 
 def get_geodesics(
-    centers_1: np.ndarray,
-    centers_2: np.ndarray,
+    centers1: list[np.ndarray],
+    centers2: list[np.ndarray],
     manifold: Manifold,
 ) -> list[Callable[[float], np.ndarray]]:
     lines = []
-    for center_1, center_2 in zip(centers_1, centers_2):
+    for center_1, center_2 in zip(centers1, centers2):
         path = manifold.geodesic(center_1, center_2)
         lines.append(path)
     return lines
