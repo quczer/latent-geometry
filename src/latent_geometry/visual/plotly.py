@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 from latent_geometry.manifold import Manifold
+from latent_geometry.path import ManifoldPath
 from latent_geometry.visual.calc import get_circles, get_geodesics, get_lines
 from latent_geometry.visual.config import (
     FIGURE_HEIGHT,
@@ -14,7 +15,7 @@ from latent_geometry.visual.config import (
 
 
 def create_scatter_object_given_path(
-    path: Callable[[float], np.ndarray], n_points: int = 30
+    path: Callable[[float], np.ndarray], n_points: int = 30, color: str = "black"
 ) -> go.Scatter:
     timestamps = np.linspace(0.0, 1.0, n_points)
     points = np.vstack([path(t) for t in timestamps])
@@ -23,7 +24,7 @@ def create_scatter_object_given_path(
         y=points[:, 1],
         mode="lines",
         name="",
-        line={"color": "black", "width": LINE_WIDTH},
+        line={"color": color, "width": LINE_WIDTH},
         opacity=LINE_OPACITY,
     )
 
@@ -41,12 +42,20 @@ def create_topology_fig(
     lines = get_lines(centre, num_lines, manifold, length=line_length)
     circles = get_circles(lines, num_circles)
 
-    traces = [background_trace]
+    paths = []
     if show_lines:
-        traces.extend([create_scatter_object_given_path(line) for line in lines])
+        paths.extend(lines)
     if show_circles:
-        traces.extend([create_scatter_object_given_path(circle) for circle in circles])
+        paths.extend(circles)
+    return draw_paths(background_trace, paths)
 
+
+def draw_paths(
+    background_trace: go.Scatter, paths: List[Callable[[float], np.ndarray]]
+) -> go.Figure:
+    traces = [background_trace] + [
+        create_scatter_object_given_path(path) for path in paths
+    ]
     fig = go.Figure(layout={"width": FIGURE_WIDTH, "height": FIGURE_HEIGHT})
     for trace in traces:
         fig.add_trace(trace)

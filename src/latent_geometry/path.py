@@ -53,19 +53,18 @@ class ManifoldPath:
     def velocity(self, t: float) -> np.ndarray:
         return self._v_fun(t)
 
-    @property
-    def euclidean_length(self) -> float:
-        return self._integrate_length(self._euclidean_metric)
+    def euclidean_length(self, t_start: float = 0.0, t_end: float = 1.0) -> float:
+        return self._integrate_length(self._euclidean_metric, t_start, t_end)
 
-    @property
-    def manifold_length(self) -> float:
-        return self._integrate_length(self._manifold_metric)
+    def manifold_length(self, t_start: float = 0.0, t_end: float = 1.0) -> float:
+        return self._integrate_length(self._manifold_metric, t_start, t_end)
 
-    def _integrate_length(self, metric: Metric) -> float:
+    def _integrate_length(self, metric: Metric, t_start: float, t_end: float) -> float:
         len_ = 0.0
-        dt = 1.0 / ManifoldPath._INTEGRATE_INTERVALS
-        for t in np.linspace(0.0, 1.0, ManifoldPath._INTEGRATE_INTERVALS):
-            x = self(t)
-            v = self.velocity(t)
-            len_ += metric.vector_length(v, x) * dt
+        # dt = (t_end - t_start) / ManifoldPath._INTEGRATE_INTERVALS
+        ts = np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS)
+        for t1, t2 in zip(ts[:-1], ts[1:]):
+            x1, x2 = self(t1), self(t2)
+            v = x2 - x1
+            len_ += metric.vector_length(v, x1)  # * dt
         return len_
