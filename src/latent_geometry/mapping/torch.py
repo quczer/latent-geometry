@@ -53,4 +53,7 @@ class TorchModelMapping(Mapping):
         return x_tensor.detach().cpu().numpy()
 
     def _get_model_device(self) -> torch.device:
-        return next(self.model.parameters()).device
+        try:
+            return next(self.model.parameters()).device
+        except StopIteration:
+            return torch.device("cpu")

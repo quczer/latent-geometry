@@ -25,12 +25,12 @@ def create_scatter_object_given_path(
         mode="lines",
         name="",
         line={"color": color, "width": LINE_WIDTH},
-        opacity=LINE_OPACITY,
+        opacity=1,
     )
 
 
 def create_topology_fig(
-    centre: np.ndarray,
+    centres: list[np.ndarray],
     manifold: Manifold,
     background_trace: go.Scatter,
     num_lines: int,
@@ -39,22 +39,22 @@ def create_topology_fig(
     show_lines: bool = True,
     show_circles: bool = True,
 ) -> go.Figure:
-    lines = get_lines(centre, num_lines, manifold, length=line_length)
-    circles = get_circles(lines, num_circles)
 
     paths = []
-    if show_lines:
-        paths.extend(lines)
-    if show_circles:
-        paths.extend(circles)
+    for centre in centres:
+        lines = get_lines(centre, num_lines, manifold, length=line_length)
+        if show_lines:
+            paths.extend(lines)
+        if show_circles:
+            paths.extend(get_circles(lines, num_circles))
     return draw_paths(background_trace, paths)
 
 
 def draw_paths(
     background_trace: go.Scatter, paths: List[Callable[[float], np.ndarray]]
 ) -> go.Figure:
-    traces = [background_trace] + [
-        create_scatter_object_given_path(path) for path in paths
+    traces = [create_scatter_object_given_path(path) for path in paths] + [
+        background_trace
     ]
     fig = go.Figure(layout={"width": FIGURE_WIDTH, "height": FIGURE_HEIGHT})
     for trace in traces:
