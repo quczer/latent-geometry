@@ -10,9 +10,10 @@ from latent_geometry.solver.result import SolverResultPath
 class BVPLogarithmSolver(LogarithmSolver):
     MAX_SCIPY_NODES = 10_000
 
-    def __init__(self, n_mesh_nodes: int = 2):
+    def __init__(self, n_mesh_nodes: int = 2, tolerance: float = 1e-3):
         assert n_mesh_nodes >= 2
         self.n_mesh_nodes = n_mesh_nodes
+        self.tolerance = tolerance
 
     def find_path(
         self,
@@ -83,6 +84,7 @@ class BVPLogarithmSolver(LogarithmSolver):
             x=t_span,
             y=points_on_initial_curve,
             max_nodes=BVPLogarithmSolver.MAX_SCIPY_NODES,
+            tol=self.tolerance,
         )
 
     def _create_initial_guess(
