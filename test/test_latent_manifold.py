@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pytest
 import torch
@@ -28,7 +30,7 @@ def hilly_2d_manifold():
     )
 
 
-def on_the_same_big_circle(xs: list[np.ndarray]) -> bool:
+def on_the_same_big_circle(xs: List[np.ndarray]) -> bool:
     def find_plane(x1, x2, x3) -> np.ndarray:
         A = np.vstack([x1, x2, x3])
         coefs = np.linalg.solve(A, np.zeros((3,)))

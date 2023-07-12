@@ -20,7 +20,7 @@ setup(
         "numpy>=1.24.2",
         "scipy>=1.10.1",
     ],
-    python_requires=">=3.9",
+    # python_requires=">=3.9",
     extras_require={
         "test": ["pytest", "mypy"],
         "dev": [

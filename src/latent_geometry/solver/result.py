@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 
@@ -17,7 +17,7 @@ class SolverResultPath:
 
     def get_moments(
         self, n_points: Optional[int] = None
-    ) -> tuple[list[np.ndarray], list[np.ndarray], list[np.ndarray]]:
+    ) -> Tuple[List[np.ndarray], List[np.ndarray], List[np.ndarray]]:
         """Compute position, velocity and acceleration on `n_points`
         evenly distributed (wrt. time) points of the path.
 

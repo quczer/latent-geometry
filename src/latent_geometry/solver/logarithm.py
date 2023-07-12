@@ -1,4 +1,4 @@
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Tuple
 
 import numpy as np
 from scipy.integrate import solve_bvp
@@ -159,7 +159,7 @@ class BVPLogarithmSolver(LogarithmSolver):
     @staticmethod
     def _unpack_state(
         state: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> Tuple[np.ndarray, np.ndarray]:
         x, v = np.split(state, 2)
         return x, v
 
