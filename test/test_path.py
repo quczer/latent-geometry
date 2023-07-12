@@ -21,5 +21,5 @@ def test_integration_on_the_circle(theta):
 
     metric = EuclideanMetric(2)
     path = ManifoldPath(x_fun, v_fun, metric, metric)
-    assert np.isclose(path.euclidean_length, theta)
-    assert np.isclose(path.manifold_length, theta)
+    assert np.isclose(path.euclidean_length(), theta)
+    assert np.isclose(path.manifold_length(), theta)
