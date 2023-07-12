@@ -23,4 +23,4 @@ repos:
         files: ^src/
         args:
           - --convention=numpy
-          - --add-ignore=D100,D101,D102,D104,D202,D205,D400
+          - --add-ignore=D100,D101,D102,D103,D104,D202,D205,D400
