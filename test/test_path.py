@@ -11,18 +11,13 @@ from latent_geometry.path import ManifoldPath
 )
 def test_integration_on_the_circle(theta):
     def x_fun(t):
-        return np.array([np.cos(theta / (t + 1e-6)), np.sin(theta / (t + 1e-6))])
+        return np.array([np.cos(theta * t), np.sin(theta * t)])
 
     def v_fun(t):
-        return (
-            np.array([-np.sin(theta / (t + 1e-6)), np.cos(theta / (t + 1e-6))]) * theta
-        )
+        return np.array([-np.sin(theta * t), np.cos(theta * t)]) * theta
 
     def a_fun(t):
-        return (
-            np.array([-np.cos(theta / (t + 1e-6)), -np.sin(theta / (t + 1e-6))])
-            * theta**2
-        )
+        return np.array([-np.cos(theta * t), -np.sin(theta * t)]) * theta**2
 
     metric = EuclideanMetric(2)
     path = ManifoldPath(x_fun, v_fun, metric, metric)
