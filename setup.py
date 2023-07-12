@@ -4,7 +4,7 @@ setup(
     name="latent-geometry",
     version="0.0.0.dev0",
     description="Python package for latent space exploration using Riemann geometry.",
-    author="Michal Kucharczyk, Jacek Rutkowski",
+    author="Michal Kucharczyk",
     author_email="kucharczi@gmail.com",
     license="GPLv3",
     license_file="LICENSE",
