@@ -17,7 +17,7 @@ class LatentManifold(Manifold):
         self.metric = ManifoldMetric(mapping, ambient_metric)
         self._euclidean_latent_metric = EuclideanMetric(mapping.in_dim)
         self._exp_solver = IVPExponentialSolver(tolerance=solver_tol)
-        self._log_solver = BVPLogarithmSolver(tolerance=solver_tol)
+        self._log_solver = BVPLogarithmSolver(tolerance=solver_tol, n_mesh_nodes=10)
 
     def geodesic(self, z_a: np.ndarray, z_b: np.ndarray) -> ManifoldPath:
         solver_path = self._log_solver.find_path(z_a, z_b, self.metric.acceleration)
