@@ -17,14 +17,14 @@ setup(
     package_dir={"": "src"},
     install_requires=[
         "torch>=2.0.0",
-        "numpy>=1.24.2",
+        "numpy>=1.22.0",
         "scipy>=1.10.1",
     ],
     python_requires=">=3.9",
     extras_require={
         "test": ["pytest", "mypy"],
         "dev": [
-            "black[jupyter]",
+            "black[jupyter]>=23.7.0",
             "flake8",
             "isort",
             "mypy",
