@@ -24,7 +24,7 @@ setup(
     extras_require={
         "test": ["pytest", "mypy"],
         "dev": [
-            "black[jupyter]>=23.7.0",
+            "black[jupyter]~=22.3.0",
             "flake8",
             "isort",
             "mypy",
