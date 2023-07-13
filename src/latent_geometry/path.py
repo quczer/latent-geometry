@@ -55,10 +55,8 @@ class ManifoldPath:
 
     def _integrate_length(self, metric: Metric, t_start: float, t_end: float) -> float:
         len_ = 0.0
-        # dt = (t_end - t_start) / ManifoldPath._INTEGRATE_INTERVALS
-        ts = np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS)
-        for t1, t2 in zip(ts[:-1], ts[1:]):
-            x1, x2 = self(t1), self(t2)
-            v = x2 - x1
-            len_ += metric.vector_length(v, x1)  # * dt
+        dt = (t_end - t_start) / ManifoldPath._INTEGRATE_INTERVALS
+        for t in np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS):
+            x, v = self(t), self.velocity(t)
+            len_ += metric.vector_length(v, x) * dt
         return len_
