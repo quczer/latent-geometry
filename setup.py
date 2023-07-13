@@ -33,6 +33,9 @@ setup(
             "pytest",
             "matplotlib",
             "dvc[gdrive]",
+            "pandas",
+            "plotly",
+            "torchvision"
         ],
     },
 )
