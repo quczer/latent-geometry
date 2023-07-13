@@ -125,13 +125,9 @@ class DecoderVAE(nn.Module):
         return self.decode(z)
 
 
-def load_decoder() -> DecoderVAE:
-    return torch.load(
-        MODELS_DIR / "mnist" / "decoder.pt", map_location=torch.device("cpu")
-    )
+def load_decoder(device: torch.device = torch.device("cpu")) -> DecoderVAE:
+    return torch.load(MODELS_DIR / "mnist" / "decoder.pt", map_location=device)
 
 
-def load_encoder() -> EncoderVAE:
-    return torch.load(
-        MODELS_DIR / "mnist" / "encoder.pt", map_location=torch.device("cpu")
-    )
+def load_encoder(device: torch.device = torch.device("cpu")) -> EncoderVAE:
+    return torch.load(MODELS_DIR / "mnist" / "encoder.pt", map_location=device)
