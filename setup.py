@@ -35,7 +35,7 @@ setup(
             "dvc[gdrive]",
             "pandas",
             "plotly",
-            "torchvision"
+            "torchvision",
         ],
     },
 )
