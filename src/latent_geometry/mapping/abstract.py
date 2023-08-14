@@ -67,9 +67,12 @@ class DerivativeMapping(BaseMapping, ABC):
             :math: `H_{ijk} = \partial_{jk} g_i`.
         """
 
+
 class MatrixMapping(BaseMapping, ABC):
     @abstractmethod
-    def metric_matrix_derivative(self, z: np.ndarray, metric_matrix: np.ndarray) -> np.ndarray:
+    def metric_matrix_derivative(
+        self, z: np.ndarray, metric_matrix: np.ndarray
+    ) -> np.ndarray:
         r"""Compute mapping's second derivative tensor.
 
         Parameters
