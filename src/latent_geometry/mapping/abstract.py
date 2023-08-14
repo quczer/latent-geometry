@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-class Mapping(ABC):
+class BaseMapping(ABC):
     @abstractmethod
     def __call__(self, z: np.ndarray) -> np.ndarray:
         """Apply the mapping function.
@@ -37,6 +37,18 @@ class Mapping(ABC):
             :math: `J_{ij} = \partial_j g_i`.
         """
 
+    @property
+    @abstractmethod
+    def in_dim(self) -> int:
+        ...
+
+    @property
+    @abstractmethod
+    def out_dim(self) -> int:
+        ...
+
+
+class DerivativeMapping(BaseMapping, ABC):
     @abstractmethod
     def second_derivative(self, z: np.ndarray) -> np.ndarray:
         r"""Compute mapping's second derivative tensor.
@@ -55,12 +67,21 @@ class Mapping(ABC):
             :math: `H_{ijk} = \partial_{jk} g_i`.
         """
 
-    @property
+class MatrixMapping(BaseMapping, ABC):
     @abstractmethod
-    def in_dim(self) -> int:
-        ...
+    def metric_matrix_derivative(self, z: np.ndarray, metric_matrix: np.ndarray) -> np.ndarray:
+        r"""Compute mapping's second derivative tensor.
 
-    @property
-    @abstractmethod
-    def out_dim(self) -> int:
-        ...
+        Parameters
+        ----------
+        z : (D,) ndarray
+            Point from the domain - usually latent space.
+
+        Returns
+        -------
+        H : (D', D, D) ndarray
+            The second derivative of the mapping computed at z,
+            where indices of the derivation are put last.
+
+            :math: `H_{ijk} = \partial_{jk} g_i`.
+        """

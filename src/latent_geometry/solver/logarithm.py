@@ -108,7 +108,7 @@ class BVPLogarithmSolver(LogarithmSolver):
         def fun(t: float, y: np.ndarray) -> np.ndarray:
             states = BVPLogarithmSolver._unpack_mesh(y)
             y_primes = []
-            for yi in states:
+            for yi in states: # TODO: vectorize?
                 x, v = BVPLogarithmSolver._unpack_state(yi)
                 a = acceleration_fun(x, v)
                 y_prime = BVPLogarithmSolver._pack_state(v, a)

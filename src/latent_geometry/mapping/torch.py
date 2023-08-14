@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 from torch.func import jacfwd, jacrev
 
-from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.mapping.abstract import DerivativeMapping
 
 
-class TorchModelMapping(Mapping):
+class TorchModelMapping(DerivativeMapping):
     def __init__(self, model: nn.Module, in_shape: tuple[int], out_shape: tuple[int]):
         self.model = model
         self.in_shape = in_shape

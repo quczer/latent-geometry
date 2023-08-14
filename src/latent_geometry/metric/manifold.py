@@ -1,14 +1,14 @@
-from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.mapping.abstract import DerivativeMapping
 from latent_geometry.metric.abstract import MappingPullbackMetric, Metric
 
 
 class ManifoldMetric(MappingPullbackMetric):
-    def __init__(self, mapping: Mapping, ambient_metric: Metric):
+    def __init__(self, mapping: DerivativeMapping, ambient_metric: Metric):
         self._mapping = mapping
         self._ambient_metric = ambient_metric
 
     @property
-    def mapping(self) -> Mapping:
+    def mapping(self) -> DerivativeMapping:
         return self._mapping
 
     @property

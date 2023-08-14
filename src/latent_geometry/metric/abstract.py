@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from latent_geometry.connection import Connection
-from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.mapping.abstract import DerivativeMapping
 
 
 class Metric(ABC):
@@ -153,7 +153,7 @@ class PullbackMetric(Connection, Metric, ABC):
 class MappingPullbackMetric(PullbackMetric, ABC):
     @property
     @abstractmethod
-    def mapping(self) -> Mapping:
+    def mapping(self) -> DerivativeMapping:
         """Map from latent to ambient space."""
 
     def metric_matrix(self, base_point: np.ndarray) -> np.ndarray:
@@ -168,6 +168,6 @@ class MappingPullbackMetric(PullbackMetric, ABC):
         H = self.mapping.second_derivative(base_point)
         A = self.ambient_metric.metric_matrix(ambient_point)
 
-        term_1 = np.einsum("rs,rik,sj->ijk", A, H, J)
+        term_1 = np.einsum("rs,rik,sj->ijk", A, H, J) # TODO: very inefficient
         term_2 = np.einsum("rs,sjk,ri->ijk", A, H, J)
         return term_1 + term_2
