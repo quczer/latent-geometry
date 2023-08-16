@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Union
 
 import numpy as np
 
@@ -71,7 +72,7 @@ class DerivativeMapping(BaseMapping, ABC):
 class MatrixMapping(BaseMapping, ABC):
     @abstractmethod
     def metric_matrix_derivative(
-        self, z: np.ndarray, metric_matrix: np.ndarray
+        self, z: np.ndarray, ambient_metric_matrix: np.ndarray
     ) -> np.ndarray:
         r"""Compute mapping's second derivative tensor.
 
@@ -80,11 +81,18 @@ class MatrixMapping(BaseMapping, ABC):
         z : (D,) ndarray
             Point from the domain - usually latent space.
 
+        ambient_metric_matrix : (D', D') ndarray
+            Metric matrix from the co-domain.
+
         Returns
         -------
-        H : (D', D, D) ndarray
-            The second derivative of the mapping computed at z,
-            where indices of the derivation are put last.
+        dM: (D, D, D) ndarray
+            Derivative of the inner-product matrix of the domain, where the index
+            k of the derivation is last: math:`mat_{ijk} = \partial_k g_{ij}`
 
-            :math: `H_{ijk} = \partial_{jk} g_i`.
+            Let `J` be the jacobian of the mapping, `A := ambient_metric_matrix` then:
+            `dM_{ijk} = \partial_k (J.T @ A @ J)_{ij}`
         """
+
+
+Mapping = Union[DerivativeMapping, MatrixMapping]

@@ -1,6 +1,6 @@
 import numpy as np
 
-from latent_geometry.mapping.abstract import DerivativeMapping
+from latent_geometry.mapping.abstract import Mapping
 from latent_geometry.metric.abstract import Metric
 from latent_geometry.metric.manifold import ManifoldMetric
 
@@ -14,5 +14,5 @@ class EuclideanMetric(Metric):
 
 
 class EuclideanPullbackMetric(ManifoldMetric):
-    def __init__(self, mapping: DerivativeMapping):
+    def __init__(self, mapping: Mapping):
         super().__init__(mapping, EuclideanMetric(mapping.out_dim))

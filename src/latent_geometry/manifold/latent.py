@@ -1,10 +1,8 @@
 import numpy as np
 
 from latent_geometry.manifold.abstract import Manifold
-from latent_geometry.mapping.abstract import DerivativeMapping
-from latent_geometry.metric.abstract import Metric
-from latent_geometry.metric.euclidean import EuclideanMetric
-from latent_geometry.metric.manifold import ManifoldMetric
+from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.metric.euclidean import EuclideanMetric, ManifoldMetric, Metric
 from latent_geometry.path import ManifoldPath
 from latent_geometry.solver.exponential import IVPExponentialSolver
 from latent_geometry.solver.logarithm import BVPLogarithmSolver
@@ -13,7 +11,7 @@ from latent_geometry.solver.logarithm import BVPLogarithmSolver
 class LatentManifold(Manifold):
     def __init__(
         self,
-        mapping: DerivativeMapping,
+        mapping: Mapping,
         ambient_metric: Metric,
         solver_tol: float = 1e-3,
         bvp_n_mesh_nodes: int = 2,

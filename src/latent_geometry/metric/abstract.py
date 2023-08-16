@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from latent_geometry.connection import Connection
-from latent_geometry.mapping.abstract import DerivativeMapping
+from latent_geometry.mapping.abstract import Mapping, MatrixMapping
 
 
 class Metric(ABC):
@@ -153,7 +153,7 @@ class PullbackMetric(Connection, Metric, ABC):
 class MappingPullbackMetric(PullbackMetric, ABC):
     @property
     @abstractmethod
-    def mapping(self) -> DerivativeMapping:
+    def mapping(self) -> Mapping:
         """Map from latent to ambient space."""
 
     def metric_matrix(self, base_point: np.ndarray) -> np.ndarray:
@@ -163,11 +163,18 @@ class MappingPullbackMetric(PullbackMetric, ABC):
         return J.T @ A @ J
 
     def metric_matrix_derivative(self, base_point: np.ndarray) -> np.ndarray:
-        ambient_point = self.mapping(base_point)
-        J = self.mapping.jacobian(base_point)
-        H = self.mapping.second_derivative(base_point)
-        A = self.ambient_metric.metric_matrix(ambient_point)
+        if isinstance(self.mapping, MatrixMapping):
+            ambient_point = self.mapping(base_point)
+            ambient_matrix = self.ambient_metric.metric_matrix(ambient_point)
 
-        term_1 = np.einsum("rs,rik,sj->ijk", A, H, J)  # TODO: very inefficient
-        term_2 = np.einsum("rs,sjk,ri->ijk", A, H, J)
-        return term_1 + term_2
+            return self.mapping.metric_matrix_derivative(base_point, ambient_matrix)
+        else:
+            ambient_point = self.mapping(base_point)
+            J = self.mapping.jacobian(base_point)  # D' x D
+            H = self.mapping.second_derivative(base_point)  # D' x D x D
+            A = self.ambient_metric.metric_matrix(ambient_point)  # D' x D'
+
+            # let f: D -> D', then dM has shape D x D x D and the compute time is O(D' x D**2)
+            term_1 = np.einsum("rs,rik,sj->ijk", A, H, J)  # TODO: very inefficient
+            term_2 = np.einsum("rs,sjk,ri->ijk", A, H, J)
+            return term_1 + term_2
