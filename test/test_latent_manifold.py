@@ -4,8 +4,7 @@ import torch
 from torch import nn
 
 from latent_geometry.manifold import LatentManifold
-from latent_geometry.mapping import SphereImmersion
-from latent_geometry.mapping.torch import TorchModelMapping
+from latent_geometry.mapping import SphereImmersion, TorchModelMapping
 from latent_geometry.metric import EuclideanMetric
 
 

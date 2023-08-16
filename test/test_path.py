@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from latent_geometry.metric.euclidean import EuclideanMetric
+from latent_geometry.metric import EuclideanMetric
 from latent_geometry.path import ManifoldPath
 
 

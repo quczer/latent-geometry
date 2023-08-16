@@ -1,6 +1,6 @@
 import numpy as np
 
-from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.mapping import Mapping
 from latent_geometry.metric.abstract import Metric
 from latent_geometry.metric.manifold import ManifoldMetric
 

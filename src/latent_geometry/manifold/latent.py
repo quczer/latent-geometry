@@ -1,11 +1,10 @@
 import numpy as np
 
 from latent_geometry.manifold.abstract import Manifold
-from latent_geometry.mapping.abstract import Mapping
-from latent_geometry.metric.euclidean import EuclideanMetric, ManifoldMetric, Metric
+from latent_geometry.mapping import Mapping
+from latent_geometry.metric import EuclideanMetric, ManifoldMetric, Metric
 from latent_geometry.path import ManifoldPath
-from latent_geometry.solver.exponential import IVPExponentialSolver
-from latent_geometry.solver.logarithm import BVPLogarithmSolver
+from latent_geometry.solver import BVPLogarithmSolver, IVPExponentialSolver
 
 
 class LatentManifold(Manifold):

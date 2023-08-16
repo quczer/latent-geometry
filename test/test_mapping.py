@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import torch
 
-from latent_geometry.mapping.torch import BaseTorchModelMapping, TorchModelMapping
+from latent_geometry.mapping import BaseTorchModelMapping, TorchModelMapping
 from latent_geometry.metric import EuclideanMetric, ManifoldMetric
 
 

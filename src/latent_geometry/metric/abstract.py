@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from latent_geometry.connection import Connection
-from latent_geometry.mapping.abstract import Mapping, MatrixMapping
+from latent_geometry.mapping import Mapping, MatrixMapping
 
 
 class Metric(ABC):
