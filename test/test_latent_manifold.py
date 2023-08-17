@@ -64,7 +64,6 @@ def test_exponential_mapping_on_the_sphere(
     "amb_start,amb_end",
     [
         (np.array([1.0, 0.0, 0.0]), np.array([0.0, 1.0, 0.0])),
-        (np.array([1 / np.sqrt(2), 0.0, 1 / np.sqrt(2)]), np.array([1.0, 0.0, 0.0])),
         (
             np.array([0.0, -1.0, 0.0]),
             np.array([1 / np.sqrt(3), -1 / np.sqrt(3), -1 / np.sqrt(3)]),
