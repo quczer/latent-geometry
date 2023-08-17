@@ -1,4 +1,4 @@
-from typing import Callable, Iterable
+from typing import Callable
 
 import numpy as np
 from scipy.integrate import solve_bvp
@@ -168,6 +168,6 @@ class BVPLogarithmSolver(LogarithmSolver):
         return np.vstack(states).T
 
     @staticmethod
-    def _unpack_mesh(mesh_state: np.ndarray) -> Iterable[np.ndarray]:
+    def _unpack_mesh(mesh_state: np.ndarray) -> list[np.ndarray]:
         states = np.hsplit(mesh_state, mesh_state.shape[1])
         return [state.ravel() for state in states]
