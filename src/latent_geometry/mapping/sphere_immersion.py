@@ -2,10 +2,10 @@ import numpy as np
 import torch
 from torch.func import jacrev
 
-from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.mapping.abstract import DerivativeMapping
 
 
-class SphereImmersion(Mapping):
+class SphereImmersion(DerivativeMapping):
     """(phi, theta) -> (x, y, z) on the sphere in R^3."""
 
     def __call__(self, z: np.ndarray) -> np.ndarray:

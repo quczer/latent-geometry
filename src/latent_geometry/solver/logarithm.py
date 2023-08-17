@@ -1,4 +1,4 @@
-from typing import Callable, Iterable
+from typing import Callable
 
 import numpy as np
 from scipy.integrate import solve_bvp
@@ -10,9 +10,10 @@ from latent_geometry.solver.result import SolverResultPath
 class BVPLogarithmSolver(LogarithmSolver):
     MAX_SCIPY_NODES = 10_000
 
-    def __init__(self, n_mesh_nodes: int = 2):
+    def __init__(self, n_mesh_nodes: int = 2, tolerance: float = 1e-3):
         assert n_mesh_nodes >= 2
         self.n_mesh_nodes = n_mesh_nodes
+        self.tolerance = tolerance
 
     def find_path(
         self,
@@ -83,6 +84,7 @@ class BVPLogarithmSolver(LogarithmSolver):
             x=t_span,
             y=points_on_initial_curve,
             max_nodes=BVPLogarithmSolver.MAX_SCIPY_NODES,
+            tol=self.tolerance,
         )
 
     def _create_initial_guess(
@@ -106,7 +108,7 @@ class BVPLogarithmSolver(LogarithmSolver):
         def fun(t: float, y: np.ndarray) -> np.ndarray:
             states = BVPLogarithmSolver._unpack_mesh(y)
             y_primes = []
-            for yi in states:
+            for yi in states:  # TODO: vectorize?
                 x, v = BVPLogarithmSolver._unpack_state(yi)
                 a = acceleration_fun(x, v)
                 y_prime = BVPLogarithmSolver._pack_state(v, a)
@@ -166,6 +168,6 @@ class BVPLogarithmSolver(LogarithmSolver):
         return np.vstack(states).T
 
     @staticmethod
-    def _unpack_mesh(mesh_state: np.ndarray) -> Iterable[np.ndarray]:
+    def _unpack_mesh(mesh_state: np.ndarray) -> list[np.ndarray]:
         states = np.hsplit(mesh_state, mesh_state.shape[1])
         return [state.ravel() for state in states]

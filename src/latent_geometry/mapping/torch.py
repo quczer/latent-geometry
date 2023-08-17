@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 from torch.func import jacfwd, jacrev
 
-from latent_geometry.mapping.abstract import Mapping
+from latent_geometry.mapping.abstract import DerivativeMapping, MatrixMapping
 
 
-class TorchModelMapping(Mapping):
+class BaseTorchModelMapping(DerivativeMapping):
     def __init__(self, model: nn.Module, in_shape: tuple[int], out_shape: tuple[int]):
         self.model = model
         self.in_shape = in_shape
@@ -44,10 +44,31 @@ class TorchModelMapping(Mapping):
     def out_dim(self) -> int:
         return math.prod(self.out_shape)
 
-    @staticmethod
-    def _to_torch(x: np.ndarray) -> torch.Tensor:
-        return torch.tensor(x).float()
+    def _to_torch(self, x: np.ndarray) -> torch.Tensor:
+        return torch.tensor(x).to(self._get_model_device()).float()
 
     @staticmethod
     def _to_numpy(x_tensor: torch.Tensor) -> np.ndarray:
-        return x_tensor.detach().numpy()
+        return x_tensor.detach().cpu().numpy()
+
+    def _get_model_device(self) -> torch.device:
+        try:
+            return next(self.model.parameters()).device
+        except StopIteration:
+            return torch.device("cpu")
+
+
+class TorchModelMapping(MatrixMapping, BaseTorchModelMapping):
+    def metric_matrix_derivative(
+        self, z: np.ndarray, ambient_metric_matrix: np.ndarray
+    ) -> np.ndarray:
+        z_torch = self._to_torch(z)
+        A_torch = self._to_torch(ambient_metric_matrix)
+        J_fn = jacrev(self._call_flat_model)
+
+        def metrix_matrix(z_torch: torch.Tensor) -> torch.Tensor:
+            J = J_fn(z_torch)
+            return torch.mm(torch.mm(J.t(), A_torch), J)
+
+        dM_torch = jacrev(metrix_matrix)(z_torch)
+        return self._to_numpy(dM_torch)

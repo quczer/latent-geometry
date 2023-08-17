@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.4.0
     hooks:
       - id: check-ast
       - id: end-of-file-fixer
@@ -11,21 +11,21 @@ repos:
       - id: isort
         args: [--profile=black]
   - repo: https://github.com/ambv/black
-    rev: 22.3.0
+    rev: 23.7.0
     hooks:
       - id: black
       - id: black-jupyter
         files: ^notebooks/
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 4.0.0
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         files: ^src/
         args:
           - --convention=numpy
-          - --add-ignore=D100,D101,D102,D104,D202,D205,D400
+          - --add-ignore=D100,D101,D102,D103,D104,D202,D205,D400
   - repo: https://github.com/iterative/dvc
-    rev: main
+    rev: 3.15.2
     hooks:
       - id: dvc-pre-commit
         additional_dependencies:
