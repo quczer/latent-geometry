@@ -8,8 +8,8 @@ from latent_geometry.mapping.abstract import DerivativeMapping
 class SphereImmersion(DerivativeMapping):
     """(phi, theta) -> (x, y, z) on the sphere in R^3."""
 
-    def __call__(self, z: np.ndarray) -> np.ndarray:
-        return self.immerse(torch.tensor(z)).detach().numpy()
+    def __call__(self, zs: np.ndarray) -> np.ndarray:
+        return np.array([self.immerse(torch.tensor(z)).detach().numpy() for z in zs])
 
     @staticmethod
     def inv(vec: np.ndarray) -> np.ndarray:
@@ -29,24 +29,24 @@ class SphereImmersion(DerivativeMapping):
             ],
         )
 
-    def jacobian(self, z: np.ndarray) -> np.ndarray:
-        z_tensor = torch.tensor(z)
-        return jacrev(self.immerse)(z_tensor).numpy()
+    def jacobian(self, zs: np.ndarray) -> np.ndarray:
+        return np.array([jacrev(self.immerse)(torch.tensor(z)).numpy() for z in zs])
 
-    def second_derivative(self, z: np.ndarray) -> np.ndarray:
-        z_tensor = torch.tensor(z)
-        return jacrev(jacrev(self.immerse))(z_tensor).numpy()
+    def second_derivative(self, zs: np.ndarray) -> np.ndarray:
+        return np.array(
+            [jacrev(jacrev(self.immerse))(torch.tensor(z)).numpy() for z in zs]
+        )
 
-    def metric_matrix_derivative(self, z: np.ndarray) -> np.ndarray:
-        z_tensor = torch.tensor(z)
+    def metric_matrix_derivative(self, zs: np.ndarray) -> np.ndarray:
+        # z_tensor = torch.tensor(z)
 
         def metric_matrix(x: torch.Tensor) -> torch.Tensor:
             J = jacrev(self.immerse)
             matrix = torch.mm(J(x).t(), J(x))
             return matrix
 
-        matrix_derivative = jacrev(metric_matrix)(z_tensor)
-        return matrix_derivative.numpy()
+        # matrix_derivative = jacrev(metric_matrix)(z_tensor)
+        return np.array([jacrev(metric_matrix)(torch.tensor(z)).numpy() for z in zs])
 
     @property
     def in_dim(self) -> int:

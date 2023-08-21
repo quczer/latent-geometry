@@ -6,36 +6,36 @@ import numpy as np
 
 class BaseMapping(ABC):
     @abstractmethod
-    def __call__(self, z: np.ndarray) -> np.ndarray:
+    def __call__(self, zs: np.ndarray) -> np.ndarray:
         """Apply the mapping function.
 
         Parameters
         ----------
-        z : (D,) ndarray
-            Point from the domain - usually latent space.
+        zs : (B, D) ndarray
+            Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        x : (D',) ndarray
-            Mapped point from the codomain - usually ambient space.
+        xs : (B, D') ndarray
+            Mapped batch of points from the codomain - usually ambient space.
         """
 
     @abstractmethod
-    def jacobian(self, z: np.ndarray) -> np.ndarray:
+    def jacobian(self, zs: np.ndarray) -> np.ndarray:
         r"""Compute mapping's jacobian matrix.
 
         Parameters
         ----------
-        z : (D,) ndarray
-            Point from the domain - usually latent space.
+        zs : (B, D) ndarray
+            Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        J : (D', D) ndarray
-            Jacobian of the mapping computed at z, where index
-            of the derivation is put second.
+        Js : (B, D', D) ndarray
+            Jacobian of the mapping computed at zs, where index
+            of the derivation is put last.
 
-            :math: `J_{ij} = \partial_j g_i`.
+            :math: `Js_{bij} = \partial_j g_{bi}`.
         """
 
     @property
@@ -51,47 +51,47 @@ class BaseMapping(ABC):
 
 class DerivativeMapping(BaseMapping, ABC):
     @abstractmethod
-    def second_derivative(self, z: np.ndarray) -> np.ndarray:
+    def second_derivative(self, zs: np.ndarray) -> np.ndarray:
         r"""Compute mapping's second derivative tensor.
 
         Parameters
         ----------
-        z : (D,) ndarray
-            Point from the domain - usually latent space.
+        zs : (B, D) ndarray
+            Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        H : (D', D, D) ndarray
-            The second derivative of the mapping computed at z,
+        Hs : (B, D', D, D) ndarray
+            The second derivative of the mapping computed at zs,
             where indices of the derivation are put last.
 
-            :math: `H_{ijk} = \partial_{jk} g_i`.
+            :math: `H_{bijk} = \partial_{jk} g_{bi}`.
         """
 
 
 class MatrixMapping(BaseMapping, ABC):
     @abstractmethod
     def metric_matrix_derivative(
-        self, z: np.ndarray, ambient_metric_matrix: np.ndarray
+        self, zs: np.ndarray, ambient_metric_matrices: np.ndarray
     ) -> np.ndarray:
         r"""Compute mapping's second derivative tensor.
 
         Parameters
         ----------
-        z : (D,) ndarray
-            Point from the domain - usually latent space.
+        zs : (B, D) ndarray
+            Batch of points from the domain - usually latent space.
 
-        ambient_metric_matrix : (D', D') ndarray
-            Metric matrix from the co-domain.
+        ambient_metric_matrices : (B, D', D') ndarray
+            Batch of metric matrices from the co-domain.
 
         Returns
         -------
-        dM: (D, D, D) ndarray
-            Derivative of the inner-product matrix of the domain, where the index
-            k of the derivation is last: math:`mat_{ijk} = \partial_k g_{ij}`
+        dMs: (B, D, D, D) ndarray
+            Derivative of the inner-product matrices of the domain, where the index
+            k of the derivation is last: math:`mat_{bijk} = \partial_k g_{bij}`
 
             Let `J` be the jacobian of the mapping, `A := ambient_metric_matrix` then:
-            `dM_{ijk} = \partial_k (J.T @ A @ J)_{ij}`
+            `dM_{ijk} = \partial_k (J.T @ A @ J)_{ij}` (dMs is a batch of dM)
         """
 
 

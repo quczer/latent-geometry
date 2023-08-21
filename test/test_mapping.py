@@ -59,7 +59,7 @@ def test_equality_on_simple_net(z: np.ndarray, simple_net: torch.nn.Module):
         ),
         EuclideanMetric(128),
     )
-    slow_dM = slow_metric.metric_matrix(z)
-    fast_dM = fast_metric.metric_matrix(z)
+    slow_dM = slow_metric.metric_matrix(z[None, :])
+    fast_dM = fast_metric.metric_matrix(z[None, :])
 
     assert np.allclose(slow_dM, fast_dM)
