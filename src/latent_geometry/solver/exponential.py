@@ -62,9 +62,9 @@ class IVPExponentialSolver(ExponentialSolver):
         """
         t_span = (0.0, 1.0)
         initial_state = self._pack_state(position, velocity)
-        fun = self._create_solver_fun(acceleration_fun)
+        diff_eq = self._create_differential_equation(acceleration_fun)
         return solve_ivp(
-            fun,
+            diff_eq,
             t_span,
             initial_state,
             method=self.method,
@@ -73,16 +73,16 @@ class IVPExponentialSolver(ExponentialSolver):
         )
 
     @staticmethod
-    def _create_solver_fun(
+    def _create_differential_equation(
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
-        def fun(t: float, state: np.ndarray) -> np.ndarray:
+        def differential_equation(t: float, state: np.ndarray) -> np.ndarray:
             x, v = IVPExponentialSolver._unpack_state(state)
             a = acceleration_fun(x, v)
             y_prime = IVPExponentialSolver._pack_state(v, a)
             return y_prime
 
-        return fun
+        return differential_equation
 
     @staticmethod
     def _create_result_path(
