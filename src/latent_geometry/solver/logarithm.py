@@ -76,10 +76,10 @@ class BVPLogarithmSolver(LogarithmSolver):
         points_on_initial_curve = self._create_initial_guess(
             start_position, finish_position
         )
-        fun = self._create_fun(acceleration_fun)
+        diff_eq = self._create_differential_equation(acceleration_fun)
         bc = self._create_boundary_condition(start_position, finish_position)
         return solve_bvp(
-            fun,
+            fun=diff_eq,
             bc=bc,
             x=t_span,
             y=points_on_initial_curve,
@@ -102,10 +102,10 @@ class BVPLogarithmSolver(LogarithmSolver):
         return self._pack_mesh(*ys)
 
     @staticmethod
-    def _create_fun(
+    def _create_differential_equation(
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
-        def fun(t: float, y: np.ndarray) -> np.ndarray:
+        def differential_eq(t: float, y: np.ndarray) -> np.ndarray:
             states = BVPLogarithmSolver._unpack_mesh(y)
             y_primes = []
             for yi in states:  # TODO: vectorize?
@@ -115,7 +115,7 @@ class BVPLogarithmSolver(LogarithmSolver):
                 y_primes.append(y_prime)
             return BVPLogarithmSolver._pack_mesh(*y_primes)
 
-        return fun
+        return differential_eq
 
     @staticmethod
     def _create_boundary_condition(
