@@ -114,30 +114,6 @@ class PullbackMetric(Connection, Metric, ABC):
         return cometric_matrices
 
     def christoffels(self, base_points: np.ndarray) -> np.ndarray:
-        r"""Compute Christoffel symbols of the Levi-Civita connection.
-
-        The Koszul formula defining the Levi-Civita connection gives the
-        expression of the Christoffel symbols with respect to the metric:
-        :math:`\Gamma^k_{ij}(p) = \frac{1}{2} g^{lk}(
-        \partial_i g_{jl} + \partial_j g_{li} - \partial_l g_{ij})`,
-        where:
-
-        - :math:`p` represents the base point, and
-        - :math:`g` represents the Riemannian metric tensor.
-
-        Note that the function computing the derivative of the metric matrix
-        puts the index of the derivation last.
-
-        Parameters
-        ----------
-        base_point : (B, D) ndarray
-            Base point on the manifold.
-
-        Returns
-        -------
-        gamma : (B, D, D, D) ndarray
-            Christoffel symbols, where the contravariant index is second.
-        """
         cometric_mat_at_point = self.cometric_matrix(base_points)
         metric_derivative_at_point = self.metric_matrix_derivative(base_points)
 

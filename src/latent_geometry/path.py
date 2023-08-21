@@ -57,6 +57,6 @@ class ManifoldPath:
         len_ = 0.0
         dt = (t_end - t_start) / ManifoldPath._INTEGRATE_INTERVALS
         for t in np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS):
-            x, v = self(t), self.velocity(t)
-            len_ += metric.vector_length(v, x) * dt
+            x, v = self(t)[None, :], self.velocity(t)[None, :]
+            len_ += metric.vector_length(v, x)[0] * dt
         return len_

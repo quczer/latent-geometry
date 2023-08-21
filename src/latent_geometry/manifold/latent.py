@@ -1,3 +1,6 @@
+from functools import wraps
+from typing import Callable
+
 import numpy as np
 
 from latent_geometry.manifold.abstract import Manifold
@@ -22,9 +25,10 @@ class LatentManifold(Manifold):
         self._log_solver = BVPLogarithmSolver(
             tolerance=solver_tol, n_mesh_nodes=bvp_n_mesh_nodes
         )
+        self.acceleration_fun = self._add_batch_dim(self.metric.acceleration)
 
     def geodesic(self, z_a: np.ndarray, z_b: np.ndarray) -> ManifoldPath:
-        solver_path = self._log_solver.find_path(z_a, z_b, self.metric.acceleration)
+        solver_path = self._log_solver.find_path(z_a, z_b, self.acceleration_fun)
         return ManifoldPath(
             solver_path.position,
             solver_path.velocity,
@@ -35,10 +39,10 @@ class LatentManifold(Manifold):
     def path_given_direction(
         self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
     ) -> ManifoldPath:
-        velocity = self._adjust_vector_magnitude(z, velocity_vec, length)
-        solver_path = self._exp_solver.compute_path(
-            z, velocity, self.metric.acceleration
-        )
+        velocity = self._adjust_vector_magnitude(
+            z[None, :], velocity_vec[None, :], length
+        )[0]
+        solver_path = self._exp_solver.compute_path(z, velocity, self.acceleration_fun)
         return ManifoldPath(
             solver_path.position,
             solver_path.velocity,
@@ -53,3 +57,14 @@ class LatentManifold(Manifold):
             tangent_vec=vec, base_point=base_point
         )
         return vec / pullback_length * length
+
+    @staticmethod
+    def _add_batch_dim(
+        fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
+    ) -> Callable[[np.ndarray, np.ndarray], np.ndarray]:
+        @wraps(fun)
+        def batched_fun(x: np.ndarray, y: np.ndarray):
+            return fun(x[None, ...], y[None, ...])[0]
+
+        batched_fun.__name__ = f"batched_{fun.__name__}"
+        return batched_fun
