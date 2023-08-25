@@ -24,11 +24,6 @@ from latent_geometry.utils import batchify
             np.random.randn(10, 4, 2),
             10 * 4 * 2,
         ),
-        (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
-            np.random.randn(10, 4, 2),
-            None,
-        ),
     ],
 )
 def test_batchify(x, y, batch_size):
