@@ -6,9 +6,9 @@ from latent_geometry.solver import BVPLogarithmSolver
 
 @pytest.fixture
 def logarithm_solver():
-    """Returns new instance of exponential solver with default method."""
+    """Returns new instance of logarithm solver with default number of mesh nodes."""
 
-    return BVPLogarithmSolver()
+    return BVPLogarithmSolver(n_mesh_nodes=13)
 
 
 @pytest.mark.parametrize(
