@@ -35,7 +35,13 @@ def test_on_unit_circle(start_theta, final_theta, logarithm_solver: BVPLogarithm
         x_penalty = x_displacement_correction(x, v)
         return circle_term - x_penalty * 10.0
 
-    path = logarithm_solver.find_path(x_start, x_end, acceleration_fun)
+    def vectorized_acc_fun(xs, vs):
+        res = []
+        for x, v in zip(xs, vs):
+            res.append(acceleration_fun(x, v)[None, ...])
+        return np.concatenate(res, axis=0)
+
+    path = logarithm_solver.find_path(x_start, x_end, vectorized_acc_fun)
     xs, _, _ = path.get_moments(NUM_EVALS)
 
     for x_t, theta_t in zip(

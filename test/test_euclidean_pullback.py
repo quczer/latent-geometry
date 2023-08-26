@@ -68,11 +68,8 @@ def test_metric_matrix_on_torch_model(simple_net, z):
     metric = EuclideanPullbackMetric(
         TorchModelMapping(
             simple_net,
-            (1, 1, 4, 4),
-            (
-                1,
-                128,
-            ),
+            (1, 4, 4),
+            (128,),
         )
     )
     J = metric.mapping.jacobian(z[None, :])[0]
@@ -91,7 +88,7 @@ def test_metric_matrix_derivative_on_torch_model(simple_net, z):
     import torch
     from torch.func import jacfwd, jacrev
 
-    torch_mapping = TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
+    torch_mapping = TorchModelMapping(simple_net, (1, 4, 4), (128,))
     metric = EuclideanPullbackMetric(torch_mapping)
 
     def compute_metric_matrix_torch(z_torch):

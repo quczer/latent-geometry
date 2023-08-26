@@ -29,7 +29,7 @@ class IVPExponentialSolver(ExponentialSolver):
             else:
                 raise SolverFailedException(result.message)
         except Exception as e:
-            raise SolverFailedException(e)
+            raise SolverFailedException from e
 
     def _solve(
         self,

@@ -50,7 +50,9 @@ class Metric(ABC):
         )
         return inner_prods
 
-    def vector_length(self, tangent_vec: np.ndarray, base_point: np.ndarray) -> float:
+    def vector_length(
+        self, tangent_vec: np.ndarray, base_point: np.ndarray
+    ) -> np.ndarray:
         """Length of a tangent vector at a base point.
 
         Parameters

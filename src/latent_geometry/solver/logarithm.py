@@ -8,7 +8,7 @@ from latent_geometry.solver.result import SolverResultPath
 
 
 class BVPLogarithmSolver(LogarithmSolver):
-    MAX_SCIPY_NODES = 10_000
+    MAX_SCIPY_NODES = 1_000
 
     def __init__(self, n_mesh_nodes: int = 2, tolerance: float = 1e-3):
         assert n_mesh_nodes >= 2
@@ -19,16 +19,16 @@ class BVPLogarithmSolver(LogarithmSolver):
         self,
         start_position: np.ndarray,
         finish_position: np.ndarray,
-        acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
+        vectorized_acc_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
     ) -> SolverResultPath:
         try:
-            result = self._solve(start_position, finish_position, acceleration_fun)
+            result = self._solve(start_position, finish_position, vectorized_acc_fun)
             if result.success:
-                return self._create_result_path(result.sol, acceleration_fun)
+                return self._create_result_path(result.sol, vectorized_acc_fun)
             else:
                 raise SolverFailedException(result.message)
         except Exception as e:
-            raise SolverFailedException(e)
+            raise SolverFailedException from e
 
     def _solve(
         self,
@@ -71,6 +71,18 @@ class BVPLogarithmSolver(LogarithmSolver):
         We will evaluate the solution in a couple of predefined points ti, therefore
         y is always of shape (2*D, k), where D is the dimension of our space,
         k - some number of mesh nodes the solver desires to evaluate in.
+
+        Example:
+
+        ```
+        y = [
+            [pos_00, pos_01, pos_02],
+            [pos_10, pos_11, pos_12],
+            [vel_00, vel_01, vel_02],
+            [vel_10, vel_11, vel_12],
+        ]
+        ```
+        for `D:=2, k:=3`
         """
         t_span = np.linspace(0.0, 1.0, self.n_mesh_nodes)
         points_on_initial_curve = self._create_initial_guess(
@@ -106,14 +118,10 @@ class BVPLogarithmSolver(LogarithmSolver):
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
         def differential_eq(t: float, y: np.ndarray) -> np.ndarray:
-            states = BVPLogarithmSolver._unpack_mesh(y)
-            y_primes = []
-            for yi in states:  # TODO: vectorize?
-                x, v = BVPLogarithmSolver._unpack_state(yi)
-                a = acceleration_fun(x, v)
-                y_prime = BVPLogarithmSolver._pack_state(v, a)
-                y_primes.append(y_prime)
-            return BVPLogarithmSolver._pack_mesh(*y_primes)
+            xs, vs = BVPLogarithmSolver._unpack_mesh2(y)
+            accs = acceleration_fun(xs, vs)
+            x_primes, v_primes = vs, accs
+            return BVPLogarithmSolver._pack_mesh2(x_primes, v_primes)
 
         return differential_eq
 
@@ -171,3 +179,14 @@ class BVPLogarithmSolver(LogarithmSolver):
     def _unpack_mesh(mesh_state: np.ndarray) -> list[np.ndarray]:
         states = np.hsplit(mesh_state, mesh_state.shape[1])
         return [state.ravel() for state in states]
+
+    @staticmethod
+    def _unpack_mesh2(mesh_state: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """(2*D, k) -> (k, D), (k, D) - position, velocity"""
+        xs, vs = np.hsplit(mesh_state.T, 2)
+        return xs, vs
+
+    @staticmethod
+    def _pack_mesh2(xs: np.ndarray, vs: np.ndarray) -> np.ndarray:
+        """(k, D), (k, D) -> (2*D, k)"""
+        return np.hstack((xs, vs)).T

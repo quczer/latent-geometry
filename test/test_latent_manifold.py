@@ -18,7 +18,7 @@ def sphere_manifold():
 def hilly_2d_manifold():
     class Hilly2dNet(nn.Module):
         def forward(self, in_):
-            x, y = in_
+            x, y = np.split(in_.T, 2, axis=0)
             z = torch.max(torch.sin(x) + torch.cos(y), torch.tensor(0))
             return torch.stack([x, y, z])
 
