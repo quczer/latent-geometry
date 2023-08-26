@@ -24,7 +24,7 @@ class BaseTorchModelMapping(DerivativeMapping):
         self.out_shape = out_shape
         self.batch_size = batch_size
 
-    # @batchify
+    @batchify
     def __call__(self, zs: np.ndarray) -> np.ndarray:
         B, _ = zs.shape
         zs_torch = self._to_torch(zs)
@@ -32,13 +32,13 @@ class BaseTorchModelMapping(DerivativeMapping):
         xs = self._to_numpy(xs_torch)
         return xs.reshape(B, -1)
 
-    # @batchify
+    @batchify
     def jacobian(self, zs: np.ndarray) -> np.ndarray:
         zs_torch = self._to_torch(zs)
         jacobian_torch = vmap(jacrev(self._call_flat_model))(zs_torch)
         return self._to_numpy(jacobian_torch)
 
-    # @batchify
+    @batchify
     def second_derivative(self, zs: np.ndarray) -> np.ndarray:
         zs_torch = self._to_torch(zs)
         second_derivative_torch = vmap(jacfwd(jacrev(self._call_flat_model)))(zs_torch)
@@ -75,6 +75,7 @@ class BaseTorchModelMapping(DerivativeMapping):
 
 
 class TorchModelMapping(MatrixMapping, BaseTorchModelMapping):
+    @batchify
     def metric_matrix_derivative(
         self, zs: np.ndarray, ambient_metric_matrices: np.ndarray
     ) -> np.ndarray:
@@ -82,7 +83,6 @@ class TorchModelMapping(MatrixMapping, BaseTorchModelMapping):
         As_torch = self._to_torch(ambient_metric_matrices)
         J_fn = jacrev(self._call_flat_model)
 
-        # @batchify
         def metric_matrix(z_torch: torch.Tensor, A_torch: torch.Tensor) -> torch.Tensor:
             J = J_fn(z_torch)
             return torch.mm(torch.mm(J.t(), A_torch), J)
