@@ -14,8 +14,8 @@ class BaseTorchModelMapping(DerivativeMapping):
     def __init__(
         self,
         model: nn.Module,
-        in_shape: tuple[int],
-        out_shape: tuple[int],
+        in_shape: tuple[int, ...],
+        out_shape: tuple[int, ...],
         batch_size: Optional[int] = None,
     ):
         """Shapes should be without the batch dimension"""

@@ -24,7 +24,7 @@ def _batchify_decorator(fun: _T, batch_size: int) -> _T:
             result_arrays.append(res)
         return np.concatenate(result_arrays, axis=0, casting="no")
 
-    return __wrapper
+    return __wrapper  # type: ignore
 
 
 def _batchify_decorator_method(fun: _T) -> _T:
@@ -38,7 +38,7 @@ def _batchify_decorator_method(fun: _T) -> _T:
             result_arrays.append(res)
         return np.concatenate(result_arrays, axis=0, casting="no")
 
-    return __wrapper
+    return __wrapper  # type: ignore
 
 
 @overload
@@ -51,7 +51,7 @@ def batchify(batch_size: Optional[int]) -> Callable[[_T], _T]:
     ...
 
 
-def batchify(__fun=None, /, *, batch_size: Optional[int] = None):
+def batchify(__fun=None, /, *, batch_size: Optional[int] = None):  # type: ignore
     """
     Split inputs into `batch_size` batches, applies the function and stacks output.
     Assumes that all inputs have the first dimension `B` - the batch size.

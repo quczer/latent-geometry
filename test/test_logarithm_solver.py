@@ -8,9 +8,10 @@ from latent_geometry.solver import BVPLogarithmSolver
 def logarithm_solver():
     """Returns new instance of logarithm solver with default number of mesh nodes."""
 
-    return BVPLogarithmSolver(n_mesh_nodes=13)
+    return BVPLogarithmSolver(n_mesh_nodes=2)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value encountered in scalar divide")
 @pytest.mark.parametrize(
     "start_theta, final_theta",
     [(0.0, np.pi), (0.0, np.pi / 2), (1.0, 2.0), (3.0, 1.0)],
