@@ -12,9 +12,6 @@ class _HasBatchSize(Protocol):
         ...
 
 
-_BATCH_SIZE = "batch_size"
-
-
 def _batchify_decorator(fun: _T, batch_size: int) -> _T:
     @wraps(fun)
     def wrapper(*arrays: np.ndarray) -> np.ndarray:
@@ -33,7 +30,7 @@ def _batchify_decorator_method(fun: _T) -> _T:
     def wrapper(inst: _HasBatchSize, *arrays: np.ndarray) -> np.ndarray:
         B = arrays[0].shape[0]
         result_arrays = []
-        batch_size = getattr(inst, _BATCH_SIZE) or B
+        batch_size = getattr(inst, "batch_size") or B
         for i in range(0, B, batch_size):
             res = fun(inst, *(arr[i : i + batch_size, ...] for arr in arrays))
             result_arrays.append(res)
@@ -49,17 +46,25 @@ def batchify(fun=None, /, *, batch_size: Optional[int] = None):
 
     Examples
     --------
-    @batchify(batch_size=40)
-    def foo(x: np.ndarray, y: np.ndarray) -> np.ndarray:
-        return x + 2 * y
-
-    class A:
-        def __init__(self, batch_size: int | None = None):
-            self.batch_size = batch_size # crucial to have this property
-
-        @batchify
-        def bar(self, x: np.ndarray) -> np.ndarray:
-            return np.sin(x)
+    >>> @batchify(batch_size=40)
+    ... def foo(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    ...     return x + 2 * y
+    ...
+    >>> class A:
+    ...     def __init__(self, batch_size: int | None = None):
+    ...         self.batch_size = batch_size # crucial to have this property
+    ...
+    ...     @batchify
+    ...     def bar(self, x: np.ndarray) -> np.ndarray:
+    ...         return np.sin(x)
+    ...
+    >>> class B:
+    ...     batch_size = 20
+    ...
+    ...     @classmethod
+    ...     @batchify
+    ...     def bar(cls, x: np.array, y: np.array):
+    ...         return np.abs(x - y)
     """
 
     # called with parens: @batchify(batch_size=...)
