@@ -3,8 +3,8 @@ from typing import Callable, Optional, Protocol, TypeVar, overload
 
 import numpy as np
 
-# here I should use ParamSpec, but it is available for python>=3.10
-# and I don't know any workaround for that
+# here I should probably use ParamSpec, but it can't
+# be a proper bound which is a bummer
 _T = TypeVar("_T", bound=Callable[..., np.ndarray])
 
 
