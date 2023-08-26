@@ -77,7 +77,7 @@ def test_batchify_on_method(x, y, batch_size):
     counter = 0
     B = x.shape[0]
 
-    def foo(x: np.array, y: np.array):
+    def foo(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         nonlocal counter
         counter += 1
         return x**2 + np.cos(y)
@@ -87,7 +87,7 @@ def test_batchify_on_method(x, y, batch_size):
             self.batch_size = batch_size
 
         @batchify
-        def bar(self, x: np.array, y: np.array):
+        def bar(self, x: np.ndarray, y: np.ndarray):
             return foo(x, y)
 
     res_foo = foo(x, y)
@@ -126,7 +126,7 @@ def test_batchify_on_class_method(x, y, batch_size_):
     counter = 0
     B = x.shape[0]
 
-    def foo(x: np.array, y: np.array):
+    def foo(x: np.ndarray, y: np.ndarray):
         nonlocal counter
         counter += 1
         return x**2 + np.cos(y)
@@ -136,7 +136,7 @@ def test_batchify_on_class_method(x, y, batch_size_):
 
         @classmethod
         @batchify
-        def bar(cls, x: np.array, y: np.array):
+        def bar(cls, x: np.ndarray, y: np.ndarray):
             return foo(x, y)
 
     res_foo = foo(x, y)

@@ -1,8 +1,10 @@
 from functools import partial, wraps
-from typing import Callable, Optional, Protocol, TypeVar
+from typing import Callable, Optional, Protocol, TypeVar, overload
 
 import numpy as np
 
+# here I should use ParamSpec, but it is available for python>=3.10
+# and I don't know any workaround for that
 _T = TypeVar("_T", bound=Callable[..., np.ndarray])
 
 
@@ -37,6 +39,16 @@ def _batchify_decorator_method(fun: _T) -> _T:
         return np.concatenate(result_arrays, axis=0, casting="no")
 
     return wrapper
+
+
+@overload
+def batchify(fun: _T) -> _T:
+    ...
+
+
+@overload
+def batchify(batch_size: Optional[int]) -> Callable[[_T], _T]:
+    ...
 
 
 def batchify(fun=None, /, *, batch_size: Optional[int] = None):
