@@ -6,7 +6,11 @@ import torch
 import torch.nn as nn
 from torch.func import jacfwd, jacrev, vmap
 
-from latent_geometry.mapping.abstract import DerivativeMapping, MatrixMapping
+from latent_geometry.mapping.abstract import (
+    DerivativeMapping,
+    EuclideanMatrixMapping,
+    MatrixMapping,
+)
 from latent_geometry.utils import batchify
 
 
@@ -74,7 +78,7 @@ class BaseTorchModelMapping(DerivativeMapping):
             return torch.device("cpu")
 
 
-class TorchModelMapping(MatrixMapping, BaseTorchModelMapping):
+class TorchModelMapping(MatrixMapping, EuclideanMatrixMapping, BaseTorchModelMapping):
     @batchify
     def metric_matrix_derivative(
         self, zs: np.ndarray, ambient_metric_matrices: np.ndarray
@@ -83,9 +87,23 @@ class TorchModelMapping(MatrixMapping, BaseTorchModelMapping):
         As_torch = self._to_torch(ambient_metric_matrices)
         J_fn = jacrev(self._call_flat_model)
 
-        def metric_matrix(z_torch: torch.Tensor, A_torch: torch.Tensor) -> torch.Tensor:
+        def __metric_matrix(
+            z_torch: torch.Tensor, A_torch: torch.Tensor
+        ) -> torch.Tensor:
             J = J_fn(z_torch)
             return torch.mm(torch.mm(J.t(), A_torch), J)
 
-        dMs_torch = vmap(jacrev(metric_matrix))(zs_torch, As_torch)
+        dMs_torch = vmap(jacrev(__metric_matrix))(zs_torch, As_torch)
+        return self._to_numpy(dMs_torch)
+
+    @batchify
+    def euclidean_metric_matrix_derivative(self, zs: np.ndarray) -> np.ndarray:
+        zs_torch = self._to_torch(zs)
+        J_fn = jacrev(self._call_flat_model)
+
+        def __metric_matrix(z_torch: torch.Tensor) -> torch.Tensor:
+            J = J_fn(z_torch)
+            return torch.mm(J.t(), J)
+
+        dMs_torch = vmap(jacrev(__metric_matrix))(zs_torch)
         return self._to_numpy(dMs_torch)

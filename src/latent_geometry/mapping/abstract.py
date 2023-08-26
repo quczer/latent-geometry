@@ -74,8 +74,7 @@ class MatrixMapping(BaseMapping, ABC):
     def metric_matrix_derivative(
         self, zs: np.ndarray, ambient_metric_matrices: np.ndarray
     ) -> np.ndarray:
-        r"""Compute mapping's second derivative tensor.
-
+        r"""
         Parameters
         ----------
         zs : (B, D) ndarray
@@ -95,4 +94,25 @@ class MatrixMapping(BaseMapping, ABC):
         """
 
 
-Mapping = Union[DerivativeMapping, MatrixMapping]
+class EuclideanMatrixMapping(BaseMapping, ABC):
+    @abstractmethod
+    def euclidean_metric_matrix_derivative(self, zs: np.ndarray) -> np.ndarray:
+        r"""Compute :py:meth:`MatrixMapping.metric_matrix_derivative` for the special case of Euclidean ambient space.
+
+        Parameters
+        ----------
+        zs : (B, D) ndarray
+            Batch of points from the domain - usually latent space.
+
+        Returns
+        -------
+        dMs: (B, D, D, D) ndarray
+            Derivative of the inner-product matrices of the domain, where the index
+            k of the derivation is last: math:`mat_{bijk} = \partial_k g_{bij}`
+
+            Let `J` be the jacobian of the mapping, `A := I` then:
+            `dM_{ijk} = \partial_k (J.T @ A @ J)_{ij} = \partial_k (J.T @ J)` (dMs is a batch of dM)
+        """
+
+
+Mapping = Union[DerivativeMapping, MatrixMapping, EuclideanMatrixMapping]
