@@ -4,7 +4,7 @@ from typing import Optional
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.func import jacfwd, jacrev, vmap
+from torch.func import jacfwd, vmap
 
 from latent_geometry.mapping.abstract import (
     DerivativeMapping,
@@ -15,6 +15,7 @@ from latent_geometry.utils import batchify
 
 
 class BaseTorchModelMapping(DerivativeMapping):
+    # TODO: add an option for different plan of computing derivatives (jacrev/jacfwd)
     def __init__(
         self,
         model: nn.Module,
@@ -39,13 +40,13 @@ class BaseTorchModelMapping(DerivativeMapping):
     @batchify
     def jacobian(self, zs: np.ndarray) -> np.ndarray:
         zs_torch = self._to_torch(zs)
-        jacobian_torch = vmap(jacrev(self._call_flat_model))(zs_torch)
+        jacobian_torch = vmap(jacfwd(self._call_flat_model))(zs_torch)
         return self._to_numpy(jacobian_torch)
 
     @batchify
     def second_derivative(self, zs: np.ndarray) -> np.ndarray:
         zs_torch = self._to_torch(zs)
-        second_derivative_torch = vmap(jacfwd(jacrev(self._call_flat_model)))(zs_torch)
+        second_derivative_torch = vmap(jacfwd(jacfwd(self._call_flat_model)))(zs_torch)
         return self._to_numpy(second_derivative_torch)
 
     def _call_flat_model(self, xs: torch.Tensor, batch: bool = False) -> torch.Tensor:
@@ -85,7 +86,7 @@ class TorchModelMapping(MatrixMapping, EuclideanMatrixMapping, BaseTorchModelMap
     ) -> np.ndarray:
         zs_torch = self._to_torch(zs)
         As_torch = self._to_torch(ambient_metric_matrices)
-        J_fn = jacrev(self._call_flat_model)
+        J_fn = jacfwd(self._call_flat_model)
 
         def __metric_matrix(
             z_torch: torch.Tensor, A_torch: torch.Tensor
@@ -93,17 +94,17 @@ class TorchModelMapping(MatrixMapping, EuclideanMatrixMapping, BaseTorchModelMap
             J = J_fn(z_torch)
             return torch.mm(torch.mm(J.t(), A_torch), J)
 
-        dMs_torch = vmap(jacrev(__metric_matrix))(zs_torch, As_torch)
+        dMs_torch = vmap(jacfwd(__metric_matrix))(zs_torch, As_torch)
         return self._to_numpy(dMs_torch)
 
     @batchify
     def euclidean_metric_matrix_derivative(self, zs: np.ndarray) -> np.ndarray:
         zs_torch = self._to_torch(zs)
-        J_fn = jacrev(self._call_flat_model)
+        J_fn = jacfwd(self._call_flat_model)
 
         def __metric_matrix(z_torch: torch.Tensor) -> torch.Tensor:
             J = J_fn(z_torch)
             return torch.mm(J.t(), J)
 
-        dMs_torch = vmap(jacrev(__metric_matrix))(zs_torch)
+        dMs_torch = vmap(jacfwd(__metric_matrix))(zs_torch)
         return self._to_numpy(dMs_torch)

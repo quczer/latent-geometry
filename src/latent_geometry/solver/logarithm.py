@@ -8,7 +8,7 @@ from latent_geometry.solver.result import SolverResultPath
 
 
 class BVPLogarithmSolver(LogarithmSolver):
-    MAX_SCIPY_NODES = 1_000
+    MAX_SCIPY_NODES = 10_000
 
     def __init__(self, n_mesh_nodes: int = 2, tolerance: float = 1e-3):
         assert n_mesh_nodes >= 2
