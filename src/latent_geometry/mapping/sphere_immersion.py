@@ -38,15 +38,12 @@ class SphereImmersion(DerivativeMapping):
         )
 
     def metric_matrix_derivative(self, zs: np.ndarray) -> np.ndarray:
-        # z_tensor = torch.tensor(z)
-
-        def metric_matrix(x: torch.Tensor) -> torch.Tensor:
+        def __metric_matrix(x: torch.Tensor) -> torch.Tensor:
             J = jacrev(self.immerse)
             matrix = torch.mm(J(x).t(), J(x))
             return matrix
 
-        # matrix_derivative = jacrev(metric_matrix)(z_tensor)
-        return np.array([jacrev(metric_matrix)(torch.tensor(z)).numpy() for z in zs])
+        return np.array([jacrev(__metric_matrix)(torch.tensor(z)).numpy() for z in zs])
 
     @property
     def in_dim(self) -> int:
