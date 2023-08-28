@@ -41,7 +41,7 @@ class PullbackMetric(Connection, Metric, ABC):
 
         Parameters
         ----------
-        base_poinst : (B, D) ndarray
+        base_points : (B, D) ndarray
             Base point on the manifold.
 
         Returns
