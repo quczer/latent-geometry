@@ -3,7 +3,7 @@ import math
 import numpy as np
 import pytest
 
-from latent_geometry.utils import batchify, project
+from latent_geometry.utils import batchify, lift, project
 
 
 @pytest.mark.parametrize(
@@ -164,5 +164,38 @@ def test_project(x, y):
         return np.ones(x.shape[0])
 
     assert np.allclose(project(foo)(x, y), x[0] + y[0])
-    assert np.allclose(project(bar)(x, x, y), x[0] + x[0, 0] * y[0, 0])
+    assert np.allclose(project(bar)(x, ys=x, zs=y), x[0] + x[0, 0] * y[0, 0])
     assert np.allclose(project(qux)(), 1)
+
+
+@pytest.mark.parametrize(
+    "xs,ys",
+    [
+        (np.zeros(3), np.ones(3)),
+    ],
+)
+def test_lift_vector(xs, ys):
+    def foo(x):
+        return float(x)
+
+    assert np.allclose(lift(foo)(xs), xs)
+
+
+@pytest.mark.parametrize(
+    "xs,ys",
+    [
+        (np.zeros((10, 10)), np.ones((10, 10))),
+    ],
+)
+def test_lift_matrix(xs, ys):
+    def foo(x, y):
+        return x.sum() + y.prod()
+
+    def bar(x, y):
+        return x[2].sum() + y[1].sum()
+
+    def qux():
+        return 1
+
+    assert np.allclose(lift(foo)(xs, ys), xs.sum(axis=0) + ys.prod(axis=0))
+    assert np.allclose(lift(bar)(x=xs, y=ys), xs[:, 2] + ys[:, 1])

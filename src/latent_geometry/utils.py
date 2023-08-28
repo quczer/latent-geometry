@@ -115,3 +115,34 @@ def project(__fun: _T, /) -> _T:
         )[0]
 
     return __projected_fun  # type: ignore
+
+
+def lift(__fun: _T, /) -> _T:
+    """Lift function that so that it accepts batches.
+
+    Let `f: (x: (D,), y: (D,) -> (D, D)`
+    then `lift(f): (x: (B, D), y: (B, D)) -> (B, D, D)`
+
+    Examples
+    --------
+    >>> def foo(x):
+    ...     return float(x[0])
+    ...
+    >>> bar = lift(foo)
+    >>> x = np.ones((3, 4))
+    >>> foo(x)
+    TypeError: only length-1 arrays can be converted to Python scalars
+    >>> bar(x)
+    array([1., 1., 1.])
+    """
+
+    @wraps(__fun)
+    def __lift_fun(*xs: np.ndarray, **ys: np.ndarray):
+        B = xs[0].shape[0] if len(xs) > 0 else next(iter(ys.values())).shape[0]
+        results = []
+        for i in range(B):
+            res_i = __fun(*(x[i] for x in xs), **{k: y[i] for k, y in ys.items()})
+            results.append(res_i)
+        return np.array(results)
+
+    return __lift_fun  # type: ignore
