@@ -63,11 +63,11 @@ class PullbackMetric(Connection, Metric, ABC):
         term_2 = np.einsum(
             "blk,blij->bkij", cometric_mat_at_point, metric_derivative_at_point
         )
-        term_3 = -np.einsum(
+        term_3 = np.einsum(
             "blk,bijl->bkij", cometric_mat_at_point, metric_derivative_at_point
         )
 
-        christoffels = 0.5 * (term_1 + term_2 + term_3)
+        christoffels = 0.5 * (term_1 + term_2 - term_3)
         return christoffels
 
 
