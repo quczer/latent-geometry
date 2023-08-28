@@ -169,12 +169,12 @@ def test_project(x, y):
 
 
 @pytest.mark.parametrize(
-    "xs,ys",
+    "xs",
     [
-        (np.zeros(3), np.ones(3)),
+        np.zeros(3),
     ],
 )
-def test_lift_vector(xs, ys):
+def test_lift_vector(xs):
     def foo(x):
         return float(x)
 
