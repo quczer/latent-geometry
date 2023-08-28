@@ -29,7 +29,7 @@ def _batchify_decorator(fun: _T, batch_size: int) -> _T:
 
 def _batchify_decorator_method(fun: _T) -> _T:
     @wraps(fun)
-    def __wrapper(inst: _HasBatchSize, *arrays: np.ndarray) -> np.ndarray:
+    def __wrapper(inst: _HasBatchSize, /, *arrays: np.ndarray) -> np.ndarray:
         B = arrays[0].shape[0]
         result_arrays = []
         batch_size = getattr(inst, "batch_size") or B
@@ -87,3 +87,31 @@ def batchify(__fun=None, /, *, batch_size: Optional[int] = None):  # type: ignor
     # called w/o parens: @batchify
     # assume it decorates a method and try to infer the batch size
     return _batchify_decorator_method(__fun)
+
+
+def project(__fun: _T, /) -> _T:
+    """Project function that takes batches as inputs to one that accepts singles.
+
+    Let `f: (x: (B, D), y: (B, D)) -> (B, D, D)`
+    then `project(f): (x: (D,), y: (D,) -> (D, D)`
+
+    Examples
+    --------
+    >>> def foo(xs):
+    ...     return xs[:, 0]
+    ...
+    >>> bar = project(foo)
+    >>> x = np.zeros((3, ))
+    >>> foo(x)
+    IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed
+    >>> bar(x)
+    0.0
+    """
+
+    @wraps(__fun)
+    def __projected_fun(*xs: np.ndarray, **ys: np.ndarray):
+        return __fun(
+            *(x[None, ...] for x in xs), **{k: y[None, ...] for k, y in ys.items()}
+        )[0]
+
+    return __projected_fun  # type: ignore

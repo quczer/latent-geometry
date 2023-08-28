@@ -3,6 +3,7 @@ from typing import Callable, Final
 import numpy as np
 
 from latent_geometry.metric import Metric
+from latent_geometry.utils import project
 
 
 class ManifoldPath:
@@ -57,6 +58,6 @@ class ManifoldPath:
         len_ = 0.0
         dt = (t_end - t_start) / ManifoldPath._INTEGRATE_INTERVALS
         for t in np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS):
-            x, v = self(t)[None, :], self.velocity(t)[None, :]
-            len_ += metric.vector_length(v, x)[0] * dt
+            x, v = self(t), self.velocity(t)
+            len_ += float(project(metric.vector_length)(v, x)) * dt
         return len_

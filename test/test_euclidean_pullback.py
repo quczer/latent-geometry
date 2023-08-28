@@ -4,6 +4,7 @@ from torch.func import vmap
 
 from latent_geometry.mapping import SphereImmersion, TorchModelMapping
 from latent_geometry.metric import EuclideanPullbackMetric
+from latent_geometry.utils import project
 
 ATOL = 1e-4
 
@@ -51,8 +52,8 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
     sphere_immersion = SphereImmersion()
     metric = EuclideanPullbackMetric(sphere_immersion)
 
-    DM_gt = sphere_immersion.metric_matrix_derivative(z[None, :])
-    DM_computed = metric.metric_matrix_derivative(z[None, :])
+    DM_gt = project(sphere_immersion.metric_matrix_derivative)(z)
+    DM_computed = project(metric.metric_matrix_derivative)(z)
     assert np.allclose(DM_gt, DM_computed, atol=ATOL)
 
 
@@ -72,8 +73,8 @@ def test_metric_matrix_on_torch_model(simple_net, z):
             (128,),
         )
     )
-    J = metric.mapping.jacobian(z[None, :])[0]
-    M = metric.metric_matrix(z[None, :])[0]
+    J = project(metric.mapping.jacobian)(z)
+    M = project(metric.metric_matrix)(z)
     assert np.allclose(M, J.T @ J, atol=ATOL)
 
 
@@ -95,11 +96,11 @@ def test_metric_matrix_derivative_on_torch_model(simple_net, z):
         J = jacrev(torch_mapping._call_flat_model)(z_torch)
         return torch.mm(J.t(), J)
 
-    z_torch = torch_mapping._to_torch(z[None, :])
-    DM_torch_gt = vmap(jacfwd(compute_metric_matrix_torch))(z_torch)
+    z_torch = torch_mapping._to_torch(z)
+    DM_torch_gt = jacfwd(compute_metric_matrix_torch)(z_torch)
 
-    DM_gt = torch_mapping._to_numpy(DM_torch_gt)[0]
-    DM_computed = metric.metric_matrix_derivative(z[None, :])[0]
+    DM_gt = torch_mapping._to_numpy(DM_torch_gt)
+    DM_computed = project(metric.metric_matrix_derivative)(z)
 
     assert np.allclose(DM_gt, DM_computed)
     assert np.abs(DM_computed).sum() > 0

@@ -6,6 +6,7 @@ from torch import nn
 from latent_geometry.manifold import LatentManifold
 from latent_geometry.mapping import SphereImmersion, TorchModelMapping
 from latent_geometry.metric import EuclideanMetric
+from latent_geometry.utils import project
 
 
 @pytest.fixture
@@ -56,7 +57,7 @@ def test_exponential_mapping_on_the_sphere(
     z = np.array([theta, phi])
     path = sphere_manifold.path_given_direction(z, vec)
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
-    xs = [sphere_immersion(z[None, :])[0] for z in zs]
+    xs = [project(sphere_immersion)(z) for z in zs]
     assert on_the_same_big_circle(xs)
 
 
@@ -78,7 +79,7 @@ def test_logarithm_mapping_on_the_sphere(
     z_start, z_end = sphere_immersion.inv(amb_start), SphereImmersion.inv(amb_end)
     path = sphere_manifold.geodesic(z_start, z_end)
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
-    xs = [sphere_immersion(z[None, :])[0] for z in zs]
+    xs = [project(sphere_immersion)(z) for z in zs]
     assert on_the_same_big_circle(xs)
 
 
