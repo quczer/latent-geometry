@@ -4,7 +4,7 @@ from typing import Callable, Optional, Protocol, TypeVar, overload
 import numpy as np
 
 # here I should probably use ParamSpec, but it can't
-# be a proper bound which is a bummer
+# be a proper bound and I don't know how to get around that
 _T = TypeVar("_T", bound=Callable[..., np.ndarray])
 
 

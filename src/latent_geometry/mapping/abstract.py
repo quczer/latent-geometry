@@ -115,4 +115,4 @@ class EuclideanMatrixMapping(BaseMapping, ABC):
         """
 
 
-Mapping = Union[DerivativeMapping, MatrixMapping, EuclideanMatrixMapping]
+Mapping = Union[DerivativeMapping, MatrixMapping]

@@ -51,7 +51,7 @@ class BaseTorchModelMapping(DerivativeMapping):
 
     def _call_flat_model(self, xs: torch.Tensor, batch: bool = False) -> torch.Tensor:
         """Reshapes data so that we can pretend that model's input and output is 2D (batch x latent_dim)."""
-        in_shape = (-1, *self.in_shape)  # if batch else self.in_shape
+        in_shape = (-1, *self.in_shape)
         in_ = xs.reshape(in_shape)
         out_ = self.model(in_)
 

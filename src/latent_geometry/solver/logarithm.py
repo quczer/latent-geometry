@@ -103,25 +103,23 @@ class BVPLogarithmSolver(LogarithmSolver):
         self, start_position: np.ndarray, finish_position: np.ndarray
     ) -> np.ndarray:
         """Try to help the solver and propose points along linear path as the initial guess."""
-
         translation = finish_position - start_position
-        ys = []
-        for lam in np.linspace(0.0, 1.0, self.n_mesh_nodes):
-            x = start_position + lam * translation
-            v = translation
-            yi = self._pack_state(x, v)
-            ys.append(yi)
-        return self._pack_mesh(*ys)
+        shape = (self.n_mesh_nodes, *start_position.shape)
+        xs, vs = np.empty(shape), np.empty(shape)
+        for i, lam in enumerate(np.linspace(0.0, 1.0, self.n_mesh_nodes)):
+            xs[i, :] = start_position + lam * translation
+            vs[i, :] = translation
+        return self._pack_mesh(xs, vs)
 
     @staticmethod
     def _create_differential_equation(
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray]
     ) -> Callable[[float, np.ndarray], np.ndarray]:
         def differential_eq(t: float, y: np.ndarray) -> np.ndarray:
-            xs, vs = BVPLogarithmSolver._unpack_mesh2(y)
+            xs, vs = BVPLogarithmSolver._unpack_mesh(y)
             accs = acceleration_fun(xs, vs)
             x_primes, v_primes = vs, accs
-            return BVPLogarithmSolver._pack_mesh2(x_primes, v_primes)
+            return BVPLogarithmSolver._pack_mesh(x_primes, v_primes)
 
         return differential_eq
 
@@ -172,21 +170,12 @@ class BVPLogarithmSolver(LogarithmSolver):
         return x, v
 
     @staticmethod
-    def _pack_mesh(*states: np.ndarray) -> np.ndarray:
-        return np.vstack(states).T
+    def _pack_mesh(xs: np.ndarray, vs: np.ndarray) -> np.ndarray:
+        """(k, D), (k, D) -> (2*D, k)"""
+        return np.hstack((xs, vs)).T
 
     @staticmethod
-    def _unpack_mesh(mesh_state: np.ndarray) -> list[np.ndarray]:
-        states = np.hsplit(mesh_state, mesh_state.shape[1])
-        return [state.ravel() for state in states]
-
-    @staticmethod
-    def _unpack_mesh2(mesh_state: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def _unpack_mesh(mesh_state: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """(2*D, k) -> (k, D), (k, D) - position, velocity"""
         xs, vs = np.hsplit(mesh_state.T, 2)
         return xs, vs
-
-    @staticmethod
-    def _pack_mesh2(xs: np.ndarray, vs: np.ndarray) -> np.ndarray:
-        """(k, D), (k, D) -> (2*D, k)"""
-        return np.hstack((xs, vs)).T
