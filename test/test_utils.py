@@ -194,8 +194,5 @@ def test_lift_matrix(xs, ys):
     def bar(x, y):
         return x[2].sum() + y[1].sum()
 
-    def qux():
-        return 1
-
     assert np.allclose(lift(foo)(xs, ys), xs.sum(axis=0) + ys.prod(axis=0))
     assert np.allclose(lift(bar)(x=xs, y=ys), xs[:, 2] + ys[:, 1])
