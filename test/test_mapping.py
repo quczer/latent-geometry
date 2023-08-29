@@ -4,6 +4,7 @@ import torch
 
 from latent_geometry.mapping import BaseTorchModelMapping, TorchModelMapping
 from latent_geometry.metric import EuclideanMetric, ManifoldMetric
+from latent_geometry.utils import project
 
 
 @pytest.fixture(scope="module")
@@ -40,26 +41,20 @@ def test_equality_on_simple_net(z: np.ndarray, simple_net: torch.nn.Module):
     slow_metric = ManifoldMetric(
         BaseTorchModelMapping(
             simple_net,
-            (1, 1, 4, 4),
-            (
-                1,
-                128,
-            ),
+            (1, 4, 4),
+            (128,),
         ),
         EuclideanMetric(128),
     )
     fast_metric = ManifoldMetric(
         TorchModelMapping(
             simple_net,
-            (1, 1, 4, 4),
-            (
-                1,
-                128,
-            ),
+            (1, 4, 4),
+            (128,),
         ),
         EuclideanMetric(128),
     )
-    slow_dM = slow_metric.metric_matrix(z)
-    fast_dM = fast_metric.metric_matrix(z)
+    slow_dM = project(slow_metric.metric_matrix)(z)
+    fast_dM = project(fast_metric.metric_matrix)(z)
 
     assert np.allclose(slow_dM, fast_dM)

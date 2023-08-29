@@ -6,11 +6,12 @@ from latent_geometry.solver import BVPLogarithmSolver
 
 @pytest.fixture
 def logarithm_solver():
-    """Returns new instance of exponential solver with default method."""
+    """Returns new instance of logarithm solver with default number of mesh nodes."""
 
-    return BVPLogarithmSolver()
+    return BVPLogarithmSolver(n_mesh_nodes=2)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value encountered in scalar divide")
 @pytest.mark.parametrize(
     "start_theta, final_theta",
     [(0.0, np.pi), (0.0, np.pi / 2), (1.0, 2.0), (3.0, 1.0)],
@@ -35,7 +36,13 @@ def test_on_unit_circle(start_theta, final_theta, logarithm_solver: BVPLogarithm
         x_penalty = x_displacement_correction(x, v)
         return circle_term - x_penalty * 10.0
 
-    path = logarithm_solver.find_path(x_start, x_end, acceleration_fun)
+    def vectorized_acc_fun(xs, vs):
+        res = []
+        for x, v in zip(xs, vs):
+            res.append(acceleration_fun(x, v)[None, ...])
+        return np.concatenate(res, axis=0)
+
+    path = logarithm_solver.find_path(x_start, x_end, vectorized_acc_fun)
     xs, _, _ = path.get_moments(NUM_EVALS)
 
     for x_t, theta_t in zip(

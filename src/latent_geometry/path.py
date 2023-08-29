@@ -27,7 +27,7 @@ class ManifoldPath:
         the velocity at the corresponding point on the path.
     """
 
-    _INTEGRATE_INTERVALS = 100
+    _INTEGRATE_INTERVALS = 1_000
 
     def __init__(
         self,
@@ -54,9 +54,16 @@ class ManifoldPath:
         return self._integrate_length(self._manifold_metric, t_start, t_end)
 
     def _integrate_length(self, metric: Metric, t_start: float, t_end: float) -> float:
-        len_ = 0.0
-        dt = (t_end - t_start) / ManifoldPath._INTEGRATE_INTERVALS
-        for t in np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS):
-            x, v = self(t), self.velocity(t)
-            len_ += metric.vector_length(v, x) * dt
-        return len_
+        if t_end == t_start:
+            return 0
+        ts = np.linspace(t_start, t_end, ManifoldPath._INTEGRATE_INTERVALS)
+        xs, vs = [], []
+        for t1, t2 in zip(ts[:-1], ts[1:]):
+            dt = t2 - t1
+            x1, x2 = self(t1), self(t2)
+            v = (x2 - x1) / dt
+            x = (x1 + x2) / 2
+            xs.append(x)
+            vs.append(v)
+        lengths = metric.vector_length(np.array(vs), np.array(xs)) * dt
+        return lengths.sum(axis=0)

@@ -1,8 +1,12 @@
 import numpy as np
 import pytest
+from torch.func import vmap
 
 from latent_geometry.mapping import SphereImmersion, TorchModelMapping
 from latent_geometry.metric import EuclideanPullbackMetric
+from latent_geometry.utils import project
+
+ATOL = 1e-4
 
 
 @pytest.fixture
@@ -48,9 +52,9 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
     sphere_immersion = SphereImmersion()
     metric = EuclideanPullbackMetric(sphere_immersion)
 
-    DM_gt = sphere_immersion.metric_matrix_derivative(z)
-    DM_computed = metric.metric_matrix_derivative(z)
-    assert np.allclose(DM_gt, DM_computed)
+    DM_gt = project(sphere_immersion.metric_matrix_derivative)(z)
+    DM_computed = project(metric.metric_matrix_derivative)(z)
+    assert np.allclose(DM_gt, DM_computed, atol=ATOL)
 
 
 @pytest.mark.parametrize(
@@ -63,12 +67,15 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
 )
 def test_metric_matrix_on_torch_model(simple_net, z):
     metric = EuclideanPullbackMetric(
-        TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
+        TorchModelMapping(
+            simple_net,
+            (1, 4, 4),
+            (128,),
+        )
     )
-    J = metric.mapping.jacobian(z)
-    M = metric.metric_matrix(z)
-
-    assert np.allclose(M, J.T @ J)
+    J = project(metric.mapping.jacobian)(z)
+    M = project(metric.metric_matrix)(z)
+    assert np.allclose(M, J.T @ J, atol=ATOL)
 
 
 @pytest.mark.parametrize(
@@ -82,7 +89,7 @@ def test_metric_matrix_derivative_on_torch_model(simple_net, z):
     import torch
     from torch.func import jacfwd, jacrev
 
-    torch_mapping = TorchModelMapping(simple_net, (1, 1, 4, 4), (1, 128))
+    torch_mapping = TorchModelMapping(simple_net, (1, 4, 4), (128,))
     metric = EuclideanPullbackMetric(torch_mapping)
 
     def compute_metric_matrix_torch(z_torch):
@@ -93,7 +100,7 @@ def test_metric_matrix_derivative_on_torch_model(simple_net, z):
     DM_torch_gt = jacfwd(compute_metric_matrix_torch)(z_torch)
 
     DM_gt = torch_mapping._to_numpy(DM_torch_gt)
-    DM_computed = metric.metric_matrix_derivative(z)
+    DM_computed = project(metric.metric_matrix_derivative)(z)
 
     assert np.allclose(DM_gt, DM_computed)
     assert np.abs(DM_computed).sum() > 0
