@@ -70,12 +70,12 @@ class EncoderVAE(nn.Module):
             )
         )
 
-    # def sample(self, x: torch.Tensor) -> torch.Tensor:
-    #     """sample from posterior distribution"""
-    #     mu, std = self.forward(x)
-    #     noise = torch.randn_like(std)
-    #     sample = mu + (noise * std)
-    #     return sample
+    def sample(self, x: torch.Tensor) -> torch.Tensor:
+        """Sample from posterior distribution"""
+        mu, std = self.forward(x)
+        noise = torch.randn_like(std)
+        sample = mu + (noise * std)
+        return sample
 
     def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         """Return (mu, std), where std is a batch of scalars"""
@@ -143,12 +143,13 @@ class DecoderVAE(nn.Module):
                             padding=1,
                         ),
                     ),
-                    ("sigmoid", nn.Sigmoid()),
+                    # ("sigmoid", nn.Sigmoid()),
                 ]
             )
         )
 
     def forward(self, z: torch.Tensor) -> torch.Tensor:
+        """Return logits"""
         if z.dim() == 1:
             z = z.unsqueeze(0)
         z = self.fcs(z)
@@ -156,10 +157,27 @@ class DecoderVAE(nn.Module):
         z = self.deconvs(z)
         return z
 
+    def decode(self, z: torch.Tensor) -> torch.Tensor:
+        """Return probabilities"""
+        x = self.forward(z)
+        return F.sigmoid(x)
 
-# def load_decoder(device: torch.device = torch.device("cpu")) -> DecoderVAE:
-#     return torch.load(MODELS_DIR / "mnist" / "decoder.pt", map_location=device)
+
+def load_decoder(device: torch.device = torch.device("cpu")) -> DecoderVAE:
+    state_dict = torch.load(MODELS_DIR / "mnist" / "decoder.pt", map_location=device)
+    decoder = DecoderVAE(init_channels=8, latent_dim=2)
+    decoder.load_state_dict(state_dict)
+    decoder.eval()
+    return decoder
 
 
-# def load_encoder(device: torch.device = torch.device("cpu")) -> EncoderVAE:
-#     return torch.load(MODELS_DIR / "mnist" / "encoder.pt", map_location=device)
+def load_encoder(device: torch.device = torch.device("cpu")) -> EncoderVAE:
+    state_dict = torch.load(MODELS_DIR / "mnist" / "encoder.pt", map_location=device)
+    encoder = EncoderVAE(init_channels=8, latent_dim=2)
+    encoder.load_state_dict(state_dict)
+    encoder.eval()
+    return encoder
+
+
+def save_model(model: nn.Module, name: str) -> None:
+    torch.save(model.state_dict(), MODELS_DIR / "mnist" / name)

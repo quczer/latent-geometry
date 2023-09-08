@@ -37,6 +37,8 @@ setup(
             "pandas",
             "plotly",
             "torchvision",
+            "clearml",
+            "nbconvert",
         ],
     },
 )
