@@ -163,18 +163,24 @@ class DecoderVAE(nn.Module):
         return F.sigmoid(x)
 
 
-def load_decoder(device: torch.device = torch.device("cpu")) -> DecoderVAE:
-    state_dict = torch.load(MODELS_DIR / "mnist" / "decoder.pt", map_location=device)
+def load_decoder(
+    device: torch.device = torch.device("cpu"), name: str = "decoder.pt"
+) -> DecoderVAE:
+    state_dict = torch.load(MODELS_DIR / "mnist" / name, map_location=device)
     decoder = DecoderVAE(init_channels=8, latent_dim=2)
     decoder.load_state_dict(state_dict)
+    decoder.to(device)
     decoder.eval()
     return decoder
 
 
-def load_encoder(device: torch.device = torch.device("cpu")) -> EncoderVAE:
-    state_dict = torch.load(MODELS_DIR / "mnist" / "encoder.pt", map_location=device)
+def load_encoder(
+    device: torch.device = torch.device("cpu"), name: str = "encoder.pt"
+) -> EncoderVAE:
+    state_dict = torch.load(MODELS_DIR / "mnist" / name, map_location=device)
     encoder = EncoderVAE(init_channels=8, latent_dim=2)
     encoder.load_state_dict(state_dict)
+    encoder.to(device)
     encoder.eval()
     return encoder
 
