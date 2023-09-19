@@ -6,6 +6,8 @@ import torch.nn.functional as F
 
 from latent_geometry.config import MODELS_DIR
 
+_EPS = 1e-4
+
 
 class EncoderVAE(nn.Module):
     def __init__(self, init_channels: int = 8, latent_dim: int = 2):
@@ -86,7 +88,7 @@ class EncoderVAE(nn.Module):
         hidden = self.fcs(x)
 
         mu, std_out = hidden[..., :-1], hidden[..., [-1]]
-        std = F.softplus(std_out)
+        std = F.softplus(std_out) + _EPS
         return mu, std
 
 

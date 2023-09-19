@@ -21,7 +21,8 @@ def report_metrics(
     epoch: int,
     kl_loss: float,
     bce_loss: float,
-    image_samples: Optional[np.ndarray] = None,
+    image_samples: list[tuple[str, np.ndarray]],
+    stds: Optional[np.ndarray] = None,
     latent_distr: Optional[tuple[np.ndarray, np.ndarray]] = None,
 ):
     logger.report_scalar(title="kl_loss", series=series, value=kl_loss, iteration=epoch)
@@ -35,10 +36,10 @@ def report_metrics(
         iteration=epoch,
     )
 
-    if image_samples is not None:
-        for i, sample in enumerate(image_samples):
+    for title, samples in image_samples:
+        for i, sample in enumerate(samples):
             logger.report_image(
-                title="digits",
+                title=title,
                 series=f"{series}_sample_{i}",
                 iteration=epoch,
                 image=sample,
@@ -59,6 +60,20 @@ def report_metrics(
             title="latent space", series=series, iteration=epoch, figure=fig
         )
 
+    if stds is not None:
+        logger.report_scalar(
+            title="std_mean",
+            series=series,
+            value=stds.mean(),
+            iteration=epoch,
+        )
+        logger.report_scalar(
+            title="std_std",
+            series=series,
+            value=stds.std(),
+            iteration=epoch,
+        )
+
 
 def train(
     encoder: nn.Module,
@@ -76,6 +91,7 @@ def train(
     kl_loss_sum = 0.0
     bce_loss_sum = 0.0
 
+    stds = []
     for batch in dataloader:
         imgs = batch[0].to(device)
         optimizer.zero_grad()
@@ -88,7 +104,7 @@ def train(
         # losses
         bce_loss = bce_loss_fun(sampled_img_logits, imgs)
         kl_div = -0.5 * torch.sum(1 + 2 * std.log() - mu.pow(2) - std.pow(2))
-        loss = bce_loss + kl_div
+        loss = (bce_loss + kl_div) / len(batch)
 
         bce_loss_sum += bce_loss.item()
         kl_loss_sum += kl_div.item()
@@ -97,7 +113,11 @@ def train(
         loss.backward()
         optimizer.step()
 
+        # reporting
+        stds.append(std.detach().cpu().numpy())
+
     if logger is not None:
+        std = np.concatenate(stds, axis=0)
         len_data = len(dataloader)
         report_metrics(
             logger,
@@ -105,7 +125,8 @@ def train(
             epoch,
             kl_loss_sum / len_data,
             bce_loss_sum / len_data,
-            image_samples=None,
+            image_samples=[],
+            stds=std,
             latent_distr=None,
         )
 
@@ -117,6 +138,7 @@ def test(
     device: torch.device,
     logger: Optional[clearml.Logger],
     epoch: int,
+    debug_z: np.ndarray,
 ) -> float:
     bce_loss_fun = nn.BCEWithLogitsLoss(reduction="sum")
     encoder.to(device).eval()
@@ -124,7 +146,7 @@ def test(
 
     kl_loss_sum = 0.0
     bce_loss_sum = 0.0
-    mus, labels = [], []
+    mus, labels, stds = [], [], []
     with torch.no_grad():
         for i, batch in enumerate(dataloader):
             imgs, label = batch[0].to(device), batch[1]
@@ -144,13 +166,23 @@ def test(
             # reporting
             mus.append(mu.cpu().numpy())
             labels.append(label.cpu().numpy())
+            stds.append(std.detach().cpu().numpy())
             if i == 0:
-                image_samples = F.sigmoid(sampled_img_logits).cpu().numpy()
+                shot_img_samples = F.sigmoid(sampled_img_logits).cpu().numpy()
+                const_samples = (
+                    decoder.decode(
+                        torch.tensor(debug_z, dtype=torch.float32).to(device)
+                    )
+                    .detach()
+                    .cpu()
+                    .numpy()
+                ).reshape(-1, 32, 32)
 
     if logger is not None:
-        samples = image_samples[:8].reshape(8, 32, 32)
+        shot_samples = shot_img_samples[:8].reshape(8, 32, 32)
         mu = np.concatenate(mus, axis=0)
         label = np.concatenate(labels, axis=0)
+        std = np.concatenate(stds, axis=0)
         len_data = len(dataloader)
         report_metrics(
             logger,
@@ -158,13 +190,27 @@ def test(
             epoch,
             kl_loss_sum / len_data,
             bce_loss_sum / len_data,
-            image_samples=samples,
+            image_samples=[("shot", shot_samples), ("const", const_samples)],
+            stds=std,
             latent_distr=(mu, label),
         )
     return bce_loss_sum + kl_loss_sum
 
 
 def main(args: argparse.Namespace):
+    DEBUG_Z = np.array(
+        [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [-1.0, 1.0],
+            [-1.0, 0.0],
+            [-1.0, -1.0],
+            [0.0, -1.0],
+        ]
+    )
+
     # Connecting ClearML with the current process,
     # from here on everything is logged automatically
     if args.clearml_run_name is not None:
@@ -207,6 +253,7 @@ def main(args: argparse.Namespace):
                 torch_device,
                 logger,
                 epoch,
+                debug_z=DEBUG_Z,
             )
             if loss < best_loss and args.save_best_model:
                 best_loss = loss
