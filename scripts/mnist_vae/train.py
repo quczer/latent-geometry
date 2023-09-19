@@ -83,6 +83,7 @@ def train(
     optimizer: torch.optim.Optimizer,
     logger: Optional[clearml.Logger],
     epoch: int,
+    beta: float,
 ):
     bce_loss_fun = nn.BCEWithLogitsLoss(reduction="sum")
     encoder.to(device).train()
@@ -104,7 +105,7 @@ def train(
         # losses
         bce_loss = bce_loss_fun(sampled_img_logits, imgs)
         kl_div = -0.5 * torch.sum(1 + 2 * std.log() - mu.pow(2) - std.pow(2))
-        loss = (bce_loss + kl_div) / len(batch)
+        loss = (bce_loss + beta * kl_div) / len(batch)
 
         bce_loss_sum += bce_loss.item()
         kl_loss_sum += kl_div.item()
@@ -244,7 +245,16 @@ def main(args: argparse.Namespace):
 
     best_loss = 1e18
     for epoch in tqdm(range(args.epochs)):
-        train(encoder, decoder, train_loader, torch_device, optimizer, logger, epoch)
+        train(
+            encoder,
+            decoder,
+            train_loader,
+            torch_device,
+            optimizer,
+            logger,
+            epoch,
+            args.beta,
+        )
         if epoch % args.eval_every == 0:
             loss = test(
                 encoder,
@@ -312,6 +322,13 @@ if __name__ == "__main__":
         default=10,
         metavar="N",
         help="how many batches to wait before evaluating on validation split",
+    )
+    parser.add_argument(
+        "--beta",
+        type=float,
+        default=1.0,
+        metavar="B",
+        help="Coefficient of the KL loss part",
     )
     parser.add_argument(
         "--save-best-model",
