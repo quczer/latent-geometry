@@ -233,8 +233,8 @@ def main(args: argparse.Namespace):
         load_mnist_dataset("test"), batch_size=args.test_batch_size, shuffle=False
     )
 
-    encoder = EncoderVAE()
-    decoder = DecoderVAE()
+    encoder = EncoderVAE(args.latent_dim)
+    decoder = DecoderVAE(args.latent_dim)
     optimizer = torch.optim.Adam(
         params=itertools.chain(
             encoder.parameters(),
@@ -267,8 +267,8 @@ def main(args: argparse.Namespace):
             )
             if loss < best_loss and args.save_best_model:
                 best_loss = loss
-                save_model(encoder, "best_encoder.pt")
-                save_model(decoder, "best_decoder.pt")
+                save_model(encoder, f"{args.model_name}_encoder.pt")
+                save_model(decoder, f"{args.model_name}_decoder.pt")
 
     task.close()
 
@@ -329,6 +329,20 @@ if __name__ == "__main__":
         default=1.0,
         metavar="B",
         help="Coefficient of the KL loss part",
+    )
+    parser.add_argument(
+        "--latent-dim",
+        type=int,
+        default=2,
+        metavar="D",
+        help="Dimension of the latent space",
+    )
+    parser.add_argument(
+        "--model-name",
+        type=str,
+        default="trained",
+        metavar="M",
+        help="Model name",
     )
     parser.add_argument(
         "--save-best-model",
