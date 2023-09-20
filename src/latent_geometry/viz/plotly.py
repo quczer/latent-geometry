@@ -4,8 +4,8 @@ import numpy as np
 import plotly.graph_objects as go
 
 from latent_geometry.manifold import Manifold
-from latent_geometry.visual.calc import create_circles, create_lines
-from latent_geometry.visual.config import (
+from latent_geometry.viz.calc import create_circles, create_lines
+from latent_geometry.viz.config import (
     FIGURE_HEIGHT,
     FIGURE_WIDTH,
     LINE_OPACITY,
