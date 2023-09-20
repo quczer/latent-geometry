@@ -20,6 +20,6 @@ def test_integration_on_the_circle(theta):
         return np.array([-np.cos(theta * t), -np.sin(theta * t)]) * theta**2
 
     metric = EuclideanMetric()
-    path = ManifoldPath(x_fun, v_fun, metric, metric)
+    path = ManifoldPath(x_fun, metric)
     assert np.isclose(path.euclidean_length(), theta)
     assert np.isclose(path.manifold_length(), theta)
