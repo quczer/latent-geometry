@@ -6,6 +6,9 @@ from latent_geometry.connection import Connection
 from latent_geometry.mapping import EuclideanMatrixMapping, Mapping, MatrixMapping
 from latent_geometry.metric.abstract import Metric
 from latent_geometry.metric.euclidean import EuclideanMetric
+from latent_geometry.utils import batched_eye
+
+_EPS = 1e-4
 
 
 class PullbackMetric(Connection, Metric, ABC):
@@ -50,6 +53,7 @@ class PullbackMetric(Connection, Metric, ABC):
             Inverse of the inner-product matrix.
         """
         metric_matrices = self.metric_matrix(base_points)
+        metric_matrices += _EPS * batched_eye(*base_points.shape)
         cometric_matrices = np.linalg.inv(metric_matrices)
         return cometric_matrices
 

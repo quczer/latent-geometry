@@ -12,7 +12,7 @@ from latent_geometry.utils import project
 @pytest.fixture
 def sphere_manifold():
     """Returns a manifold from sphere immersion with euclidean ambient metric."""
-    return LatentManifold(SphereImmersion(), EuclideanMetric(3))
+    return LatentManifold(SphereImmersion(), EuclideanMetric())
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def hilly_2d_manifold():
             return torch.stack([x, y, z])
 
     return LatentManifold(
-        TorchModelMapping(Hilly2dNet(), (2,), (3,)), EuclideanMetric(3)
+        TorchModelMapping(Hilly2dNet(), (2,), (3,)), EuclideanMetric()
     )
 
 

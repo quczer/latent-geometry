@@ -20,4 +20,4 @@ class ManifoldMetric(MappingPullbackMetric):
 
 class EuclideanPullbackMetric(ManifoldMetric):
     def __init__(self, mapping: Mapping):
-        super().__init__(mapping, EuclideanMetric(mapping.out_dim))
+        super().__init__(mapping, EuclideanMetric())

@@ -146,3 +146,11 @@ def lift(__fun: _T, /) -> _T:
         return np.array(results)
 
     return __lift_fun  # type: ignore
+
+
+def batched_eye(B: int, D: int) -> np.ndarray:
+    """Return B x D x D eye matrix."""
+    Is = np.zeros((B, D, D))
+    diag_idx = np.arange(D)
+    Is[:, diag_idx, diag_idx] = 1
+    return Is

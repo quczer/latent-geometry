@@ -17,7 +17,6 @@ class LatentManifold(Manifold):
         bvp_n_mesh_nodes: int = 2,
     ):
         self.metric = ManifoldMetric(mapping, ambient_metric)
-        self._euclidean_latent_metric = EuclideanMetric(mapping.in_dim)
         self._exp_solver = IVPExponentialSolver(tolerance=solver_tol)
         # careful, computation time can scale linearly with `n_mesh_nodes`
         self._log_solver = BVPLogarithmSolver(
@@ -29,9 +28,7 @@ class LatentManifold(Manifold):
         solver_path = self._log_solver.find_path(z_a, z_b, self.metric.acceleration)
         return ManifoldPath(
             solver_path.position,
-            solver_path.velocity,
             self.metric,
-            self._euclidean_latent_metric,
         )
 
     def path_given_direction(
@@ -41,9 +38,7 @@ class LatentManifold(Manifold):
         solver_path = self._exp_solver.compute_path(z, velocity, self.flat_acc_fun)
         return ManifoldPath(
             solver_path.position,
-            solver_path.velocity,
             self.metric,
-            self._euclidean_latent_metric,
         )
 
     def _adjust_vector_magnitude(

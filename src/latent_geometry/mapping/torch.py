@@ -1,5 +1,5 @@
 import math
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 import torch
@@ -22,9 +22,11 @@ class BaseTorchModelMapping(DerivativeMapping):
         in_shape: tuple[int, ...],
         out_shape: tuple[int, ...],
         batch_size: Optional[int] = None,
+        call_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
     ):
         """Shapes should be without the batch dimension"""
         self.model = model
+        self.call_fn = call_fn or model.__call__
         self.in_shape = in_shape
         self.out_shape = out_shape
         self.batch_size = batch_size
@@ -53,7 +55,7 @@ class BaseTorchModelMapping(DerivativeMapping):
         """Reshapes data so that we can pretend that model's input and output is 2D (batch x latent_dim)."""
         in_shape = (-1, *self.in_shape)
         in_ = xs.reshape(in_shape)
-        out_ = self.model(in_)
+        out_ = self.call_fn(in_)
 
         return out_.reshape(-1, self.out_dim) if batch else out_.reshape(self.out_dim)
 
