@@ -44,7 +44,7 @@ def test_equality_on_simple_net(z: np.ndarray, simple_net: torch.nn.Module):
             (1, 4, 4),
             (128,),
         ),
-        EuclideanMetric(128),
+        EuclideanMetric(),
     )
     fast_metric = ManifoldMetric(
         TorchModelMapping(
@@ -52,7 +52,7 @@ def test_equality_on_simple_net(z: np.ndarray, simple_net: torch.nn.Module):
             (1, 4, 4),
             (128,),
         ),
-        EuclideanMetric(128),
+        EuclideanMetric(),
     )
     slow_dM = project(slow_metric.metric_matrix)(z)
     fast_dM = project(fast_metric.metric_matrix)(z)

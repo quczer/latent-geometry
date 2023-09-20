@@ -17,7 +17,7 @@ class LatentManifold(Manifold):
         bvp_n_mesh_nodes: int = 2,
     ):
         self.metric = ManifoldMetric(mapping, ambient_metric)
-        self._euclidean_latent_metric = EuclideanMetric(mapping.in_dim)
+        self._euclidean_latent_metric = EuclideanMetric()
         self._exp_solver = IVPExponentialSolver(tolerance=solver_tol)
         # careful, computation time can scale linearly with `n_mesh_nodes`
         self._log_solver = BVPLogarithmSolver(
