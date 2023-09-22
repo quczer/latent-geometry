@@ -29,12 +29,12 @@ class Connection(ABC):
 
         Parameters
         ----------
-        base_point : (B, D) ndarray
+        base_point : (B, D) array
             Base point on the manifold.
 
         Returns
         -------
-        gamma : (B, D, D, D) ndarray
+        gamma : (B, D, D, D) array
             Christoffel symbols, where the contravariant index is second.
         """
 
@@ -43,14 +43,14 @@ class Connection(ABC):
 
         Parameters
         ----------
-        position : (B, D) ndarray
+        position : (B, D) array
             Position on the manifold.
-        velocity : (B, D) ndarray
+        velocity : (B, D) array
             Velocity at the point on the manifold.
 
         Returns
         -------
-        acceleration : (B, D) ndarray
+        acceleration : (B, D) array
             Acceleration vector in the given state.
         """
         gamma = self.christoffels(position)

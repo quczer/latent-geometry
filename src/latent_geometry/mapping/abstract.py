@@ -11,12 +11,12 @@ class BaseMapping(ABC):
 
         Parameters
         ----------
-        zs : (B, D) ndarray
+        zs : (B, D) array
             Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        xs : (B, D') ndarray
+        xs : (B, D') array
             Mapped batch of points from the codomain - usually ambient space.
         """
 
@@ -26,12 +26,12 @@ class BaseMapping(ABC):
 
         Parameters
         ----------
-        zs : (B, D) ndarray
+        zs : (B, D) array
             Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        Js : (B, D', D) ndarray
+        Js : (B, D', D) array
             Jacobian of the mapping computed at zs, where index
             of the derivation is put last.
 
@@ -56,12 +56,12 @@ class DerivativeMapping(BaseMapping, ABC):
 
         Parameters
         ----------
-        zs : (B, D) ndarray
+        zs : (B, D) array
             Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        Hs : (B, D', D, D) ndarray
+        Hs : (B, D', D, D) array
             The second derivative of the mapping computed at zs,
             where indices of the derivation are put last.
 
@@ -77,15 +77,15 @@ class MatrixMapping(BaseMapping, ABC):
         r"""
         Parameters
         ----------
-        zs : (B, D) ndarray
+        zs : (B, D) array
             Batch of points from the domain - usually latent space.
 
-        ambient_metric_matrices : (B, D', D') ndarray
+        ambient_metric_matrices : (B, D', D') array
             Batch of metric matrices from the co-domain.
 
         Returns
         -------
-        dMs: (B, D, D, D) ndarray
+        dMs: (B, D, D, D) array
             Derivative of the inner-product matrices of the domain, where the index
             k of the derivation is last: math:`mat_{bijk} = \partial_k g_{bij}`
 
@@ -101,12 +101,12 @@ class EuclideanMatrixMapping(BaseMapping, ABC):
 
         Parameters
         ----------
-        zs : (B, D) ndarray
+        zs : (B, D) array
             Batch of points from the domain - usually latent space.
 
         Returns
         -------
-        dMs: (B, D, D, D) ndarray
+        dMs: (B, D, D, D) array
             Derivative of the inner-product matrices of the domain, where the index
             k of the derivation is last: math:`mat_{bijk} = \partial_k g_{bij}`
 

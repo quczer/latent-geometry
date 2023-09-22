@@ -10,11 +10,11 @@ class Path:
 
     Methods
     -------
-    __call__(t) : (float,) -> (D,) ndarray
+    __call__(t) : (float,) -> (D,) array
         Given t - time from [0, 1] interval, returns
         the corresponding point on the path.
 
-    velocity(t) : (float,) -> (D,) ndarray
+    velocity(t) : (float,) -> (D,) array
         Given t - time from [0, 1] interval, returns
         the velocity at the corresponding point on the path.
 
@@ -61,11 +61,11 @@ class ManifoldPath(Path):
 
     Methods
     -------
-    __call__(t) : (float,) -> (D,) ndarray
+    __call__(t) : (float,) -> (D,) array
         Given t - time from [0, 1] interval, returns
         the corresponding point on the path.
 
-    velocity(t) : (float,) -> (D,) ndarray
+    velocity(t) : (float,) -> (D,) array
         Given t - time from [0, 1] interval, returns
         the velocity at the corresponding point on the path.
 

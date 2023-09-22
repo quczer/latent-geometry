@@ -14,12 +14,12 @@ class Metric(ABC):
 
         Parameters
         ----------
-        base_points : (B, D) ndarray
+        base_points : (B, D) array
             Batch of base points.
 
         Returns
         -------
-        (B, D, D) ndarray
+        (B, D, D) array
             The inner-product matrices.
         """
 
@@ -31,12 +31,12 @@ class Metric(ABC):
 
         Parameters
         ----------
-        base_points : (B, D) ndarray
+        base_points : (B, D) array
             Base point on the manifold.
 
         Returns
         -------
-        (B, D, D) ndarray
+        (B, D, D) array
             Inverse of the inner-product matrix.
         """
         metric_matrices = self.metric_matrix(base_points)
@@ -54,16 +54,16 @@ class Metric(ABC):
 
         Parameters
         ----------
-        tangent_vec_a : (B, D) ndarray
+        tangent_vec_a : (B, D) array
             Tangent vector at a base point.
-        tangent_vec_b : (B, D) ndarray
+        tangent_vec_b : (B, D) array
             Tangent vector at a base point.
-        base_point : (B, D) ndarray
+        base_point : (B, D) array
             Base point on the manifold.
 
         Returns
         -------
-        (B,) ndarry
+        (B,) array
             The inner-products.
         """
         inner_prod_matrices = self.metric_matrix(base_point)
@@ -79,14 +79,14 @@ class Metric(ABC):
 
         Parameters
         ----------
-        tangent_vec : (B, D) ndarray
+        tangent_vec : (B, D) array
             Tangent vector at a base point.
-        base_point : (B, D) ndarray
+        base_point : (B, D) array
             Base point on the manifold.
 
         Returns
         -------
-        (B,) ndarry
+        (B,) array
             Lengths of vectors.
         """
         return np.sqrt(self.inner_product(tangent_vec, tangent_vec, base_point))

@@ -23,16 +23,16 @@ class ExponentialSolver(ABC):
 
         Parameters
         ----------
-        position : (D,) ndarray
+        position : (D,) array
             Position.
-        velocity : (D,) ndarray
+        velocity : (D,) array
             Velocity at position.
-        acceleration_fun : callable ((D,) ndarray, (D,) ndarray) -> (D,) ndarray
+        acceleration_fun : callable ((D,) array, (D,) array) -> (D,) array
             Acceleration at any given position and velocity.
 
         Returns
         -------
-        path : callable (float,) -> (D,) ndarray
+        path : callable (float,) -> (D,) array
             Time-parametrized path; function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the path.
@@ -57,14 +57,14 @@ class LogarithmSolver(ABC):
 
         Parameters
         ----------
-        start_position : (D,) ndarray
-        finish_position : (D,) ndarray
-        acceleration_fun : callable ((D,) ndarray, (D,) ndarray) -> (D,) ndarray
+        start_position : (D,) array
+        finish_position : (D,) array
+        acceleration_fun : callable ((D,) array, (D,) array) -> (D,) array
             Acceleration at any given position and velocity.
 
         Returns
         -------
-        path : callable (float,) -> (D,) ndarray
+        path : callable (float,) -> (D,) array
             Time-parametrized path; function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the path.

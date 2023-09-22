@@ -20,15 +20,15 @@ class PullbackMetric(Connection, Metric, ABC):
 
         Parameters
         ----------
-        zs : (B, D) ndarray
+        zs : (B, D) array
             Batch of points from the domain - usually latent space.
 
-        ambient_metric_matrices : (B, D', D') ndarray
+        ambient_metric_matrices : (B, D', D') array
             Batch of metric matrices from the co-domain.
 
         Returns
         -------
-        dMs: (B, D, D, D) ndarray
+        dMs: (B, D, D, D) array
             Derivative of the inner-product matrices of the domain, where the index
             k of the derivation is last: math:`mat_{bijk} = \partial_k g_{bij}`
         """

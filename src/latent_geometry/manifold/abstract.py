@@ -13,14 +13,14 @@ class Manifold(ABC):
 
         Parameters
         ----------
-        z_a : (D,) ndarray
+        z_a : (D,) array
             Start point on the manifold.
-        z_b : (D,) ndarray
+        z_b : (D,) array
             End point on the manifold.
 
         Returns
         -------
-        path : callable (float,) -> (D,) ndarray
+        path : callable (float,) -> (D,) array
             Time-parametrized path; function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the geodesic on the manifold.
@@ -39,15 +39,15 @@ class Manifold(ABC):
 
         Parameters
         ----------
-        z : (D,) ndarray
+        z : (D,) array
             Starting point on the manifold.
-        velocity_vec : (D,) ndarray
+        velocity_vec : (D,) array
             Starting velocity direction at point z.
         length: float, default: 1.0
 
         Returns
         -------
-        path : callable (float,) -> (D,) ndarray
+        path : callable (float,) -> (D,) array
             Time-parametrized path that is a function that takes a float
             from [0, 1] interval and returns the correspoding point of
             the path on the manifold.
