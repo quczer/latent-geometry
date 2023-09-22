@@ -21,11 +21,6 @@ def create_radials(
     return lines
 
 
-def eval_circle(t: float, tck: tuple) -> np.ndarray:
-    x, y = splev(t, tck)
-    return np.hstack([x, y])
-
-
 def create_circles(
     radials: list[Callable[[float], np.ndarray]], n_circles: int
 ) -> list[Callable[[float], np.ndarray]]:
@@ -36,6 +31,11 @@ def create_circles(
             [line(timestamp) for line in radials] + [radials[0](timestamp)]
         )
         tck, u = splprep(interpolate_points.T, s=0, per=1)
-        circle = partial(eval_circle, tck=tck)
+        circle = partial(_eval_circle, tck=tck)
         circles.append(circle)
     return circles
+
+
+def _eval_circle(t: float, tck: tuple) -> np.ndarray:
+    x, y = splev(t, tck)
+    return np.hstack([x, y])
