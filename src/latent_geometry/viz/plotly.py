@@ -9,15 +9,20 @@ import latent_geometry.viz.config as C
 from latent_geometry.path import Path
 
 
-def create_background_trace(mus: np.ndarray, labels: np.ndarray) -> BaseTraceType:
+def create_background_trace(
+    mus: np.ndarray, labels: np.ndarray, opacity: float
+) -> BaseTraceType:
     cmap = np.array(px.colors.qualitative.G10)
     colors = cmap[labels]
     return go.Scatter(
         x=mus[:, 0],
         y=mus[:, 1],
+        customdata=labels,
         mode="markers",
-        marker=dict(color=colors, opacity=0.5),
+        marker=dict(color=colors, opacity=opacity),
         name="mnist",
+        hovertemplate="digit=%{customdata}<br>x=%{x:.3}<br>y=%{y:.3}<extra></extra>",
+        showlegend=True,
     )
 
 
@@ -65,6 +70,7 @@ def _path_to_trace(
     color: str = "black",
     legend_group: Optional[str] = None,
     show_legend: bool = False,
+    opacity: Optional[float] = None,
 ) -> go.Scatter:
     timestamps = np.linspace(0.0, 1.0, n_points)
     points = np.vstack([path(t) for t in timestamps])
@@ -74,7 +80,7 @@ def _path_to_trace(
         mode="lines",
         name=legend_group,
         line={"color": color, "width": C.LINE_WIDTH},
-        opacity=C.LINE_OPACITY,
+        opacity=opacity or C.LINE_OPACITY,
         legendgroup=legend_group,
         showlegend=show_legend,
     )
