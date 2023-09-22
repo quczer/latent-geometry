@@ -25,7 +25,7 @@ def draw_spiders(
     spiders: list[list[Path]],
     background_trace: Optional[go.Scatter] = None,
 ) -> go.Figure:
-    traces = []
+    traces: list[go.Scatter] = []
     for spider in spiders:
         x0, y0 = spider[0](0.0)
         legend_group = f"spider_({x0:.1f},{y0:.1f})"
