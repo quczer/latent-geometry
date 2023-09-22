@@ -1,6 +1,7 @@
+import os
+
 import clearml
 import numpy as np
-import os
 
 task = clearml.Task.init("afgsgfd", "dfagagafb")
 logger = task.logger

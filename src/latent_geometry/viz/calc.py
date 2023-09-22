@@ -7,7 +7,7 @@ from scipy.interpolate import splev, splprep
 from latent_geometry.manifold import Manifold
 
 
-def create_lines(
+def create_radials(
     centre: np.ndarray,
     divisions: int,
     manifold: Manifold,
@@ -27,13 +27,13 @@ def eval_circle(t: float, tck: tuple) -> np.ndarray:
 
 
 def create_circles(
-    lines: list[Callable[[float], np.ndarray]], n_circles: int
+    radials: list[Callable[[float], np.ndarray]], n_circles: int
 ) -> list[Callable[[float], np.ndarray]]:
     circles: list[Callable[[float], np.ndarray]] = []
 
     for timestamp in np.linspace(0.0, 1.0, n_circles + 1)[1:]:
         interpolate_points = np.vstack(
-            [line(timestamp) for line in lines] + [lines[0](timestamp)]
+            [line(timestamp) for line in radials] + [radials[0](timestamp)]
         )
         tck, u = splprep(interpolate_points.T, s=0, per=1)
         circle = partial(eval_circle, tck=tck)

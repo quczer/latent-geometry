@@ -1,20 +1,18 @@
-from typing import Callable
+from typing import Callable, Iterable, Optional
 
 import numpy as np
 import plotly.graph_objects as go
+from plotly.basedatatypes import BaseTraceType
 
-from latent_geometry.manifold import Manifold
-from latent_geometry.viz.calc import create_circles, create_lines
-from latent_geometry.viz.config import (
-    FIGURE_HEIGHT,
-    FIGURE_WIDTH,
-    LINE_OPACITY,
-    LINE_WIDTH,
-)
+import latent_geometry.viz.config as C
 
 
-def create_scatter_object_given_path(
-    path: Callable[[float], np.ndarray], n_points: int = 30, color: str = "black"
+def path_to_trace(
+    path: Callable[[float], np.ndarray],
+    n_points: int = 30,
+    color: str = "black",
+    legend_group: Optional[str] = None,
+    show_legend: bool = False,
 ) -> go.Scatter:
     timestamps = np.linspace(0.0, 1.0, n_points)
     points = np.vstack([path(t) for t in timestamps])
@@ -22,39 +20,47 @@ def create_scatter_object_given_path(
         x=points[:, 0],
         y=points[:, 1],
         mode="lines",
-        name="",
-        line={"color": color, "width": LINE_WIDTH},
-        opacity=LINE_OPACITY,
+        name=legend_group,
+        line={"color": color, "width": C.LINE_WIDTH},
+        opacity=C.LINE_OPACITY,
+        legendgroup=legend_group,
+        showlegend=show_legend,
     )
 
 
-def create_topology_fig(
-    centres: list[np.ndarray],
-    manifold: Manifold,
-    background_trace: go.Scatter,
-    num_lines: int,
-    num_circles: int,
-    line_length: float = 2.5,
-    show_lines: bool = True,
-    show_circles: bool = True,
+def draw_spiders(
+    spiders: list[list[Callable[[float], np.ndarray]]],
+    background_trace: Optional[go.Scatter] = None,
 ) -> go.Figure:
-    paths = []
-    for centre in centres:
-        lines = create_lines(centre, num_lines, manifold, length=line_length)
-        if show_lines:
-            paths.extend(lines)
-        if show_circles:
-            paths.extend(create_circles(lines, num_circles))
-    return draw_paths(background_trace, paths)
+    traces = []
+    for spider in spiders:
+        x0, y0 = spider[0](0.0)
+        legend_group = f"spider_({x0:.1f},{y0:.1f})"
+        traces.extend(
+            path_to_trace(path, legend_group=legend_group, show_legend=i == 0)
+            for i, path in enumerate(spider)
+        )
+    if background_trace:
+        traces.append(background_trace)
+    fig = plot_traces(traces)
+    return fig
 
 
-def draw_paths(
-    background_trace: go.Scatter, paths: list[Callable[[float], np.ndarray]]
-) -> go.Figure:
-    traces = [create_scatter_object_given_path(path) for path in paths] + [
-        background_trace
-    ]
-    fig = go.Figure(layout={"width": FIGURE_WIDTH, "height": FIGURE_HEIGHT})
-    for trace in traces:
-        fig.add_trace(trace)
+def plot_traces(traces: Iterable[BaseTraceType]) -> go.Figure:
+    fig = go.Figure(
+        data=traces,
+        layout={
+            "width": C.FIGURE_WIDTH,
+            "height": C.FIGURE_HEIGHT,
+            "margin": {
+                "b": C.MARGIN,
+                "l": C.MARGIN,
+                "r": C.MARGIN,
+                "t": C.MARGIN,
+            },
+            "paper_bgcolor": "#fff",
+            "yaxis": {"range": C.AXES_RANGE},
+            "xaxis": {"range": C.AXES_RANGE},
+        },
+    )
     return fig
