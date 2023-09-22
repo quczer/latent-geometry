@@ -117,7 +117,18 @@ def project(__fun: _T, /) -> _T:
     return __projected_fun  # type: ignore
 
 
+# IMPROVE: type annotation here
+@overload
+def lift(__fun: Callable[[float], np.ndarray], /) -> Callable[[np.ndarray], np.ndarray]:  # type: ignore
+    ...
+
+
+@overload
 def lift(__fun: _T, /) -> _T:
+    ...
+
+
+def lift(__fun, /):
     """Lift function that so that it accepts batches.
 
     Let `f: (x: (D,), y: (D,) -> (D, D)`

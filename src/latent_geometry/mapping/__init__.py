@@ -4,6 +4,7 @@ from latent_geometry.mapping.abstract import (
     Mapping,
     MatrixMapping,
 )
+from latent_geometry.mapping.identity import IdentityMapping
 from latent_geometry.mapping.sphere_immersion import SphereImmersion
 from latent_geometry.mapping.torch import BaseTorchModelMapping, TorchModelMapping
 
@@ -15,4 +16,5 @@ __all__ = [
     "SphereImmersion",
     "TorchModelMapping",
     "BaseTorchModelMapping",
+    "IdentityMapping",
 ]

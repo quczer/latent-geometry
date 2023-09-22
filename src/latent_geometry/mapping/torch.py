@@ -15,7 +15,7 @@ from latent_geometry.utils import batchify
 
 
 class BaseTorchModelMapping(DerivativeMapping):
-    # TODO: add an option for different plan of computing derivatives (jacrev/jacfwd)
+    # IMPROVE: add an option for different plan of computing derivatives (jacrev/jacfwd)
     def __init__(
         self,
         model: nn.Module,
