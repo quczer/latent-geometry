@@ -1,5 +1,5 @@
 import math
-from typing import Callable, Final
+from typing import Callable, Final, Optional
 
 import numpy as np
 
@@ -40,21 +40,28 @@ class Path:
         t_left, t_right = max(0, t - Path._INTEGRAL_DT), min(1, t + Path._INTEGRAL_DT)
         return (self(t_right) - self(t_left)) / (t_right - t_left)
 
-    def euclidean_length(self, t_start: float = 0.0, t_end: float = 1.0) -> float:
-        return self._integrate_length(self._euclidean_metric, t_start, t_end)
+    def euclidean_length(
+        self, t_start: float = 0.0, t_end: float = 1.0, dt: Optional[float] = None
+    ) -> float:
+        return self._integrate_length(
+            self._euclidean_metric, t_start, t_end, dt or Path._INTEGRAL_DT
+        )
 
-    def _integrate_length(self, metric: Metric, t_start: float, t_end: float) -> float:
+    def _integrate_length(
+        self, metric: Metric, t_start: float, t_end: float, dt: float
+    ) -> float:
         if t_end == t_start:
             return 0
-        ts = np.arange(t_start, t_end + Path._INTEGRAL_DT, Path._INTEGRAL_DT)
+        ts = np.arange(t_start, t_end + dt, dt)
         xs, vs = [], []
+        # IMPROVE: this should be batched
         for t1, t2 in zip(ts[:-1], ts[1:]):
             x1, x2 = self(t1), self(t2)
-            v = (x2 - x1) / Path._INTEGRAL_DT
+            v = (x2 - x1) / dt
             x = (x1 + x2) / 2
             xs.append(x)
             vs.append(v)
-        lengths = metric.vector_length(np.array(vs), np.array(xs)) * Path._INTEGRAL_DT
+        lengths = metric.vector_length(np.array(vs), np.array(xs)) * dt
         return lengths.sum(axis=0)
 
 
@@ -94,8 +101,12 @@ class ManifoldPath(Path):
         self._manifold_metric = manifold_metric
         self.ambient_path = self._create_ambient_path(x_fun, manifold_metric.mapping)
 
-    def manifold_length(self, t_start: float = 0.0, t_end: float = 1.0) -> float:
-        return self._integrate_length(self._manifold_metric, t_start, t_end)
+    def manifold_length(
+        self, t_start: float = 0.0, t_end: float = 1.0, dt: Optional[float] = None
+    ) -> float:
+        return self._integrate_length(
+            self._manifold_metric, t_start, t_end, dt or Path._INTEGRAL_DT
+        )
 
     @staticmethod
     def _create_ambient_path(
