@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Optional
+from typing import Optional
 
 import numpy as np
 import plotly.express as px
@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 from plotly.basedatatypes import BaseTraceType
 
 import latent_geometry.viz.config as C
+from latent_geometry.path import Path
 
 
 def create_background_trace(mus: np.ndarray, labels: np.ndarray) -> BaseTraceType:
@@ -21,7 +22,7 @@ def create_background_trace(mus: np.ndarray, labels: np.ndarray) -> BaseTraceTyp
 
 
 def draw_spiders(
-    spiders: list[list[Callable[[float], np.ndarray]]],
+    spiders: list[list[Path]],
     background_trace: Optional[go.Scatter] = None,
 ) -> go.Figure:
     traces = []
@@ -38,7 +39,7 @@ def draw_spiders(
     return fig
 
 
-def plot_traces(traces: Iterable[BaseTraceType]) -> go.Figure:
+def plot_traces(traces: list[BaseTraceType]) -> go.Figure:
     fig = go.Figure(
         data=traces,
         layout={
@@ -59,7 +60,7 @@ def plot_traces(traces: Iterable[BaseTraceType]) -> go.Figure:
 
 
 def _path_to_trace(
-    path: Callable[[float], np.ndarray],
+    path: Path,
     n_points: int = 30,
     color: str = "black",
     legend_group: Optional[str] = None,

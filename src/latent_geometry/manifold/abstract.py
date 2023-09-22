@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Callable
 
 import numpy as np
+
+from latent_geometry.path import Path
 
 
 class Manifold(ABC):
     @abstractmethod
-    def geodesic(
-        self, z_a: np.ndarray, z_b: np.ndarray
-    ) -> Callable[[float], np.ndarray]:
+    def geodesic(self, z_a: np.ndarray, z_b: np.ndarray) -> Path:
         """Compute the geodesic from `z_a` to `z_b`.
 
         Parameters
@@ -33,7 +32,7 @@ class Manifold(ABC):
     @abstractmethod
     def path_given_direction(
         self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
-    ) -> Callable[[float], np.ndarray]:
+    ) -> Path:
         """Compute the path on the manifold starting from `z`
         and following the direction `velocity_vec`.
 
