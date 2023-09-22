@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from latent_geometry.utils import batched_eye
+
+_EPS = 1e-4
+
 
 class Metric(ABC):
     @abstractmethod
@@ -18,6 +22,27 @@ class Metric(ABC):
         (B, D, D) ndarray
             The inner-product matrices.
         """
+
+    def cometric_matrix(self, base_points: np.ndarray) -> np.ndarray:
+        """Inner co-product matrix at the cotangent space at a base point.
+
+        This represents the cometric matrix, i.e. the inverse of the
+        metric matrix.
+
+        Parameters
+        ----------
+        base_points : (B, D) ndarray
+            Base point on the manifold.
+
+        Returns
+        -------
+        (B, D, D) ndarray
+            Inverse of the inner-product matrix.
+        """
+        metric_matrices = self.metric_matrix(base_points)
+        metric_matrices += _EPS * batched_eye(*base_points.shape)
+        cometric_matrices = np.linalg.inv(metric_matrices)
+        return cometric_matrices
 
     def inner_product(
         self,

@@ -6,9 +6,6 @@ from latent_geometry.connection import Connection
 from latent_geometry.mapping import EuclideanMatrixMapping, Mapping, MatrixMapping
 from latent_geometry.metric.abstract import Metric
 from latent_geometry.metric.euclidean import EuclideanMetric
-from latent_geometry.utils import batched_eye
-
-_EPS = 1e-4
 
 
 class PullbackMetric(Connection, Metric, ABC):
@@ -35,27 +32,6 @@ class PullbackMetric(Connection, Metric, ABC):
             Derivative of the inner-product matrices of the domain, where the index
             k of the derivation is last: math:`mat_{bijk} = \partial_k g_{bij}`
         """
-
-    def cometric_matrix(self, base_points: np.ndarray) -> np.ndarray:
-        """Inner co-product matrix at the cotangent space at a base point.
-
-        This represents the cometric matrix, i.e. the inverse of the
-        metric matrix.
-
-        Parameters
-        ----------
-        base_points : (B, D) ndarray
-            Base point on the manifold.
-
-        Returns
-        -------
-        (B, D, D) ndarray
-            Inverse of the inner-product matrix.
-        """
-        metric_matrices = self.metric_matrix(base_points)
-        metric_matrices += _EPS * batched_eye(*base_points.shape)
-        cometric_matrices = np.linalg.inv(metric_matrices)
-        return cometric_matrices
 
     def christoffels(self, base_points: np.ndarray) -> np.ndarray:
         cometric_mat_at_point = self.cometric_matrix(base_points)
