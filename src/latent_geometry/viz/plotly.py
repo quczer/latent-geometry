@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 import plotly.express as px
@@ -8,8 +8,10 @@ from plotly.basedatatypes import BaseTraceType
 import latent_geometry.viz.config as C
 from latent_geometry.path import Path
 
+_PIC_WIDTH = 32
 
-def create_background_trace(
+
+def create_dot_background(
     mus: np.ndarray, labels: np.ndarray, opacity: float
 ) -> BaseTraceType:
     cmap = np.array(px.colors.qualitative.G10)
@@ -20,7 +22,7 @@ def create_background_trace(
         customdata=labels,
         mode="markers",
         marker=dict(color=colors, opacity=opacity),
-        name="mnist",
+        name="mnist dataset",
         hovertemplate="digit=%{customdata}<br>x=%{x:.3}<br>y=%{y:.3}<extra></extra>",
         showlegend=True,
     )
@@ -64,6 +66,32 @@ def plot_traces(traces: list[BaseTraceType]) -> go.Figure:
     return fig
 
 
+def create_digit_background(
+    num: int,
+    mapping: Callable[[np.ndarray], np.ndarray],
+    opacity: float,
+) -> list[go.Heatmap]:
+    PIC_WIDTH, BG_WIDTH = 32, 3 * num / (num + 1)
+    xs, ys = np.meshgrid(
+        np.linspace(-BG_WIDTH, BG_WIDTH, num=num),
+        np.linspace(-BG_WIDTH, BG_WIDTH, num=num),
+    )
+    xs_latent = np.vstack((xs.reshape(-1), ys.reshape(-1))).T
+    imgs = mapping(xs_latent).reshape(-1, PIC_WIDTH, PIC_WIDTH)
+    heatmaps = []
+    for i, (img, (x, y)) in enumerate(zip(imgs, xs_latent)):
+        hmap = _create_img_heatmap(
+            img,
+            x,
+            y,
+            dx=2 * BG_WIDTH / PIC_WIDTH / (num - 1),
+            opacity=opacity,
+            show_legend=i == 0,
+        )
+        heatmaps.append(hmap)
+    return heatmaps
+
+
 def _path_to_trace(
     path: Path,
     n_points: int = 30,
@@ -83,4 +111,31 @@ def _path_to_trace(
         opacity=opacity or C.LINE_OPACITY,
         legendgroup=legend_group,
         showlegend=show_legend,
+    )
+
+
+def _create_img_heatmap(
+    img: np.ndarray,
+    x_centre: float,
+    y_centre: float,
+    dx: float,
+    opacity: float = 1.0,
+    colorscale: str = "gray_r",
+    name: str = "ambient images",
+    show_legend: bool = False,
+):
+    x0 = x_centre - _PIC_WIDTH / 2 * dx
+    y0 = y_centre - _PIC_WIDTH / 2 * dx
+    return go.Heatmap(
+        z=np.flip(img.reshape(_PIC_WIDTH, _PIC_WIDTH), axis=0),
+        x0=x0,
+        dx=dx,
+        y0=y0,
+        dy=dx,
+        showscale=False,
+        colorscale=colorscale,
+        opacity=opacity,
+        name=name,
+        showlegend=show_legend,
+        legendgroup=name,
     )
