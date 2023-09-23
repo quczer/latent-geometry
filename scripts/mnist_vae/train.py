@@ -233,8 +233,8 @@ def main(args: argparse.Namespace):
         load_mnist_dataset("test"), batch_size=args.test_batch_size, shuffle=False
     )
 
-    encoder = EncoderVAE(args.latent_dim)
-    decoder = DecoderVAE(args.latent_dim)
+    encoder = EncoderVAE(latent_dim=args.latent_dim)
+    decoder = DecoderVAE(latent_dim=args.latent_dim)
     optimizer = torch.optim.Adam(
         params=itertools.chain(
             encoder.parameters(),
@@ -304,9 +304,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--lr",
         type=float,
-        default=0.01,
+        default=0.001,
         metavar="LR",
-        help="learning rate (default: 0.01)",
+        help="learning rate (default: 0.001)",
     )
     parser.add_argument(
         "--device", default="cuda", choices=("cpu", "cuda"), help="device to train on"
