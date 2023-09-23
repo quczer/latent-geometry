@@ -270,8 +270,6 @@ def main(args: argparse.Namespace):
                 save_model(encoder, f"{args.model_name}_encoder.pt")
                 save_model(decoder, f"{args.model_name}_decoder.pt")
 
-    task.close()
-
 
 if __name__ == "__main__":
     # Settings
