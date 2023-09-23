@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 from latent_geometry.manifold import LatentManifold
-from latent_geometry.mapping import SphereImmersion, TorchModelMapping
+from latent_geometry.mapping import TorchModelMapping, create_sphere_immersion
 from latent_geometry.metric import EuclideanMetric
 from latent_geometry.utils import project
 
@@ -12,7 +12,7 @@ from latent_geometry.utils import project
 @pytest.fixture
 def sphere_manifold():
     """Returns a manifold from sphere immersion with euclidean ambient metric."""
-    return LatentManifold(SphereImmersion(), EuclideanMetric())
+    return LatentManifold(create_sphere_immersion(), EuclideanMetric())
 
 
 @pytest.fixture
@@ -52,7 +52,7 @@ def on_the_same_big_circle(xs: list[np.ndarray]) -> bool:
 def test_exponential_mapping_on_the_sphere(
     theta, phi, vec, sphere_manifold: LatentManifold
 ):
-    sphere_immersion = SphereImmersion()
+    sphere_immersion = create_sphere_immersion()
 
     z = np.array([theta, phi])
     path = sphere_manifold.path_given_direction(z, vec)
@@ -74,9 +74,9 @@ def test_exponential_mapping_on_the_sphere(
 def test_logarithm_mapping_on_the_sphere(
     amb_start, amb_end, sphere_manifold: LatentManifold
 ):
-    sphere_immersion = SphereImmersion()
+    sphere_immersion = create_sphere_immersion()
 
-    z_start, z_end = sphere_immersion.inv(amb_start), SphereImmersion.inv(amb_end)
+    z_start, z_end = sphere_immersion.inv(amb_start), sphere_immersion.inv(amb_end)
     path = sphere_manifold.geodesic(z_start, z_end)
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [project(sphere_immersion)(z) for z in zs]

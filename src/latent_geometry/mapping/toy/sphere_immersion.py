@@ -5,7 +5,7 @@ from torch.func import jacrev
 from latent_geometry.mapping.abstract import DerivativeMapping
 
 
-class SphereImmersion(DerivativeMapping):
+class _SphereImmersion(DerivativeMapping):
     """(phi, theta) -> (x, y, z) on the sphere in R^3."""
 
     def __call__(self, zs: np.ndarray) -> np.ndarray:
@@ -52,3 +52,7 @@ class SphereImmersion(DerivativeMapping):
     @property
     def out_dim(self) -> int:
         return 3
+
+
+def create_sphere_immersion() -> _SphereImmersion:
+    return _SphereImmersion()

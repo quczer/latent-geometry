@@ -1,8 +1,7 @@
 import numpy as np
 import pytest
-from torch.func import vmap
 
-from latent_geometry.mapping import SphereImmersion, TorchModelMapping
+from latent_geometry.mapping import TorchModelMapping, create_sphere_immersion
 from latent_geometry.metric import EuclideanPullbackMetric
 from latent_geometry.utils import project
 
@@ -49,7 +48,7 @@ def random_16d_vector():
     ],
 )
 def test_metric_matrix_derivative_on_sphere_immersion(z):
-    sphere_immersion = SphereImmersion()
+    sphere_immersion = create_sphere_immersion()
     metric = EuclideanPullbackMetric(sphere_immersion)
 
     DM_gt = project(sphere_immersion.metric_matrix_derivative)(z)

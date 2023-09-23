@@ -4,10 +4,10 @@ import numpy as np
 
 from latent_geometry.utils import batched_eye
 
-_EPS = 1e-4
-
 
 class Metric(ABC):
+    _EPS = 1e-4
+
     @abstractmethod
     def metric_matrix(self, base_points: np.ndarray) -> np.ndarray:
         """Metric matrix of the tangent space at a base point.
@@ -40,7 +40,7 @@ class Metric(ABC):
             Inverse of the inner-product matrix.
         """
         metric_matrices = self.metric_matrix(base_points)
-        metric_matrices += _EPS * batched_eye(*base_points.shape)
+        metric_matrices += Metric._EPS * batched_eye(*base_points.shape)
         cometric_matrices = np.linalg.inv(metric_matrices)
         return cometric_matrices
 
