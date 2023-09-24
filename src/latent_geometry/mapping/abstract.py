@@ -97,7 +97,8 @@ class MatrixMapping(BaseMapping, ABC):
 class EuclideanMatrixMapping(BaseMapping, ABC):
     @abstractmethod
     def euclidean_metric_matrix_derivative(self, zs: np.ndarray) -> np.ndarray:
-        r"""Compute :py:meth:`MatrixMapping.metric_matrix_derivative` for the special case of Euclidean ambient space.
+        r"""Compute :py:meth:`MatrixMapping.metric_matrix_derivative` for the special case
+        of the Euclidean ambient space.
 
         Parameters
         ----------
