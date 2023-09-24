@@ -54,18 +54,12 @@ class Connection(Metric, ABC):
         Gamma : (B, D, D, D) array
             Christoffel symbols, where the contravariant index is second.
         """
-        cometric_mat_at_point = self.cometric_matrix(base_points)
-        metric_derivative_at_point = self.metric_matrix_derivative(base_points)
+        cometric = self.cometric_matrix(base_points)
+        metric_derivative = self.metric_matrix_derivative(base_points)
 
-        term_1 = np.einsum(
-            "blk,bjli->bkij", cometric_mat_at_point, metric_derivative_at_point
-        )
-        term_2 = np.einsum(
-            "blk,blij->bkij", cometric_mat_at_point, metric_derivative_at_point
-        )
-        term_3 = np.einsum(
-            "blk,bijl->bkij", cometric_mat_at_point, metric_derivative_at_point
-        )
+        term_1 = np.einsum("blk,bjli->bkij", cometric, metric_derivative)
+        term_2 = np.einsum("blk,blij->bkij", cometric, metric_derivative)
+        term_3 = np.einsum("blk,bijl->bkij", cometric, metric_derivative)
 
         christoffels = 0.5 * (term_1 + term_2 - term_3)
         return christoffels
@@ -91,14 +85,14 @@ class Connection(Metric, ABC):
 
 
 class ExtendedConnection(Connection, ABC):
-    """Connection with more structure - e.g. Riemmann/Ricci curvature tensors."""
+    """Connection with additional structure - e.g. Riemmann/Ricci curvature tensors."""
 
     @abstractmethod
     def christoffels_derivative(self, base_points: np.ndarray) -> np.ndarray:
         r"""
         Parameters
         ----------
-        base_point : (B, D) array
+        base_points : (B, D) array
             Base point on the manifold.
 
         Returns
