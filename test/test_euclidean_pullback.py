@@ -51,7 +51,7 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
     sphere_immersion = create_sphere_immersion()
     metric = EuclideanPullbackMetric(sphere_immersion)
 
-    DM_gt = project(sphere_immersion.metric_matrix_derivative)(z)
+    DM_gt = project(sphere_immersion.metric_matrix_derivative)(z, np.eye(3))
     DM_computed = project(metric.metric_matrix_derivative)(z)
     assert np.allclose(DM_gt, DM_computed, atol=ATOL)
 

@@ -76,7 +76,9 @@ def test_logarithm_mapping_on_the_sphere(
 ):
     sphere_immersion = create_sphere_immersion()
 
-    z_start, z_end = sphere_immersion.inv(amb_start), sphere_immersion.inv(amb_end)
+    z_start, z_end = sphere_immersion.model.inv(amb_start), sphere_immersion.model.inv(
+        amb_end
+    )
     path = sphere_manifold.geodesic(z_start, z_end)
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [project(sphere_immersion)(z) for z in zs]
