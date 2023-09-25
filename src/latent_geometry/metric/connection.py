@@ -34,8 +34,8 @@ class Connection(Metric, ABC):
 
         The Koszul formula defining the Levi-Civita connection gives the
         expression of the Christoffel symbols with respect to the metric:
-        :math:`\Gamma^k_{ij}(p) = \frac{1}{2} g^{lk}(
-        \partial_i g_{jl} + \partial_j g_{li} - \partial_l g_{ij})`,
+        :math:`\Gamma^i_{jk}(p) = \frac{1}{2} g^{il}(
+        \partial_k g_{lj} + \partial_j g_{kl} - \partial_l g_{jk})`,
         where:
 
         - :math:`p` represents the base point, and
@@ -57,9 +57,9 @@ class Connection(Metric, ABC):
         cometric = self.cometric_matrix(base_points)
         metric_derivative = self.metric_matrix_derivative(base_points)
 
-        term_1 = np.einsum("blk,bjli->bkij", cometric, metric_derivative)
-        term_2 = np.einsum("blk,blij->bkij", cometric, metric_derivative)
-        term_3 = np.einsum("blk,bijl->bkij", cometric, metric_derivative)
+        term_1 = np.einsum("bil,bljk->bijk", cometric, metric_derivative)
+        term_2 = np.einsum("bil,bklj->bijk", cometric, metric_derivative)
+        term_3 = np.einsum("bil,bjkl->bijk", cometric, metric_derivative)
 
         christoffels = 0.5 * (term_1 + term_2 - term_3)
         return christoffels
