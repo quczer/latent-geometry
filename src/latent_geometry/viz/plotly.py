@@ -28,6 +28,32 @@ def create_dot_background(
     )
 
 
+def create_scalar_field(
+    scalar_fn: Callable[[np.ndarray], np.ndarray],
+    num: int,
+    opacity: float = 1.0,
+    field_title: str = "scalar field",
+    cmap: str = "RdBu",
+) -> go.Heatmap:
+    xs, ys = np.meshgrid(
+        np.linspace(*C.AXES_RANGE, num=num),
+        np.linspace(*C.AXES_RANGE, num=num),
+    )
+    pts = np.vstack((xs.reshape(-1), ys.reshape(-1))).T
+    zs = scalar_fn(pts)
+    return go.Heatmap(
+        x=pts[:, 0],
+        y=pts[:, 1],
+        z=zs,
+        showscale=False,
+        colorscale=cmap,
+        opacity=opacity,
+        name=field_title,
+        showlegend=True,
+        legendgroup=field_title,
+    )
+
+
 def draw_spiders(
     spiders: list[list[Path]],
     background_trace: Optional[go.Scatter] = None,
@@ -40,6 +66,19 @@ def draw_spiders(
             _path_to_trace(path, legend_group=legend_group, show_legend=i == 0)
             for i, path in enumerate(spider)
         )
+    if background_trace:
+        traces.append(background_trace)
+    fig = plot_traces(traces)
+    return fig
+
+
+def draw_balls(
+    balls: list[Path],
+    background_trace: Optional[go.Scatter] = None,
+) -> go.Figure:
+    traces: list[go.Scatter] = []
+    for i, path in enumerate(balls):
+        traces.append(_path_to_trace(path, legend_group="balls", show_legend=i == 0))
     if background_trace:
         traces.append(background_trace)
     fig = plot_traces(traces)

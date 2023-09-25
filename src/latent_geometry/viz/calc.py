@@ -28,12 +28,17 @@ def create_circles(radials: list[Path], n_circles: int) -> list[Path]:
         interpolate_points = np.vstack(
             [line(timestamp) for line in radials] + [radials[0](timestamp)]
         )
-        tck, u = splprep(interpolate_points.T, s=0, per=1)
-        circle = Path(partial(_eval_circle, tck=tck))
+        circle = create_loop(interpolate_points)
         circles.append(circle)
     return circles
 
 
-def _eval_circle(t: float, tck: tuple) -> np.ndarray:
+def create_loop(interpolants: np.ndarray) -> Path:
+    tck, u = splprep(interpolants.T, s=0, per=1)
+    loop = Path(partial(_eval_loop, tck=tck))
+    return loop
+
+
+def _eval_loop(t: float, tck: tuple) -> np.ndarray:
     x, y = splev(t, tck)
     return np.hstack([x, y])
