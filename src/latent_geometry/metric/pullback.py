@@ -2,13 +2,18 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from latent_geometry.mapping import EuclideanMatrixMapping, Mapping, MatrixMapping
+from latent_geometry.mapping import (
+    ChristoffelsDerivativeMapping,
+    EuclideanMatrixMapping,
+    Mapping,
+    MatrixMapping,
+)
 from latent_geometry.metric.abstract import Metric
-from latent_geometry.metric.connection import Connection
+from latent_geometry.metric.connection import ExtendedConnection
 from latent_geometry.metric.euclidean import EuclideanMetric
 
 
-class MappingPullbackMetric(Connection, ABC):
+class MappingPullbackMetric(ExtendedConnection, ABC):
     @property
     @abstractmethod
     def ambient_metric(self) -> Metric:
@@ -51,3 +56,14 @@ class MappingPullbackMetric(Connection, ABC):
             term_1 = np.einsum("brs,brik,bsj->bijk", As, Hs, Js)
             term_2 = np.einsum("brs,bsjk,bri->bijk", As, Hs, Js)
             return term_1 + term_2
+
+    def christoffels_derivative(self, base_points: np.ndarray) -> np.ndarray:
+        if not isinstance(self.mapping, ChristoffelsDerivativeMapping):
+            raise ValueError(
+                f"Can use christoffels_derivative only with ChristoffelsDerivativeMapping, got {type(self.mapping)}"
+            )
+        if not isinstance(self.ambient_metric, EuclideanMetric):
+            raise ValueError(
+                f"Can use christoffels_derivative only with Euclidean ambient metric, got {type(self.ambient_metric)}"
+            )
+        return self.mapping.euclidean_christoffels_derivative(base_points)

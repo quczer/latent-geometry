@@ -9,7 +9,7 @@ from latent_geometry.utils import project
 @pytest.mark.parametrize(
     "z",
     [
-        np.array([np.pi / 2, 0.0]),
+        np.array([np.pi / 6, 0.0]),
         # np.array([1.0, np.pi / 2]),
         # np.array([2.0, np.pi]),
         # np.array([3.0, -np.pi]),
@@ -18,7 +18,7 @@ from latent_geometry.utils import project
 )
 def test_riemann_tensor_on_the_sphere(z):
     def gt_tensor_fun(z):
-        phi, theta = z
+        theta, phi = z
         riemann = np.zeros((2, 2, 2, 2))
         riemann[0, 1, 0, 1] = np.sin(theta) ** 2
         return riemann
@@ -26,6 +26,7 @@ def test_riemann_tensor_on_the_sphere(z):
     pullback_metric = EuclideanPullbackMetric(create_sphere_immersion())
     gt_tensor = gt_tensor_fun(z)
     computed_tensor = project(pullback_metric.riemann_tensor)(z)
-    print(gt_tensor)
-    print(computed_tensor)
+    # print("p", project(pullback_metric.christoffels)(z))
+    print(gt_tensor.round(4))
+    print(computed_tensor.round(4))
     assert np.allclose(gt_tensor, computed_tensor)

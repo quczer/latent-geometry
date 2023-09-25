@@ -116,4 +116,33 @@ class EuclideanMatrixMapping(BaseMapping, ABC):
         """
 
 
+class ChristoffelsDerivativeMapping(BaseMapping, ABC):
+    @abstractmethod
+    def euclidean_christoffels_derivative(self, zs: np.ndarray) -> np.ndarray:
+        r"""Compute mapping's derivative of the Christoffel symbols for the special case
+        of the Euclidean ambient space.
+
+        It may be done by the following formula:
+        :math:` \partial_l \Gamma^k_{ij} = \frac{1}{2} \partial_l g^{pk}(
+        \partial_i g_{jp} + \partial_j g_{pi} - \partial_p g_{ij})`, where
+
+        - `J_{ij} = \partial_i f_j` is the Jacobian of the mapping `f`
+        - `g_{ij} = J_{ik} J_{jk}` is the metric tensor of the mapping
+        - `g^{ij}` is the inverse of the metric tensor `g_{ij}`
+
+        Parameters
+        ----------
+        zs : (B, D) array
+            Batch of points from the domain - usually latent space.
+
+        Returns
+        -------
+        dGamma : (B, D, D, D, D) array
+            Christoffel symbols derivative, where the contravariant index is second
+            and the derivation index is last.
+
+            `dGamma(bijkl) == \partial_l \Gamma^i_{jk}`
+        """
+
+
 Mapping = Union[DerivativeMapping, MatrixMapping]

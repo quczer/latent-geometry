@@ -13,7 +13,7 @@ class _NHModel(nn.Module):
 
 class _SIModel(nn.Module):
     def forward(self, in_: torch.Tensor) -> torch.Tensor:
-        phi, theta = in_.split(1, dim=1)
+        theta, phi = in_.split(1, dim=1)
         return torch.stack(
             [
                 torch.cos(phi) * torch.sin(theta),
@@ -28,7 +28,7 @@ class _SIModel(nn.Module):
         x, y, z = vec
         theta = np.arccos(z)
         phi = np.arccos(x / np.sin(theta))
-        return np.array([phi, theta])
+        return np.array([theta, phi])
 
 
 def create_northern_hemisphere_mapping() -> TorchModelMapping:

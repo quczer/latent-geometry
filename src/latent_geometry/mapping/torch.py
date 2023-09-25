@@ -7,6 +7,7 @@ import torch.nn as nn
 from torch.func import jacfwd, vmap
 
 from latent_geometry.mapping.abstract import (
+    ChristoffelsDerivativeMapping,
     DerivativeMapping,
     EuclideanMatrixMapping,
     MatrixMapping,
@@ -81,7 +82,12 @@ class BaseTorchModelMapping(DerivativeMapping):
             return torch.device("cpu")
 
 
-class TorchModelMapping(MatrixMapping, EuclideanMatrixMapping, BaseTorchModelMapping):
+class TorchModelMapping(
+    MatrixMapping,
+    EuclideanMatrixMapping,
+    BaseTorchModelMapping,
+    ChristoffelsDerivativeMapping,
+):
     @batchify
     def metric_matrix_derivative(
         self, zs: np.ndarray, ambient_metric_matrices: np.ndarray
@@ -110,3 +116,39 @@ class TorchModelMapping(MatrixMapping, EuclideanMatrixMapping, BaseTorchModelMap
 
         dMs_torch = vmap(jacfwd(__metric_matrix))(zs_torch)
         return self._to_numpy(dMs_torch)
+
+    def euclidean_christoffels_derivative(self, zs: np.ndarray) -> np.ndarray:
+        zs_torch = self._to_torch(zs)
+        J_fn = jacfwd(self._call_flat_model)
+
+        def __metric_matrix(z_torch: torch.Tensor) -> torch.Tensor:
+            J = J_fn(z_torch)
+            return torch.mm(J.t(), J)
+
+        def __inv_metric_matrix(
+            z_torch: torch.Tensor,
+        ) -> torch.Tensor:  # ? idk if differentiable - probably not
+            D = z_torch.shape[0]
+            M = __metric_matrix(z_torch) + 1e-5 * torch.eye(D)
+            assert D == 2  # ! only for 2D
+            a, b, c, d = M.reshape(-1)
+            det = a * d - b * c
+            inv = torch.stack([d, -b, -c, a]).reshape(2, 2) / det
+            return inv
+
+        print("cometric torch", __inv_metric_matrix(zs_torch[0]))
+        print("dmatric", jacfwd(__metric_matrix)(zs_torch[0]).permute(2, 0, 1))
+        print("dcometric", jacfwd(__inv_metric_matrix)(zs_torch[0]).permute(2, 0, 1))
+
+        def __christoffels(z_torch: torch.Tensor) -> torch.Tensor:
+            dM_torch = jacfwd(__metric_matrix)(z_torch)
+            inv_M_torch = __inv_metric_matrix(z_torch)
+            term_1 = torch.einsum("il,ljk->ijk", inv_M_torch, dM_torch)
+            term_2 = torch.einsum("il,klj->ijk", inv_M_torch, dM_torch)
+            term_3 = torch.einsum("il,jkl->ijk", inv_M_torch, dM_torch)
+            christoffels = 0.5 * (term_1 + term_2 - term_3)
+            return christoffels
+
+        print(f"{torch.round(__christoffels(zs_torch[0]),decimals=3)=}")
+        dMGammas_torch = vmap(jacfwd(__christoffels))(zs_torch)
+        return self._to_numpy(dMGammas_torch)

@@ -1,4 +1,5 @@
 from latent_geometry.mapping.abstract import (
+    ChristoffelsDerivativeMapping,
     DerivativeMapping,
     EuclideanMatrixMapping,
     Mapping,
