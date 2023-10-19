@@ -63,5 +63,5 @@ class InputSGDOptimizer:
         J = jacfwd(mapping)(x)
         # flatten input dims
         J_flat = J.reshape((*J.shape[: -len(shape)], math.prod(shape)))
-        g_flat = torch.einsum("...i,...j->ij", J_flat, J_flat)
+        g_flat = torch.einsum("ki,kj->ij", J_flat, J_flat)
         return g_flat
