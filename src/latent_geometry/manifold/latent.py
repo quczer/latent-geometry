@@ -16,7 +16,7 @@ class LatentManifold(Manifold):
         solver_tol: float = 1e-3,
         bvp_n_mesh_nodes: int = 2,
     ):
-        self.metric = ManifoldMetric(mapping, ambient_metric)
+        self._metric = ManifoldMetric(mapping, ambient_metric)
         self._exp_solver = IVPExponentialSolver(tolerance=solver_tol)
         # NOTE: careful, computation time can scale linearly with `n_mesh_nodes`
         self._log_solver = BVPLogarithmSolver(
@@ -40,6 +40,10 @@ class LatentManifold(Manifold):
             solver_path.position,
             self.metric,
         )
+
+    @property
+    def metric(self) -> ManifoldMetric:
+        return self._metric
 
     def _adjust_vector_magnitude(
         self, base_point: np.ndarray, vec: np.ndarray, length: float
