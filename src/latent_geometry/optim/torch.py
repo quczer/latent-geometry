@@ -38,7 +38,8 @@ class InputSGDOptimizer:
             if self.gradient_type == "geometric":
                 shape = self.param.shape
                 g_flat = self._calc_metric_matrix_flat(self.param, self.mapping)
-                grad_flat = torch.mv(g_flat, self.param.grad.reshape(-1))
+                g_inv_flat = torch.linalg.inv(g_flat)
+                grad_flat = torch.mv(g_inv_flat, self.param.grad.reshape(-1))
                 grad = grad_flat.reshape(shape)
 
                 if self.normalize_gradient:
