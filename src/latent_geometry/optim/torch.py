@@ -1,32 +1,29 @@
-import math
-from typing import Callable, Literal
+from typing import Literal
 
 import torch
 import torch.optim.sgd
-from torch.func import jacfwd
+
+from latent_geometry.optim.metric import TorchMetric
 
 
 class InputSGDOptimizer:
     def __init__(
         self,
         param: torch.Tensor,
-        mapping: Callable[[torch.Tensor], torch.Tensor],
+        metric: TorchMetric,
         lr: float,
-        gradient_type: Literal["standard", "geometric"] = "standard",
-        normalize_gradient: bool = True,
+        gradient_type: Literal["standard", "geometric", "retractive"] = "standard",
     ):
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
-        if gradient_type not in ("standard", "geometric"):
+        if gradient_type not in ("standard", "geometric", "retractive"):
             raise ValueError(f"Invalid gradient_type: {gradient_type}")
         assert isinstance(param, torch.Tensor)
-        assert isinstance(normalize_gradient, bool)
 
         self.param = param
-        self.mapping = mapping
+        self.metric = metric
         self.lr = lr
         self.gradient_type = gradient_type
-        self.normalize_gradient = normalize_gradient
 
     def step(self, closure=None):
         loss = None
@@ -36,16 +33,14 @@ class InputSGDOptimizer:
 
         with torch.no_grad():
             if self.gradient_type == "geometric":
-                shape = self.param.shape
-                g_flat = self._calc_metric_matrix_flat(self.param, self.mapping)
-                g_inv_flat = torch.linalg.inv(g_flat)
-                grad_flat = torch.mv(g_inv_flat, self.param.grad.reshape(-1))
-                grad = grad_flat.reshape(shape)
-
-                if self.normalize_gradient:
-                    grad.mul_(
-                        torch.linalg.norm(self.param.grad) / torch.linalg.norm(grad)
-                    )
+                df = self.param.grad
+                grad = self.metric.raise_index(df, self.param)
+            elif self.gradient_type == "retractive":
+                df = self.param.grad
+                grad = self.metric.raise_index(df, self.param)
+                euc_len = self.metric.euclidean_length(grad, self.param)
+                man_len = self.metric.manifold_length(grad, self.param)
+                grad.mul_(man_len / euc_len)
             else:
                 grad = self.param.grad
 
@@ -55,14 +50,3 @@ class InputSGDOptimizer:
 
     def zero_grad(self):
         self.param.grad = None
-
-    @staticmethod
-    def _calc_metric_matrix_flat(
-        x: torch.Tensor, mapping: Callable[[torch.Tensor], torch.Tensor]
-    ) -> torch.Tensor:
-        shape = x.shape
-        J = jacfwd(mapping)(x)
-        # flatten input dims
-        J_flat = J.reshape((*J.shape[: -len(shape)], math.prod(shape)))
-        g_flat = torch.einsum("...i,...j->ij", J_flat, J_flat)
-        return g_flat
