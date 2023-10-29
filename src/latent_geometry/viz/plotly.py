@@ -85,23 +85,24 @@ def draw_balls(
     return fig
 
 
-def plot_traces(traces: list[BaseTraceType]) -> go.Figure:
-    fig = go.Figure(
-        data=traces,
-        layout={
-            "width": C.FIGURE_WIDTH,
-            "height": C.FIGURE_HEIGHT,
-            "margin": {
-                "b": C.MARGIN,
-                "l": C.MARGIN,
-                "r": C.MARGIN,
-                "t": C.MARGIN,
-            },
-            "paper_bgcolor": "#fff",
-            "yaxis": {"range": C.AXES_RANGE},
-            "xaxis": {"range": C.AXES_RANGE},
-        },
-    )
+def plot_traces(traces: list[BaseTraceType], force_layout: bool = True) -> go.Figure:
+    fig = go.Figure(data=traces)
+    if force_layout:
+        fig.update_layout(
+            **{
+                "width": C.FIGURE_WIDTH,
+                "height": C.FIGURE_HEIGHT,
+                "margin": {
+                    "b": C.MARGIN,
+                    "l": C.MARGIN,
+                    "r": C.MARGIN,
+                    "t": C.MARGIN,
+                },
+                "paper_bgcolor": "#fff",
+                "yaxis": {"range": C.AXES_RANGE},
+                "xaxis": {"range": C.AXES_RANGE},
+            }
+        )
     return fig
 
 
