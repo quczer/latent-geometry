@@ -41,6 +41,10 @@ class LatentManifold(Manifold):
             self.metric,
         )
 
+    def set_solver_tols(self, tol: float) -> None:
+        self._exp_solver.tolerance = tol
+        self._log_solver.tolerance = tol
+
     @property
     def metric(self) -> ManifoldMetric:
         return self._metric
