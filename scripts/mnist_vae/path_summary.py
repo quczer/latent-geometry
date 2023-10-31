@@ -1,9 +1,7 @@
 import argparse
-import io
 from functools import partial
 from typing import Callable
 
-import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -12,6 +10,7 @@ import torch
 from PIL import Image
 from scipy.stats.distributions import binom, norm, uniform
 from tqdm import tqdm
+from utils import allign_arrays, get_img_from_fig
 
 from latent_geometry.config import FIGURES_DIR
 from latent_geometry.manifold import LatentManifold, Manifold
@@ -20,35 +19,6 @@ from latent_geometry.metric import EuclideanMetric, ManifoldMetric
 from latent_geometry.model.mnist_vae import load_decoder
 from latent_geometry.path import ManifoldPath
 from latent_geometry.solver import SolverFailedException
-
-
-def get_img_from_fig(fig, dpi: int = 180) -> np.ndarray:
-    buf = io.BytesIO()
-    fig.savefig(buf, format="png", dpi=dpi)
-    buf.seek(0)
-    img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
-    buf.close()
-    img = cv2.imdecode(img_arr, 1)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    return img
-
-
-def align_arrays(arrs: list[np.ndarray]) -> Image:
-    final_shape = (
-        sum(arr.shape[0] for arr in arrs),
-        max(arr.shape[1] for arr in arrs),
-        3,
-    )
-    img = Image.new("RGB", (final_shape[1], final_shape[0]), (255, 255, 255))
-    # center allign, fill with zeros
-    h = 0
-    for arr in arrs:
-        cur_img = Image.fromarray(arr)
-        w = (final_shape[1] - arr.shape[1]) // 2
-        img.paste(cur_img, (w, h))
-        h += arr.shape[0]
-    return img
 
 
 def create_straight_path(
@@ -242,7 +212,7 @@ def run(start: np.ndarray, end: np.ndarray, manifold: Manifold) -> Image.Image:
     summ_fig = create_summary_fig(df)
     img_arrs.append(get_img_from_fig(summ_fig))
     plt.close(summ_fig)
-    img = align_arrays(img_arrs[::-1])
+    img = allign_arrays(img_arrs[::-1])
     return img
 
 
