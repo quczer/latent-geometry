@@ -91,6 +91,10 @@ class EncoderVAE(nn.Module):
         std = F.softplus(std_out) + _EPS
         return mu, std
 
+    def encode(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        mu, std = self.forward(x)
+        return mu
+
 
 class DecoderVAE(nn.Module):
     def __init__(self, init_channels: int = 8, latent_dim: int = 2):
