@@ -238,13 +238,18 @@ def main(
     sample_fn: Callable[[], tuple[np.ndarray, np.ndarray]],
     device: torch.device = torch.device("cuda"),
     solver_tols: tuple[float, ...] = (0.01,),
-    bvp_mesh_nodes: int = 4_000,
+    bvp_mesh_nodes: int = 1_000,
+    batch_size: int = 1_000,
 ) -> None:
     decoder = load_decoder(device, f"{model_name}_decoder.pt", latent_dim=latent_dim)
 
     ambient_metric = EuclideanMetric()
     latent_mapping = TorchModelMapping(
-        decoder, (2,), (1, 32, 32), batch_size=10_000, call_fn=decoder.decode
+        decoder,
+        (latent_dim,),
+        (1, 32, 32),
+        batch_size=batch_size,
+        call_fn=decoder.decode,
     )
     manifold_mnist = LatentManifold(
         latent_mapping,
