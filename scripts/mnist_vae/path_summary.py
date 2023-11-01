@@ -277,7 +277,7 @@ def main(
                     / "paths"
                     / tag
                 )
-                dir_.mkdir(exist_ok=True)
+                dir_.mkdir(exist_ok=True, parents=True)
                 img.save(dir_ / f"v{i}_tol{tol:.2f}.png", "PNG")
                 break
 
