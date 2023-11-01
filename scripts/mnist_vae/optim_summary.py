@@ -264,7 +264,7 @@ def main(
     latent_dim: int,
     n_iter: int,
     optim_setup: list[tuple[str, float]],
-    losses: list[tuple[str, Callable[[torch.Tensor], torch.Tensor]], float],
+    losses: list[tuple[str, Callable[[torch.Tensor], torch.Tensor], float]],
     tag: str,
     points: list[torch.Tensor],
     device: torch.device = torch.device("cuda"),
@@ -275,6 +275,14 @@ def main(
         for loss_name, loss_fn, lr_mod in losses:
             new_setup = [(name, lr * lr_mod) for name, lr in optim_setup]
             img = run(z, n_iter, (loss_name, loss_fn), new_setup, decoder.decode)
-            dir_ = FIGURES_DIR / "mnist" / "images" / "optim" / tag / loss_name
+            dir_ = (
+                FIGURES_DIR
+                / "mnist"
+                / "images"
+                / f"{latent_dim}dim"
+                / "optim"
+                / tag
+                / loss_name
+            )
             dir_.mkdir(exist_ok=True, parents=True)
             img.save(dir_ / f"v{i}.png", "PNG")

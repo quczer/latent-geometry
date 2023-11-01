@@ -6,6 +6,8 @@ from torch.func import jacfwd
 
 
 class TorchMetric:
+    _EPS = 1e-5
+
     def __init__(self, mapping: Callable[[torch.Tensor], torch.Tensor]):
         self.mapping = mapping
 
@@ -53,4 +55,5 @@ class TorchMetric:
 
     def _cometric_matrix(self, x: torch.Tensor) -> torch.Tensor:
         g = self._metric_matrix(x)
-        return torch.linalg.inv(g)
+        g_invertible = g + self._EPS * torch.eye(g.shape[0], device=x.device)
+        return torch.linalg.inv(g_invertible)

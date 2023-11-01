@@ -269,7 +269,14 @@ def main(
                 )
                 continue
             else:
-                dir_ = FIGURES_DIR / "mnist" / "images" / "paths" / tag
+                dir_ = (
+                    FIGURES_DIR
+                    / "mnist"
+                    / "images"
+                    / f"{latent_dim}dim"
+                    / "paths"
+                    / tag
+                )
                 dir_.mkdir(exist_ok=True)
                 img.save(dir_ / f"v{i}_tol{tol:.2f}.png", "PNG")
                 break
