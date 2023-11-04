@@ -1,10 +1,15 @@
+from pathlib import Path
+
 from setuptools import find_packages, setup
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="latent-geometry",
-    version="1.0.0-alpha",
+    version="1.0.0a2",
     description="Python package for latent space exploration using Riemannian geometry.",
-    long_description="README.md",
+    long_description=long_description,
     long_description_content_type="text/markdown",
     author="Michal Kucharczyk",
     author_email="kucharczi@gmail.com",
