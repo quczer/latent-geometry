@@ -21,14 +21,11 @@ class BVPLogarithmSolver(LogarithmSolver):
         finish_position: np.ndarray,
         vectorized_acc_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
     ) -> SolverResultPath:
-        try:
-            result = self._solve(start_position, finish_position, vectorized_acc_fun)
-            if result.success:
-                return self._create_result_path(result.sol, vectorized_acc_fun)
-            else:
-                raise SolverFailedException(result.message)
-        except Exception as e:
-            raise SolverFailedException from e
+        result = self._solve(start_position, finish_position, vectorized_acc_fun)
+        if result.success:
+            return self._create_result_path(result.sol, vectorized_acc_fun)
+        else:
+            raise SolverFailedException(result.message)
 
     def _solve(
         self,

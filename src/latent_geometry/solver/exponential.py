@@ -22,14 +22,11 @@ class IVPExponentialSolver(ExponentialSolver):
         velocity: np.ndarray,
         acceleration_fun: Callable[[np.ndarray, np.ndarray], np.ndarray],
     ) -> SolverResultPath:
-        try:
-            result = self._solve(position, velocity, acceleration_fun)
-            if result.success:
-                return self._create_result_path(result.sol, acceleration_fun)
-            else:
-                raise SolverFailedException(result.message)
-        except Exception as e:
-            raise SolverFailedException from e
+        result = self._solve(position, velocity, acceleration_fun)
+        if result.success:
+            return self._create_result_path(result.sol, acceleration_fun)
+        else:
+            raise SolverFailedException(result.message)
 
     def _solve(
         self,

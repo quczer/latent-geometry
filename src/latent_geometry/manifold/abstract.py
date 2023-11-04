@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from latent_geometry.metric import Connection
 from latent_geometry.path import Path
 
 
@@ -53,3 +54,8 @@ class Manifold(ABC):
 
             `path(0.0) == z`
         """
+
+    @property
+    @abstractmethod
+    def metric(self) -> Connection:
+        """Metric on tangent space."""

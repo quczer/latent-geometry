@@ -211,6 +211,8 @@ def main(args: argparse.Namespace):
             [0.0, -1.0],
         ]
     )
+    assert args.latent_dim % 2 == 0
+    debug_z = np.repeat(DEBUG_Z, args.latent_dim // 2, axis=1)
 
     # Connecting ClearML with the current process,
     # from here on everything is logged automatically
@@ -263,7 +265,7 @@ def main(args: argparse.Namespace):
                 torch_device,
                 logger,
                 epoch,
-                debug_z=DEBUG_Z,
+                debug_z=debug_z,
             )
             if loss < best_loss and args.save_best_model:
                 best_loss = loss
