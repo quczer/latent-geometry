@@ -1,5 +1,6 @@
 # Latent Geometry
-Master's thesis package for exploring latent spaces by the introduction of Riemannian geometry.
+Master's thesis python package for latent space exploration using Riemannian geometry.
+
 
 [![CI - Test](https://github.com/quczer/latent-geometry/actions/workflows/tests.yaml/badge.svg)](https://github.com/quczer/latent-geometry/actions/workflows/tests.yaml)
 [![PyPI Latest Release](https://img.shields.io/pypi/v/latent-geometry.svg)](https://pypi.org/project/latent-geometry/)
