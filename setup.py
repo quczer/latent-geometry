@@ -5,6 +5,7 @@ setup(
     version="1.0.0-alpha",
     description="Python package for latent space exploration using Riemannian geometry.",
     long_description="README.md",
+    long_description_content_type="text/markdown",
     author="Michal Kucharczyk",
     author_email="kucharczi@gmail.com",
     license="GPLv3",
