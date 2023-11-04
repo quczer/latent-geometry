@@ -37,6 +37,7 @@ setup(
             "pre-commit",
             "pytest",
             "twine",
+            "build",
         ],
         "data": [
             "ipykernel",
