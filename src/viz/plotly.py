@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.basedatatypes import BaseTraceType
 
-import latent_geometry.viz.config as C
+import viz.config as C
 from latent_geometry.path import Path
 
 _PIC_WIDTH = 32
