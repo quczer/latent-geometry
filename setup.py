@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="latent-geometry",
-    version="0.0.0.dev0",
+    version="1.0.0-alpha",
     description="Python package for latent space exploration using Riemannian geometry.",
     long_description="README.md",
     author="Michal Kucharczyk",
