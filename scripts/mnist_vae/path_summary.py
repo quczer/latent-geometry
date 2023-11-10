@@ -190,7 +190,7 @@ def create_summary_fig(df: pd.DataFrame):
 
 
 def run(start: np.ndarray, end: np.ndarray, manifold: Manifold) -> Image.Image:
-    geodesic_path = manifold.geodesic(start, end)
+    geodesic_path = manifold.shortest_path(start, end)
     straight_path = create_straight_path(
         geodesic_path(0), geodesic_path(1), manifold.metric
     )

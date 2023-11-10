@@ -16,7 +16,7 @@ def create_radials(
     lines = []
     for theta in np.linspace(0, 2 * np.pi, divisions + 1)[:-1]:
         dir_vector = np.array([np.cos(theta), np.sin(theta)])
-        path = manifold.path_given_direction(centre, dir_vector, length)
+        path = manifold.geodesic(centre, dir_vector, length)
         lines.append(path)
     return lines
 

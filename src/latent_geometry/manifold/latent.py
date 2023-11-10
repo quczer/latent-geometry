@@ -24,14 +24,14 @@ class LatentManifold(Manifold):
         )
         self.flat_acc_fun = project(self.metric.acceleration)
 
-    def geodesic(self, z_a: np.ndarray, z_b: np.ndarray) -> ManifoldPath:
+    def shortest_path(self, z_a: np.ndarray, z_b: np.ndarray) -> ManifoldPath:
         solver_path = self._log_solver.find_path(z_a, z_b, self.metric.acceleration)
         return ManifoldPath(
             solver_path.position,
             self.metric,
         )
 
-    def path_given_direction(
+    def geodesic(
         self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
     ) -> ManifoldPath:
         velocity = self._adjust_vector_magnitude(z, velocity_vec, length)

@@ -8,7 +8,7 @@ from latent_geometry.path import Path
 
 class Manifold(ABC):
     @abstractmethod
-    def geodesic(self, z_a: np.ndarray, z_b: np.ndarray) -> Path:
+    def shortest_path(self, z_a: np.ndarray, z_b: np.ndarray) -> Path:
         """Compute the geodesic from `z_a` to `z_b`.
 
         Parameters
@@ -31,7 +31,7 @@ class Manifold(ABC):
         """
 
     @abstractmethod
-    def path_given_direction(
+    def geodesic(
         self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
     ) -> Path:
         """Compute the path on the manifold starting from `z`
