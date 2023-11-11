@@ -39,11 +39,11 @@ def optimize(
 
 def create_path_in_ambient_fig(
     path: torch.Tensor,
-    path_name: str,
+    title: str,
     map_fn: Callable[[torch.Tensor], torch.Tensor],
     n_points: int = 9,
 ):
-    fig, axes = plt.subplots(2, n_points, figsize=(1.5 * n_points, 3))
+    fig, axes = plt.subplots(2, n_points, figsize=(1.5 * n_points, 4))
     step = path.shape[0] // n_points
     path_pts = path[::step, 0, ...]
     with torch.no_grad():
@@ -52,7 +52,7 @@ def create_path_in_ambient_fig(
     for i, (img, ax) in enumerate(zip(imgs, axes[0, :])):
         ax.imshow(img, vmin=0, vmax=1)
         ax.set_title(
-            f"{i+1} / {n_points}",
+            f"{i} / {n_points - 1}",
             fontsize=8,
         )
         ax.set_axis_off()
@@ -70,7 +70,7 @@ def create_path_in_ambient_fig(
         ax.set_axis_off()
 
     fig.suptitle(
-        f"Ambient mid-points on the {path_name} path",
+        title,
         fontsize=13,
     )
     fig.tight_layout()
@@ -209,6 +209,70 @@ def create_summary_fig(df: pd.DataFrame, n_path_points: int, loss_fn_name: str):
     return fig
 
 
+def create_summary_fig_new(df: pd.DataFrame, n_path_points: int, loss_fn_name: str):
+    fig, axs = plt.subplots(1, 3, figsize=(13, 4))
+    z_start = np.array(
+        [df.loc[df["iter"].idxmin(), "z0"], df.loc[df["iter"].idxmin(), "z1"]]
+    )
+    step = df["iter"].max() // n_path_points
+    DOT_SIZE = 3
+    step_sparse = df["iter"].max() // 8
+    good_iters = [i for i in df["iter"].unique() if i % step_sparse == 0]
+    good_iters[-1] = df["iter"].max()
+    _df = df.replace({"retractive": "geometric"})
+    iter_idx = _df["iter"].isin(good_iters)
+    sns.lineplot(
+        _df,
+        x="iter",
+        y="loss",
+        hue="method",
+        alpha=0.5,
+        lw=2,
+        ax=axs[0],
+    )
+    axs[0].scatter(
+        _df.loc[iter_idx, "iter"], _df.loc[iter_idx, "loss"], color="k", s=DOT_SIZE
+    )
+    axs[0].set_xlabel("iteration step")
+    axs[0].set_title("a)", loc="left")
+
+    sns.lineplot(
+        _df,
+        x="gamma",
+        y="loss",
+        hue="method",
+        alpha=0.5,
+        lw=2,
+        ax=axs[1],
+    )
+    axs[1].set_xlabel("euclidean path length in $\mathcal{X}$")
+    axs[1].set_title("b)", loc="left")
+    axs[1].scatter(
+        _df.loc[iter_idx, "gamma"], _df.loc[iter_idx, "loss"], color="k", s=DOT_SIZE
+    )
+
+    sns.lineplot(
+        _df,
+        x="z_euc_len",
+        y="loss",
+        hue="method",
+        alpha=0.5,
+        lw=2,
+        ax=axs[2],
+    )
+    axs[2].set_xlabel("euclidean path length in $\mathcal{Z}$")
+    axs[2].set_title("c)", loc="left")
+    axs[2].scatter(
+        _df.loc[iter_idx, "z_euc_len"], _df.loc[iter_idx, "loss"], color="k", s=DOT_SIZE
+    )
+
+    # fig.suptitle(
+    #     f"Latent paths optimizing {loss_fn_name} starting in {z_start.round(2)}",
+    #     fontsize=13,
+    # )
+    return fig
+
+
 def run_setup(
     z: torch.Tensor,
     setup: list[tuple[str, float]],
@@ -246,12 +310,15 @@ def run(
     df, paths = run_setup(
         z_start, optim_setup, loss_fn=loss_fn, map_fn=map_fn, n_iter=n_iter
     )
-    fig = create_summary_fig(df, 50, loss_name)
+    fig = create_summary_fig_new(df, 50, loss_name)
     img_arrs = [get_img_from_fig(fig)]
     plt.close(fig)
-    for (optim_name, lr), path in zip(optim_setup, paths):
+    for prefix, (optim_name, lr), path in zip(["d)", "e)"], optim_setup, paths):
+        optim_name_rigged = "geometric" if optim_name == "retractive" else optim_name
         fig = create_path_in_ambient_fig(
-            path, f"Path for {optim_name} optimizer, {lr = :.3f}", map_fn=map_fn
+            path,
+            title=f"{prefix} ambient interval points for {optim_name_rigged} optimizer",
+            map_fn=map_fn,
         )
         img_arrs.append(get_img_from_fig(fig))
         plt.close(fig)

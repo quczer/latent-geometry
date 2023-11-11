@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 
 
-def get_img_from_fig(fig, dpi: int = 180) -> np.ndarray:
+def get_img_from_fig(fig, dpi: int = 500) -> np.ndarray:
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=dpi)
     buf.seek(0)

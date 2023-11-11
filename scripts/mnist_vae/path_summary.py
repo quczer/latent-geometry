@@ -32,7 +32,7 @@ def create_straight_path(
 
 def create_path_in_ambient_fig(
     path: ManifoldPath,
-    path_name: str,
+    title: str,
     n_points: int = 9,
 ):
     fig, axes = plt.subplots(2, n_points, figsize=(1.5 * n_points, 3))
@@ -43,7 +43,7 @@ def create_path_in_ambient_fig(
         img = ambient_path(t).reshape(32, 32)
         ax.imshow(img, vmin=0, vmax=1)
         ax.set_title(
-            f"t = {t:.1f}",
+            f"t = {t:.2f}",
             fontsize=8,
         )
         ax.set_axis_off()
@@ -58,17 +58,25 @@ def create_path_in_ambient_fig(
         ambient_dist = ambient_path.euclidean_length(t, t_next, dt=0.01)
         diff_mse = np.sqrt((img_diff**2).sum())
         ax.imshow(img_diff, cmap="PiYG", vmin=-VMAX, vmax=VMAX)
+        # ax.set_title(
+        #     (
+        #         f"l - Euc: {euclidean_dist:.2f}, P-B: {latent_dist: .2f}\n"
+        #         f"a - Euc: {ambient_dist:.2f}, MSE: {diff_mse: .2f}"
+        #     ),
+        #     fontsize=8,
+        # )
         ax.set_title(
             (
-                f"l - Euc: {euclidean_dist:.2f}, P-B: {latent_dist: .2f}\n"
-                f"a - Euc: {ambient_dist:.2f}, MSE: {diff_mse: .2f}"
+                f"latent: {euclidean_dist:.2f}\n"
+                f"ambient: {ambient_dist:.2f}\n"
+                f"MSE: {diff_mse: .2f}"
             ),
             fontsize=8,
         )
         ax.set_axis_off()
 
     fig.suptitle(
-        f"Ambient mid-points on the {path_name} path",
+        title,
         fontsize=13,
     )
     fig.tight_layout()
@@ -130,7 +138,10 @@ def summarize_path(
 
 
 def create_summary_fig(df: pd.DataFrame):
-    fig, axs = plt.subplots(2, 2, figsize=(11, 10))
+    N_POINTS = 7
+    DOT_SIZE = 4
+    n_iter = df["i"].max()
+    fig, axs = plt.subplots(1, 3, figsize=(13, 4))
     z_start = np.array([df.loc[df["i"].idxmin(), "z0"], df.loc[df["i"].idxmin(), "z1"]])
     z_end = np.array([df.loc[df["i"].idxmax(), "z0"], df.loc[df["i"].idxmax(), "z1"]])
     sns.scatterplot(
@@ -142,9 +153,14 @@ def create_summary_fig(df: pd.DataFrame):
         alpha=0.8,
         linestyle="-",
         zorder=1,
-        ax=axs[0, 0],
+        ax=axs[0],
     )
-    axs[0, 0].set_title("Path trace in the latent space")
+    idxs_nums = [i for i in df.i.unique() if i % (n_iter // (N_POINTS - 1)) == 0]
+    idxs_nums[-1] = df.i.max()
+    idx = df.i.isin(idxs_nums)
+    axs[0].scatter(x=df.loc[idx, "z0"], y=df.loc[idx, "z1"], color="k", s=DOT_SIZE)
+    axs[0].set_title(r"a) trace in $\mathcal{Z}$")
+    axs[0].legend(loc=(0.5, 0.35))
 
     sns.lineplot(
         df,
@@ -154,22 +170,26 @@ def create_summary_fig(df: pd.DataFrame):
         # marker='.',
         alpha=0.8,
         lw=2,
-        ax=axs[0, 1],
+        ax=axs[1],
     )
-    axs[0, 1].set_title("Path length (euclidean) in the latent space")
-    axs[0, 1].set_ylabel("")
+    axs[1].set_title(r"b) length (euclidean) in $\mathcal{Z}$")
+    axs[1].scatter(
+        x=df.loc[idx, "t"], y=df.loc[idx, "z_euc_len"], color="k", s=DOT_SIZE
+    )
 
-    sns.lineplot(
-        df,
-        x="t",
-        y="z_man_len",
-        hue="path",
-        alpha=0.8,
-        lw=2,
-        ax=axs[1, 0],
-    )
-    axs[1, 0].set_title("Path length (pull-back) in the latent space")
-    axs[1, 0].set_ylabel("")
+    axs[1].set_ylabel("")
+
+    # sns.lineplot(
+    #     df,
+    #     x="t",
+    #     y="z_man_len",
+    #     hue="path",
+    #     alpha=0.8,
+    #     lw=2,
+    #     ax=axs[1, 0],
+    # )
+    # axs[1, 0].set_title("Path length (pull-back) in the latent space")
+    # axs[1, 0].set_ylabel("")
 
     sns.lineplot(
         df,
@@ -178,14 +198,15 @@ def create_summary_fig(df: pd.DataFrame):
         hue="path",
         alpha=0.8,
         lw=2,
-        ax=axs[1, 1],
+        ax=axs[2],
     )
-    axs[1, 1].set_title("Path length in the ambient space")
-    axs[1, 1].set_ylabel("")
-    fig.suptitle(
-        f"Latent path {z_start.round(1)} -> {z_end.round(1)}",
-        fontsize=13,
-    )
+    axs[2].scatter(x=df.loc[idx, "t"], y=df.loc[idx, "x_len"], color="k", s=DOT_SIZE)
+    axs[2].set_title(r"c) length in $\mathcal{X}$")
+    axs[2].set_ylabel("")
+    # fig.suptitle(
+    #     f"Latent path {z_start.round(1)} -> {z_end.round(1)}",
+    #     fontsize=13,
+    # )
     return fig
 
 
@@ -195,16 +216,18 @@ def run(start: np.ndarray, end: np.ndarray, manifold: Manifold) -> Image.Image:
         geodesic_path(0), geodesic_path(1), manifold.metric
     )
     paths = [
-        (straight_path, "straight"),
+        (straight_path, "straight path"),
         (geodesic_path, "geodesic"),
     ]
     img_arrs = []
     dfs = []
-    for path, name in paths:
+    for prefix, (path, name) in zip(["e)", "d)"], paths):
         df = summarize_path(path, n_points=100)
         df["path"] = name
         dfs.append(df)
-        fig = create_path_in_ambient_fig(path, n_points=7, path_name=name)
+        fig = create_path_in_ambient_fig(
+            path, n_points=7, title=f"{prefix} ambient interval points on the {name}"
+        )
         img_arrs.append(get_img_from_fig(fig))
         plt.close(fig)
 
