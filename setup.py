@@ -7,8 +7,8 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="latent-geometry",
-    version="1.0.0a2",
-    description="Python package for latent space exploration using Riemannian geometry.",
+    version="1.1.0",
+    description="Python package allowing for the exploration of latent spaces of generative models through Riemannian geometry.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Michal Kucharczyk",
@@ -16,7 +16,7 @@ setup(
     license="GPLv3",
     license_file="LICENSE",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
