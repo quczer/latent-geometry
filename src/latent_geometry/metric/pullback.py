@@ -9,11 +9,11 @@ from latent_geometry.mapping import (
     MatrixMapping,
 )
 from latent_geometry.metric.abstract import Metric
-from latent_geometry.metric.connection import ExtendedConnection
+from latent_geometry.metric.connection import RichConnection
 from latent_geometry.metric.euclidean import EuclideanMetric
 
 
-class MappingPullbackMetric(ExtendedConnection, ABC):
+class MappingPullbackMetric(RichConnection, ABC):
     @property
     @abstractmethod
     def ambient_metric(self) -> Metric:
