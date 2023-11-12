@@ -55,7 +55,7 @@ def test_exponential_mapping_on_the_sphere(
     sphere_immersion = create_sphere_immersion()
 
     z = np.array([theta, phi])
-    path = sphere_manifold.path_given_direction(z, vec)
+    path = sphere_manifold.geodesic(z, vec)
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [project(sphere_immersion)(z) for z in zs]
     assert on_the_same_big_circle(xs)
@@ -79,7 +79,7 @@ def test_logarithm_mapping_on_the_sphere(
     z_start, z_end = sphere_immersion.model.inv(amb_start), sphere_immersion.model.inv(
         amb_end
     )
-    path = sphere_manifold.geodesic(z_start, z_end)
+    path = sphere_manifold.shortest_path(z_start, z_end)
     zs = [path(t) for t in np.linspace(0.0, 1.0)]
     xs = [project(sphere_immersion)(z) for z in zs]
     assert on_the_same_big_circle(xs)
@@ -98,7 +98,7 @@ def test_exponential_mapping_on_hilly_2d_graph(
     base_point, theta, vector_length, hilly_2d_manifold: LatentManifold
 ):
     direction = np.array([np.cos(theta), np.sin(theta)])
-    path = hilly_2d_manifold.path_given_direction(base_point, direction, vector_length)
+    path = hilly_2d_manifold.geodesic(base_point, direction, vector_length)
     assert np.allclose(path(0.0), base_point)
     assert np.isclose(
         path.manifold_length(), vector_length, rtol=0.01

@@ -24,7 +24,7 @@ class _SIModel(nn.Module):
 
     @staticmethod
     def inv(vec: np.ndarray) -> np.ndarray:
-        """Inverse of __call__; (x, y, z) -> (phi, theta)."""
+        """Inverse of __call__; (x, y, z) -> (theta, phi)."""
         x, y, z = vec
         theta = np.arccos(z)
         phi = np.arccos(x / np.sin(theta))

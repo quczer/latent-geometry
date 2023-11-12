@@ -83,7 +83,7 @@ class Connection(Metric, ABC):
         return acceleration
 
 
-class ExtendedConnection(Connection, ABC):
+class RichConnection(Connection, ABC):
     """Connection with additional structure - e.g. Riemmann/Ricci curvature tensors."""
 
     @abstractmethod
