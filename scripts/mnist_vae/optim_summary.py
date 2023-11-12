@@ -8,14 +8,13 @@ import pandas as pd
 import seaborn as sns
 import torch
 from PIL import Image
-from scipy.stats.distributions import binom, norm, uniform
 from tqdm import tqdm
 from utils import allign_arrays, get_img_from_fig
 
 from latent_geometry.config import FIGURES_DIR
 from latent_geometry.model.mnist_vae import load_decoder
 from latent_geometry.optim.metric import TorchMetric
-from latent_geometry.optim.torch import InputSGDOptimizer
+from latent_geometry.optim.torch import InputGDOptimizer
 
 
 def optimize(
@@ -284,7 +283,7 @@ def run_setup(
     dfs, paths = [], []
     for gt, lr in setup:
         z_optim = z.clone().requires_grad_()
-        optimizer = InputSGDOptimizer(
+        optimizer = InputGDOptimizer(
             z_optim,
             metric=metric,
             lr=lr,

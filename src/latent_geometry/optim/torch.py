@@ -6,7 +6,7 @@ import torch.optim.sgd
 from latent_geometry.optim.metric import TorchMetric
 
 
-class InputSGDOptimizer:
+class InputGDOptimizer:
     def __init__(
         self,
         param: torch.Tensor,
