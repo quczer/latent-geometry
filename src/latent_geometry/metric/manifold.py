@@ -1,6 +1,6 @@
 from latent_geometry.mapping import Mapping
 from latent_geometry.metric.abstract import Metric
-from latent_geometry.metric.euclidean import EuclideanMetric
+from latent_geometry.metric.constant import EuclideanMetric
 from latent_geometry.metric.pullback import MappingPullbackMetric
 
 

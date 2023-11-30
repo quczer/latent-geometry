@@ -5,7 +5,7 @@ import numpy as np
 from latent_geometry.mapping import EuclideanMatrixMapping, Mapping, MatrixMapping
 from latent_geometry.metric.abstract import Metric
 from latent_geometry.metric.connection import Connection
-from latent_geometry.metric.euclidean import EuclideanMetric
+from latent_geometry.metric.constant import EuclideanMetric
 
 
 class MappingPullbackMetric(Connection, ABC):

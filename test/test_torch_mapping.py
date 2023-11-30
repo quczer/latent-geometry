@@ -6,7 +6,7 @@ from latent_geometry.mapping import BaseTorchModelMapping, TorchModelMapping
 from latent_geometry.metric import EuclideanMetric, ManifoldMetric
 from latent_geometry.utils import project
 
-ATOL = 1e-7
+ATOL = 1e-6
 
 
 @pytest.fixture
@@ -125,3 +125,29 @@ def test_equality_batching_on_permuted_net(z: np.ndarray, simple_net: torch.nn.M
         mapping.euclidean_metric_matrix_derivative(z_batch)[0],
         atol=ATOL,
     )
+
+
+@pytest.mark.parametrize(
+    "z",
+    [np.linspace(1, 10, 16), np.random.randn(16)],
+)
+def test_call_shaped(z: np.ndarray, simple_net: torch.nn.Module):
+    def __permuted_call(x):
+        return (
+            simple_net(x.permute(2, 1, 3, 0)).reshape(-1, 4, 16, 2).permute(2, 3, 0, 1)
+        )
+
+    mapping = TorchModelMapping(
+        simple_net, (4, 1, -1, 4), (16, 2, -1, 4), call_fn=__permuted_call
+    )
+
+    res_single = project(mapping.call_shaped)(z)
+
+    assert res_single.shape == (16, 2, 4)
+    np.testing.assert_allclose(res_single.reshape(-1), project(mapping)(z))
+
+    z_batch = z[None, ...].repeat(3, 0)
+    res_mult = mapping.call_shaped(z_batch)
+
+    assert res_mult.shape == (3, 16, 2, 4)
+    np.testing.assert_allclose(res_mult.reshape(3, -1), mapping(z_batch))

@@ -99,10 +99,10 @@ def test_logarithm_mapping_on_the_sphere(
 @pytest.mark.parametrize(
     "base_point,theta,vector_length",
     [
-        (np.array([1, 0]), 1.0, 2),
-        (np.array([-1, 0]), 1.0, 1),
-        (np.array([1, -2]), -1.0, 3),
-        (np.array([1, -2]), 0.0, 0.2),
+        (np.array([1.0, 0.0]), 1.0, 2),
+        (np.array([-1.0, 0.0]), 1.0, 1),
+        (np.array([1.0, -2.0]), -1.0, 3),
+        (np.array([1.0, -2.0]), 0.0, 0.2),
     ],
 )
 def test_exponential_mapping_on_hilly_2d_graph(

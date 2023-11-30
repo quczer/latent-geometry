@@ -39,6 +39,13 @@ class BaseTorchModelMapping(DerivativeMapping):
         return xs
 
     @batchify
+    def call_shaped(self, zs: np.ndarray) -> np.ndarray:
+        xs_flat = self(zs)
+        xs_shaped = xs_flat.reshape(xs_flat.shape[0], *self.out_shape)  # -1 dim -> 1
+        xs_shaped = xs_shaped.squeeze(self.out_batch_dim + 1)  # bath is now 1st
+        return xs_shaped
+
+    @batchify
     def jacobian(self, zs: np.ndarray) -> np.ndarray:
         zs_torch = self._to_torch(zs)
         jacobian_torch = vmap(jacfwd(self._call_flat_model))(zs_torch)
@@ -69,6 +76,7 @@ class BaseTorchModelMapping(DerivativeMapping):
             torch_dtype = torch.int64
         else:
             torch_dtype = torch.float32
+        print(x.dtype, torch_dtype)
         return torch.tensor(x, dtype=torch_dtype).to(self._get_model_device())
 
     @staticmethod
@@ -86,7 +94,7 @@ class BaseTorchModelMapping(DerivativeMapping):
         in_shape: tuple[int, ...],
         out_shape: tuple[int, ...],
     ) -> None:
-        def __check_batch_dim(shape: tuple[int, ...], param_name: str) -> int:
+        def __get_batch_dim(shape: tuple[int, ...], param_name: str) -> int:
             batch_dims = [i for i, d in enumerate(shape) if d == -1]
             if len(batch_dims) == 0:
                 raise ValueError(
@@ -102,8 +110,8 @@ class BaseTorchModelMapping(DerivativeMapping):
                 )
             return batch_dims[0]
 
-        __check_batch_dim(in_shape, "in_shape")
-        __check_batch_dim(out_shape, "out_shape")
+        __get_batch_dim(in_shape, "in_shape")
+        self.out_batch_dim = __get_batch_dim(out_shape, "out_shape")
         self.in_shape = in_shape
         self.out_shape = out_shape
 

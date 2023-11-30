@@ -10,17 +10,17 @@ from latent_geometry.utils import batchify, lift, project
     "x,y,batch_size",
     [
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             1,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             4,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             10 * 4 * 2,
         ),
@@ -52,22 +52,22 @@ def test_batchify_on_function(x, y, batch_size):
     "x,y,batch_size",
     [
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             1,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             4,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             10 * 4 * 2,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             None,
         ),
@@ -101,22 +101,22 @@ def test_batchify_on_method(x, y, batch_size):
     "x,y,batch_size_",
     [
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             1,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             4,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             10 * 4 * 2,
         ),
         (
-            np.arange(10 * 4 * 2).reshape(10, 4, 2),
+            np.arange(10 * 4 * 2, dtype=float).reshape(10, 4, 2),
             np.random.randn(10, 4, 2),
             None,
         ),

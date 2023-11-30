@@ -59,7 +59,7 @@ def test_metric_matrix_derivative_on_sphere_immersion(z):
 @pytest.mark.parametrize(
     "z",
     [
-        np.arange(16),
+        np.arange(16, dtype=float),
         random_16d_vector(),
         random_16d_vector(),
     ],
@@ -83,7 +83,7 @@ def test_metric_matrix_on_torch_model(simple_net, z):
 @pytest.mark.parametrize(
     "z",
     [
-        np.arange(16),
+        np.arange(16, dtype=float),
         random_16d_vector(),
     ],
 )
