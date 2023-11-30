@@ -32,12 +32,14 @@ class _SIModel(nn.Module):
 
 
 def create_northern_hemisphere_mapping() -> TorchModelMapping:
-    return TorchModelMapping(model=_NHModel(), in_shape=(-1, 2), out_shape=(-1, 3))
+    return TorchModelMapping(
+        model=_NHModel().eval(), in_shape=(-1, 2), out_shape=(-1, 3)
+    )
 
 
 def create_sphere_immersion() -> TorchModelMapping:
     return TorchModelMapping(
-        model=_SIModel(),
+        model=_SIModel().eval(),
         in_shape=(-1, 2),
         out_shape=(
             -1,

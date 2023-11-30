@@ -29,6 +29,7 @@ class BaseTorchModelMapping(DerivativeMapping):
         self.call_fn = call_fn or model.__call__
         self.batch_size = batch_size
         self._init_shapes(in_shape, out_shape)
+        assert not model.training, f"model must be in eval mode!"
 
     @batchify
     def __call__(self, zs: np.ndarray) -> np.ndarray:

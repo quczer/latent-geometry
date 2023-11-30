@@ -31,7 +31,7 @@ def simple_net():
             x = self.fc3(x)
             return x
 
-    return Net()
+    return Net().eval()
 
 
 def random_16d_vector():

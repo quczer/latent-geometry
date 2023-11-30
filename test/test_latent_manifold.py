@@ -25,7 +25,7 @@ def hilly_2d_manifold():
 
     return LatentManifold(
         TorchModelMapping(
-            Hilly2dNet(),
+            Hilly2dNet().eval(),
             (
                 -1,
                 2,
