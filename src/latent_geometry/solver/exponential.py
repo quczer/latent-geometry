@@ -11,10 +11,12 @@ class IVPExponentialSolver(ExponentialSolver):
     def __init__(
         self,
         method: Literal["RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA"] = "RK45",
-        tolerance: float = 1e-3,
+        rtol: float = 1e-3,
+        atol: float = 1e-6,
     ):
         self.method = method
-        self.tolerance = tolerance
+        self.rtol = rtol
+        self.atol = atol
 
     def compute_path(
         self,
@@ -66,7 +68,8 @@ class IVPExponentialSolver(ExponentialSolver):
             initial_state,
             method=self.method,
             dense_output=True,
-            rtol=self.tolerance,
+            rtol=self.rtol,
+            atol=self.atol,
         )
 
     @staticmethod

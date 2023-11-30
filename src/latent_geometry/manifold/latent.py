@@ -13,14 +13,15 @@ class LatentManifold(Manifold):
         self,
         mapping: Mapping,
         ambient_metric: Metric,
-        solver_tol: float = 1e-3,
+        solver_rtol: float = 1e-3,
+        solver_atol: float = 1e-6,
         bvp_n_mesh_nodes: int = 2_000,
     ):
         self._metric = ManifoldMetric(mapping, ambient_metric)
-        self._exp_solver = IVPExponentialSolver(tolerance=solver_tol)
+        self._exp_solver = IVPExponentialSolver(rtol=solver_rtol, atol=solver_atol)
         # NOTE: careful, computation time can scale linearly with `n_mesh_nodes`
         self._log_solver = BVPLogarithmSolver(
-            tolerance=solver_tol, n_mesh_nodes=bvp_n_mesh_nodes
+            tolerance=solver_atol, n_mesh_nodes=bvp_n_mesh_nodes
         )
         self.flat_acc_fun = project(self.metric.acceleration)
 
