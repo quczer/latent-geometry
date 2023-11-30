@@ -24,7 +24,18 @@ def hilly_2d_manifold():
             return torch.stack([x, y, z])
 
     return LatentManifold(
-        TorchModelMapping(Hilly2dNet(), (2,), (3,)), EuclideanMetric()
+        TorchModelMapping(
+            Hilly2dNet(),
+            (
+                -1,
+                2,
+            ),
+            (
+                -1,
+                3,
+            ),
+        ),
+        EuclideanMetric(),
     )
 
 

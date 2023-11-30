@@ -24,20 +24,18 @@ class BaseTorchModelMapping(DerivativeMapping):
         batch_size: Optional[int] = None,
         call_fn: Optional[Callable[[torch.Tensor], torch.Tensor]] = None,
     ):
-        """Shapes should be without the batch dimension"""
+        """Specify batch dimension with `-1`"""
         self.model = model
         self.call_fn = call_fn or model.__call__
-        self.in_shape = in_shape
-        self.out_shape = out_shape
         self.batch_size = batch_size
+        self._init_shapes(in_shape, out_shape)
 
     @batchify
     def __call__(self, zs: np.ndarray) -> np.ndarray:
-        B, _ = zs.shape
         zs_torch = self._to_torch(zs)
-        xs_torch = self._call_flat_model(zs_torch, batch=True)
+        xs_torch = vmap(self._call_flat_model)(zs_torch)
         xs = self._to_numpy(xs_torch)
-        return xs.reshape(B, -1)
+        return xs
 
     @batchify
     def jacobian(self, zs: np.ndarray) -> np.ndarray:
@@ -51,21 +49,19 @@ class BaseTorchModelMapping(DerivativeMapping):
         second_derivative_torch = vmap(jacfwd(jacfwd(self._call_flat_model)))(zs_torch)
         return self._to_numpy(second_derivative_torch)
 
-    def _call_flat_model(self, xs: torch.Tensor, batch: bool = False) -> torch.Tensor:
-        """Reshapes data so that we can pretend that model's input and output is 2D (batch x latent_dim)."""
-        in_shape = (-1, *self.in_shape)
-        in_ = xs.reshape(in_shape)
+    def _call_flat_model(self, x: torch.Tensor) -> torch.Tensor:
+        """Reshapes data so that we can pretend that model's input and output is 1D (latent_dim,)."""
+        in_ = x.reshape(self.in_shape)
         out_ = self.call_fn(in_)
-
-        return out_.reshape(-1, self.out_dim) if batch else out_.reshape(self.out_dim)
+        return out_.reshape(self.out_dim)
 
     @property
     def in_dim(self) -> int:
-        return math.prod(self.in_shape)
+        return -math.prod(self.in_shape)
 
     @property
     def out_dim(self) -> int:
-        return math.prod(self.out_shape)
+        return -math.prod(self.out_shape)
 
     def _to_torch(self, x: np.ndarray) -> torch.Tensor:
         return torch.tensor(x).to(self._get_model_device()).float()
@@ -79,6 +75,32 @@ class BaseTorchModelMapping(DerivativeMapping):
             return next(self.model.parameters()).device
         except StopIteration:
             return torch.device("cpu")
+
+    def _init_shapes(
+        self,
+        in_shape: tuple[int, ...],
+        out_shape: tuple[int, ...],
+    ) -> None:
+        def __check_batch_dim(shape: tuple[int, ...], param_name: str) -> int:
+            batch_dims = [i for i, d in enumerate(shape) if d == -1]
+            if len(batch_dims) == 0:
+                raise ValueError(
+                    f"{param_name} = {shape} invalid - no batch dimension (-1)"
+                )
+            if len(batch_dims) > 1:
+                raise ValueError(
+                    f"{param_name} = {shape} invalid - multiple batch dimensions (-1)"
+                )
+            if any([i != -1 and i < 0 for i in shape]):
+                raise ValueError(
+                    f"{param_name} = {shape} invalid - negative dimension sizes"
+                )
+            return batch_dims[0]
+
+        __check_batch_dim(in_shape, "in_shape")
+        __check_batch_dim(out_shape, "out_shape")
+        self.in_shape = in_shape
+        self.out_shape = out_shape
 
 
 class TorchModelMapping(MatrixMapping, EuclideanMatrixMapping, BaseTorchModelMapping):
