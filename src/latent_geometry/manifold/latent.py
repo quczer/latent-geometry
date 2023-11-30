@@ -14,7 +14,7 @@ class LatentManifold(Manifold):
         mapping: Mapping,
         ambient_metric: Metric,
         solver_tol: float = 1e-3,
-        bvp_n_mesh_nodes: int = 2,
+        bvp_n_mesh_nodes: int = 2_000,
     ):
         self._metric = ManifoldMetric(mapping, ambient_metric)
         self._exp_solver = IVPExponentialSolver(tolerance=solver_tol)
