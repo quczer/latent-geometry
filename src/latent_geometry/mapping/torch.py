@@ -65,7 +65,11 @@ class BaseTorchModelMapping(DerivativeMapping):
         return -math.prod(self.out_shape)
 
     def _to_torch(self, x: np.ndarray) -> torch.Tensor:
-        return torch.tensor(x).to(self._get_model_device())
+        if np.issubdtype(x.dtype, np.integer):
+            torch_dtype = torch.int64
+        else:
+            torch_dtype = torch.float32
+        return torch.tensor(x, dtype=torch_dtype).to(self._get_model_device())
 
     @staticmethod
     def _to_numpy(x_tensor: torch.Tensor) -> np.ndarray:

@@ -25,6 +25,7 @@ class LatentManifold(Manifold):
         self.flat_acc_fun = project(self.metric.acceleration)
 
     def shortest_path(self, z_a: np.ndarray, z_b: np.ndarray) -> ManifoldPath:
+        self._check_if_vector(z_a=z_a, z_b=z_b)
         solver_path = self._log_solver.find_path(z_a, z_b, self.metric.acceleration)
         return ManifoldPath(
             solver_path.position,
@@ -34,6 +35,7 @@ class LatentManifold(Manifold):
     def geodesic(
         self, z: np.ndarray, velocity_vec: np.ndarray, length: float = 1.0
     ) -> ManifoldPath:
+        self._check_if_vector(z=z, velocity_vec=velocity_vec)
         velocity = self._adjust_vector_magnitude(z, velocity_vec, length)
         solver_path = self._exp_solver.compute_path(z, velocity, self.flat_acc_fun)
         return ManifoldPath(
@@ -56,3 +58,10 @@ class LatentManifold(Manifold):
             tangent_vec=vec, base_point=base_point
         )
         return vec / pullback_length * length
+
+    def _check_if_vector(self, /, **kwargs: np.ndarray) -> None:
+        for name, arr in kwargs.items():
+            if not isinstance(arr, np.ndarray):
+                raise ValueError(f"{name} must be a numpy array")
+            if len(arr.shape) != 1:
+                raise ValueError(f"{name} must be a 1-dimensional vector")
