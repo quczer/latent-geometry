@@ -76,7 +76,6 @@ class BaseTorchModelMapping(DerivativeMapping):
             torch_dtype = torch.int64
         else:
             torch_dtype = torch.float32
-        print(x.dtype, torch_dtype)
         return torch.tensor(x, dtype=torch_dtype).to(self._get_model_device())
 
     @staticmethod
