@@ -28,8 +28,8 @@ from latent_geometry.mapping import Mapping, TorchModelMapping
 
 mapping: Mapping = TorchModelMapping(
     model=your_neural_net,
-    in_shape=(8,), # dimensionality of the domain w/o batch size
-    out_shape=(3, 32, 32), # dimensionality of the co-domain w/o batch size
+    in_shape=(-1, 8), # dimensionality of the domain w/ -1 for the batch size
+    out_shape=(-1, 3, 32, 32), # dimensionality of the co-domain w/ -1 for the batch size
     batch_size=batch_size,
     call_fn=your_neural_net.forward, # optional
 )
