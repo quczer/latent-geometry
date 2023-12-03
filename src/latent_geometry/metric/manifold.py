@@ -5,7 +5,13 @@ from latent_geometry.metric.pullback import MappingPullbackMetric
 
 
 class ManifoldMetric(MappingPullbackMetric):
-    def __init__(self, mapping: Mapping, ambient_metric: Metric):
+    def __init__(
+        self,
+        mapping: Mapping,
+        ambient_metric: Metric,
+        pullback_metric_eps: float = 1e-5,
+    ):
+        super().__init__(matrix_eps=pullback_metric_eps)
         self._mapping = mapping
         self._ambient_metric = ambient_metric
 

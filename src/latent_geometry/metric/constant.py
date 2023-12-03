@@ -6,6 +6,7 @@ from latent_geometry.utils import batched_eye
 
 class ConstantMetric(Metric):
     def __init__(self, matrix: np.ndarray):
+        super().__init__()
         self.matrix = matrix
 
     def metric_matrix(self, base_points: np.ndarray) -> np.ndarray:

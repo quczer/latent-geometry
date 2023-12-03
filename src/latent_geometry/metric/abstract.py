@@ -6,7 +6,8 @@ from latent_geometry.utils import batched_eye
 
 
 class Metric(ABC):
-    _EPS = 1e-4
+    def __init__(self, matrix_eps: float = 1e-5):
+        self._matrix_eps = matrix_eps
 
     @abstractmethod
     def metric_matrix(self, base_points: np.ndarray) -> np.ndarray:

@@ -1,3 +1,5 @@
+from typing import Literal
+
 import numpy as np
 
 from latent_geometry.manifold.abstract import Manifold
@@ -15,10 +17,16 @@ class LatentManifold(Manifold):
         ambient_metric: Metric,
         solver_rtol: float = 1e-3,
         solver_atol: float = 1e-6,
+        pullback_metric_eps: float = 1e-5,
+        ivp_method: Literal["RK45", "RK23", "DOP853", "Radau", "BDF", "LSODA"] = "RK45",
         bvp_n_mesh_nodes: int = 2_000,
     ):
-        self._metric = ManifoldMetric(mapping, ambient_metric)
-        self._exp_solver = IVPExponentialSolver(rtol=solver_rtol, atol=solver_atol)
+        self._metric = ManifoldMetric(
+            mapping, ambient_metric, pullback_metric_eps=pullback_metric_eps
+        )
+        self._exp_solver = IVPExponentialSolver(
+            method=ivp_method, rtol=solver_rtol, atol=solver_atol
+        )
         # NOTE: careful, computation time can scale linearly with `n_mesh_nodes`
         self._log_solver = BVPLogarithmSolver(
             tolerance=solver_atol, n_mesh_nodes=bvp_n_mesh_nodes
