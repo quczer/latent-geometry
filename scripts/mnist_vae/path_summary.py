@@ -68,7 +68,7 @@ def create_path_in_ambient_fig(
         ax.set_title(
             (
                 f"latent: {euclidean_dist:.2f}\n"
-                f"ambient: {ambient_dist:.2f}\n"
+                f"observation: {ambient_dist:.2f}\n"
                 f"MSE: {diff_mse: .2f}"
             ),
             fontsize=8,
@@ -226,7 +226,9 @@ def run(start: np.ndarray, end: np.ndarray, manifold: Manifold) -> Image.Image:
         df["path"] = name
         dfs.append(df)
         fig = create_path_in_ambient_fig(
-            path, n_points=7, title=f"{prefix} ambient interval points on the {name}"
+            path,
+            n_points=7,
+            title=f"{prefix} observation interval points on the {name}",
         )
         img_arrs.append(get_img_from_fig(fig))
         plt.close(fig)

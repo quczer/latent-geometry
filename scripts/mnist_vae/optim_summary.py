@@ -169,8 +169,8 @@ def create_summary_fig(df: pd.DataFrame, n_path_points: int, loss_fn_name: str):
         lw=2,
         ax=axs[0, 2],
     )
-    axs[0, 2].set_title(f"gamma := length of the path in the ambient space")
-    axs[0, 2].set_ylabel("euclidean length (ambient)")
+    axs[0, 2].set_title(f"gamma := length of the path in the observation space")
+    axs[0, 2].set_ylabel("euclidean length (observation)")
 
     sns.lineplot(
         df,
@@ -316,7 +316,7 @@ def run(
         optim_name_rigged = "geometric" if optim_name == "retractive" else optim_name
         fig = create_path_in_ambient_fig(
             path,
-            title=f"{prefix} ambient interval points for {optim_name_rigged} optimizer",
+            title=f"{prefix} observation interval points for {optim_name_rigged} optimizer",
             map_fn=map_fn,
         )
         img_arrs.append(get_img_from_fig(fig))
