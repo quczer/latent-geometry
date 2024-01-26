@@ -63,9 +63,9 @@ class IVPExponentialSolver(ExponentialSolver):
         initial_state = self._pack_state(position, velocity)
         diff_eq = self._create_differential_equation(acceleration_fun)
         return solve_ivp(
-            diff_eq,
-            t_span,
-            initial_state,
+            fun=diff_eq,
+            t_span=t_span,
+            y0=initial_state,
             method=self.method,
             dense_output=True,
             rtol=self.rtol,

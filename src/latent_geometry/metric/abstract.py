@@ -41,7 +41,7 @@ class Metric(ABC):
             Inverse of the inner-product matrix.
         """
         metric_matrices = self.metric_matrix(base_points)
-        metric_matrices += Metric._EPS * batched_eye(*base_points.shape)
+        metric_matrices += self._matrix_eps * batched_eye(*base_points.shape)
         cometric_matrices = np.linalg.inv(metric_matrices)
         return cometric_matrices
 

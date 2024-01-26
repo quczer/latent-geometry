@@ -66,7 +66,8 @@ class LatentManifold(Manifold):
         pullback_length = project(self.metric.vector_length)(
             tangent_vec=vec, base_point=base_point
         )
-        return vec / pullback_length * length
+        vec_rescaled = vec / pullback_length * length
+        return vec_rescaled
 
     def _check_if_vector(self, /, **kwargs: np.ndarray) -> None:
         for name, arr in kwargs.items():
