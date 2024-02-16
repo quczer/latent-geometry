@@ -45,6 +45,6 @@ def test_simple_brownian(mu, std):
 )
 def test_brownian_inverse(As):
     hermitian_As = As @ As.transpose((0, 2, 1))
-    inv_As = BrownianSampler.inv_trimmed(hermitian_As, eigval_thold=0)
+    inv_As, _ = BrownianSampler.inv_split(hermitian_As, eigval_thold=0)
     inv_As_true = np.linalg.inv(hermitian_As)
     np.testing.assert_allclose(inv_As, inv_As_true)

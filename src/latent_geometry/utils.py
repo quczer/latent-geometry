@@ -110,9 +110,18 @@ def project(__fun: _T, /) -> _T:
 
     @wraps(__fun)
     def __projected_fun(*xs: np.ndarray, **ys: np.ndarray):
-        return __fun(
+        output = __fun(
             *(x[None, ...] for x in xs), **{k: y[None, ...] for k, y in ys.items()}
-        )[0]
+        )
+        # n-ary output
+        if isinstance(output, tuple):
+            return tuple(x[0] for x in output)
+        elif isinstance(output, list):
+            return list(x[0] for x in output)
+        elif isinstance(output, np.ndarray):  # unary output
+            return output[0]
+        else:
+            raise ValueError(f"unsupported return type: {type(output)}")
 
     return __projected_fun  # type: ignore
 
