@@ -5,28 +5,24 @@ import numpy as np
 
 class Sampler(ABC):
     @staticmethod
-    def _sample(means: np.ndarray, stds: np.ndarray, seed: int = 0) -> np.ndarray:
+    def _sample(mean: np.ndarray, std: float, seed: int = 0) -> np.ndarray:
         generator = np.random.default_rng(seed)
-        return generator.normal(
-            loc=means, scale=np.broadcast_to(stds[..., None], means.shape)
-        )
+        sample = generator.normal(loc=mean, scale=np.broadcast_to(std, mean.shape))
+        return sample
 
     @abstractmethod
     def sample_gaussian(
         self, means: np.ndarray, stds: np.ndarray, seed: int
     ) -> np.ndarray:
-        """Sample from an isotropic Gaussian distribution with given mean and standard deviation.
+        """Sample from an isotropic Gaussian distribution with a given mean and standard deviation.
 
         Parameters
         ----------
-        means : (B, D) array
-            Batch of means.
+        mean : (D,) array
 
-        stds : (B,) array
-            Batch of non-negative standard deviations.
+        std : float
 
         Returns
         -------
-        samples : (B, D) array
-            Batch of samples.
+        sample : (B, D) array
         """

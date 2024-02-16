@@ -8,24 +8,24 @@ from latent_geometry.sampler import BrownianSampler, NaiveSampler
 @pytest.mark.parametrize(
     "mu,std",
     [
-        (np.array([[0]]), np.array([1])),
-        (np.arange(10)[None, :], np.array([2])),
-        (np.random.randn(10, 4), np.arange(1, 11)),
+        (np.array([0]), 1.0),
+        (np.arange(10), 2.0),
+        (np.random.randn(10), 3.0),
     ],
 )
 def test_naive(mu, std):
     sampler = NaiveSampler()
     sample = sampler.sample_gaussian(mu, std, seed=32)
-    sample2 = np.random.default_rng(seed=32).normal(loc=mu, scale=std[:, None])
+    sample2 = np.random.default_rng(seed=32).normal(loc=mu, scale=std)
     np.testing.assert_allclose(sample, sample2)
 
 
 @pytest.mark.parametrize(
     "mu,std",
     [
-        (np.array([[0]]), np.array([1])),
-        (np.arange(10)[None, :], np.array([2])),
-        (np.random.randn(10, 4), np.arange(1, 11)),
+        (np.array([0]), 1.0),
+        (np.arange(10), 2.0),
+        (np.random.randn(10), 3.0),
     ],
 )
 def test_simple_brownian(mu, std):
