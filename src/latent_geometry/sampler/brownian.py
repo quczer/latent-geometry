@@ -1,4 +1,5 @@
 import functools
+from typing import Optional
 
 import numpy as np
 
@@ -8,6 +9,8 @@ from latent_geometry.utils import project
 
 
 class BrownianSampler(Sampler):
+    MAX_SAMPLES = 100
+
     def __init__(self, metric: Metric) -> None:
         self.metric = metric
 
@@ -16,41 +19,57 @@ class BrownianSampler(Sampler):
         mean: np.ndarray,
         std: float,
         steps: int = 1,
-        seed: int = 0,
+        seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
     ) -> np.ndarray:
-        step_std = np.sqrt(std**2 / steps)
-        for _ in range(steps):
-            mean = self.sample_single(mean, step_std, seed, eigval_thold)
-        return mean
+        return self.sample_gaussian_with_history(
+            mean=mean, std=std, steps=steps, seed=seed, eigval_thold=eigval_thold
+        )[-1]
 
     def sample_gaussian_with_history(
         self,
         mean: np.ndarray,
         std: np.ndarray,
         steps: int = 1,
-        seed: int = 0,
+        seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
+        perp_alpha: float = 0.5,
     ) -> list[np.ndarray]:
         step_std = np.sqrt(std**2 / steps)
         means = [mean]
-        for _ in range(steps):
-            means.append(self.sample_single(means[-1], step_std, seed, eigval_thold))
+        cnt = 0
+        while cnt < steps:
+            if len(means) > self.MAX_SAMPLES:
+                print("reached maximum number of samples")
+                break
+            vec_principal, vec_perp = self.sample_directions(
+                means[-1], step_std, seed, eigval_thold
+            )
+            if np.linalg.norm(vec_principal) > 0:
+                cnt += 1
+                means.append(means[-1] + vec_principal)
+            else:
+                means.append(means[-1] + perp_alpha * vec_perp)
+
         return means
 
-    def sample_single(
+    def sample_directions(
         self,
         mean: np.ndarray,
         std: np.ndarray,
-        seed: int = 0,
+        seed: Optional[int],
         eigval_thold: float = 1e-3,
-    ) -> np.ndarray:
+    ) -> tuple[np.ndarray, np.ndarray]:
         metric_matrix = project(self.metric.metric_matrix)(mean)
         inv_metric_principal, inv_metric_perp = project(
             functools.partial(self.inv_split, eigval_thold=eigval_thold)
         )(metric_matrix)
         ind_sample = self._sample(np.zeros_like(mean), std, seed)
-        return mean + np.matmul(inv_metric_principal, ind_sample[..., None])[..., 0]
+        vec_principal, vec_perp = [
+            np.matmul(m, ind_sample[..., None])[..., 0]
+            for m in (inv_metric_principal, inv_metric_perp)
+        ]
+        return vec_principal, vec_perp
 
     """
     robić 100 nieeksplorujących, kombinacja liniowa
@@ -68,6 +87,7 @@ class BrownianSampler(Sampler):
     def inv_split(
         matrices: np.ndarray, eigval_thold: float
     ) -> tuple[np.ndarray, np.ndarray]:
+        """Inverse then split a batch of Hermitian matrices into principal and perpendicular subspaces."""
         _EPS = 1e-9
 
         def __diagonalize(vecs: np.ndarray) -> np.ndarray:
