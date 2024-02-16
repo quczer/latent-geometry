@@ -35,3 +35,16 @@ def test_simple_brownian(mu, std):
         naive.sample_gaussian(mu, std, seed=52),
         brownian.sample_gaussian(mu, std, seed=52, steps=1, eigval_thold=0),
     )
+
+
+@pytest.mark.parametrize(
+    "As",
+    [
+        np.random.randn(50).reshape(2, 5, 5),
+    ],
+)
+def test_brownian_inverse(As):
+    hermitian_As = As @ As.transpose((0, 2, 1))
+    inv_As = BrownianSampler.inv_trimmed(hermitian_As, eigval_thold=0)
+    inv_As_true = np.linalg.inv(hermitian_As)
+    np.testing.assert_allclose(inv_As, inv_As_true)
