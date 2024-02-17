@@ -1,18 +1,18 @@
-import functools
 from typing import Optional
 
 import numpy as np
 
 from latent_geometry.metric import Metric
 from latent_geometry.sampler.abstract import Sampler
-from latent_geometry.utils import project
 
 
 class BrownianSampler(Sampler):
-    MAX_SAMPLES = 100
-
-    def __init__(self, metric: Metric) -> None:
+    def __init__(
+        self, metric: Metric, max_samples: int = 1_000, seed: Optional[int] = None
+    ) -> None:
+        super().__init__(seed=seed)
         self.metric = metric
+        self.max_samples = max_samples
 
     def sample_gaussian(  # type: ignore
         self,
@@ -21,9 +21,15 @@ class BrownianSampler(Sampler):
         steps: int = 1,
         seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
+        perp_alpha: float = 0.5,
     ) -> np.ndarray:
         return self.sample_gaussian_with_history(
-            mean=mean, std=std, steps=steps, seed=seed, eigval_thold=eigval_thold
+            mean=mean,
+            std=std,
+            steps=steps,
+            seed=seed,
+            eigval_thold=eigval_thold,
+            perp_alpha=perp_alpha,
         )[-1]
 
     def sample_gaussian_with_history(
@@ -35,20 +41,24 @@ class BrownianSampler(Sampler):
         eigval_thold: float = 1e-3,
         perp_alpha: float = 0.5,
     ) -> list[np.ndarray]:
-        step_std = np.sqrt(std**2 / steps)
+        # step_std = np.sqrt(std**2 / steps) # TODO: fix this
+        self.set_seed(seed)
+        step_std = std
         means = [mean]
         cnt = 0
         while cnt < steps:
-            if len(means) > self.MAX_SAMPLES:
-                print("reached maximum number of samples")
+            if len(means) > self.max_samples:
+                print(f"reached maximum number of samples {self.max_samples}")
                 break
             vec_principal, vec_perp = self.sample_directions(
-                means[-1], step_std, seed, eigval_thold
+                means[-1], step_std, eigval_thold
             )
             if np.linalg.norm(vec_principal) > 0:
+                # print("found principal")
                 cnt += 1
                 means.append(means[-1] + vec_principal)
             else:
+                # print("went perp")
                 means.append(means[-1] + perp_alpha * vec_perp)
 
         return means
@@ -57,16 +67,15 @@ class BrownianSampler(Sampler):
         self,
         mean: np.ndarray,
         std: np.ndarray,
-        seed: Optional[int],
         eigval_thold: float = 1e-3,
     ) -> tuple[np.ndarray, np.ndarray]:
-        metric_matrix = project(self.metric.metric_matrix)(mean)
-        inv_metric_principal, inv_metric_perp = project(
-            functools.partial(self.inv_split, eigval_thold=eigval_thold)
-        )(metric_matrix)
-        ind_sample = self._sample(np.zeros_like(mean), std, seed)
+        metric_matrix = self.metric.metric_matrix(mean[None, ...])[0]
+        inv_metric_principal, inv_metric_perp = self.inv_split(
+            metric_matrix, eigval_thold=eigval_thold
+        )
+        gauss_sample = self._sample(np.zeros_like(mean), std)
         vec_principal, vec_perp = [
-            np.matmul(m, ind_sample[..., None])[..., 0]
+            np.matmul(m, gauss_sample[..., None])[..., 0]
             for m in (inv_metric_principal, inv_metric_perp)
         ]
         return vec_principal, vec_perp
@@ -85,37 +94,31 @@ class BrownianSampler(Sampler):
 
     @staticmethod
     def inv_split(
-        matrices: np.ndarray, eigval_thold: float
+        matrix: np.ndarray, eigval_thold: float
     ) -> tuple[np.ndarray, np.ndarray]:
         """Inverse then split a batch of Hermitian matrices into principal and perpendicular subspaces."""
         _EPS = 1e-9
 
-        def __diagonalize(vecs: np.ndarray) -> np.ndarray:
-            B, D = vecs.shape
-            diag = np.zeros((B, D, D))
-            rows, cols = np.diag_indices(D)
-            diag[:, rows, cols] = vecs
-            return diag
+        def __diagonalize(vec: np.ndarray) -> np.ndarray:
+            assert len(vec.shape) == 1
+            return np.diag(vec)
 
-        U, S, Vh = np.linalg.svd(matrices, hermitian=True)
+        U, S, Vh = np.linalg.svd(matrix, hermitian=True)
         # prevent warnings: evaluation is eager
         inv_S_principal = np.where(S > eigval_thold, 1 / np.maximum(S, _EPS), 0)
+        # print(f"principal components: {np.sum(S > eigval_thold)}")
+
         # avoid infinities
         inv_S_perp = np.where(S <= eigval_thold, 1 / np.maximum(S, _EPS), 0)
-        inv_S_perp_norm = np.maximum(
-            np.linalg.norm(inv_S_perp, axis=1, keepdims=True),
-            np.full_like(inv_S_perp, _EPS),
-        )
-        inv_S_perp_normalized = inv_S_perp / inv_S_perp_norm
+        inv_S_perp_norm = max(np.linalg.norm(inv_S_perp), _EPS)
+        # same norm as an identity matrix
+        inv_S_perp_normalized = inv_S_perp / inv_S_perp_norm * np.sqrt(S.shape[0])
 
         diag_inv_S_principal = __diagonalize(inv_S_principal)
         diag_inv_S_perp = __diagonalize(inv_S_perp_normalized)
 
         return tuple(
-            [
-                Vh.transpose((0, 2, 1)) @ diag @ U.transpose((0, 2, 1))
-                for diag in (diag_inv_S_principal, diag_inv_S_perp)
-            ]
+            [Vh.T @ diag @ U.T for diag in (diag_inv_S_principal, diag_inv_S_perp)]
         )
 
         # U @ S @ Vh

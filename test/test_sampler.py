@@ -38,13 +38,13 @@ def test_simple_brownian(mu, std):
 
 
 @pytest.mark.parametrize(
-    "As",
+    "A",
     [
-        np.random.randn(50).reshape(2, 5, 5),
+        np.random.randn(25).reshape(5, 5),
     ],
 )
-def test_brownian_inverse(As):
-    hermitian_As = As @ As.transpose((0, 2, 1))
-    inv_As, _ = BrownianSampler.inv_split(hermitian_As, eigval_thold=0)
-    inv_As_true = np.linalg.inv(hermitian_As)
+def test_brownian_inverse(A):
+    hermitian_A = A @ A.T
+    inv_As, _ = BrownianSampler.inv_split(hermitian_A, eigval_thold=0)
+    inv_As_true = np.linalg.inv(hermitian_A)
     np.testing.assert_allclose(inv_As, inv_As_true)

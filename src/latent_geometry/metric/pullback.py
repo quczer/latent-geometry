@@ -26,7 +26,8 @@ class MappingPullbackMetric(Connection, ABC):
             return np.einsum("bij,bil->bjl", Js, Js)
         ambient_points = self.mapping(base_points)
         As = self.ambient_metric.metric_matrix(ambient_points)
-        return np.einsum("bij,bik,bkl->bjl", Js, As, Js)
+        matrices = np.einsum("bij,bik,bkl->bjl", Js, As, Js)
+        return matrices
 
     def metric_matrix_derivative(self, base_points: np.ndarray) -> np.ndarray:
         if isinstance(self.mapping, EuclideanMatrixMapping):
