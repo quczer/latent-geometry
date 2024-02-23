@@ -22,7 +22,7 @@ class Sampler(ABC):
 
     @abstractmethod
     def sample_gaussian(
-        self, mean: np.ndarray, std: np.ndarray, seed: Optional[int]
+        self, mean: np.ndarray, total_var: np.ndarray, seed: Optional[int]
     ) -> np.ndarray:
         """Sample from an isotropic Gaussian distribution with a given mean and standard deviation.
 
@@ -30,9 +30,10 @@ class Sampler(ABC):
         ----------
         mean : (D,) array
 
-        std : float
+        total_var : float
+            The total variance of the distribution.
 
         Returns
         -------
-        sample : (B, D) array
+        sample : (D, ) array
         """

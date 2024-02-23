@@ -17,7 +17,7 @@ class BrownianSampler(Sampler):
     def sample_gaussian(  # type: ignore
         self,
         mean: np.ndarray,
-        std: float,
+        total_var: float,
         steps: int = 1,
         seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
@@ -25,7 +25,7 @@ class BrownianSampler(Sampler):
     ) -> np.ndarray:
         return self.sample_gaussian_with_history(
             mean=mean,
-            std=std,
+            total_var=total_var,
             steps=steps,
             seed=seed,
             eigval_thold=eigval_thold,
@@ -35,15 +35,14 @@ class BrownianSampler(Sampler):
     def sample_gaussian_with_history(
         self,
         mean: np.ndarray,
-        std: np.ndarray,
+        total_var: float,
         steps: int = 1,
         seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
         perp_alpha: float = 0.5,
     ) -> list[np.ndarray]:
-        # step_std = np.sqrt(std**2 / steps) # TODO: fix this
         self.set_seed(seed)
-        step_std = std
+        step_var = total_var / steps
         means = [mean]
         cnt = 0
         while cnt < steps:
@@ -51,7 +50,7 @@ class BrownianSampler(Sampler):
                 print(f"reached maximum number of samples {self.max_samples}")
                 break
             vec_principal, vec_perp = self.sample_directions(
-                means[-1], step_std, eigval_thold
+                means[-1], step_var, eigval_thold
             )
             if np.linalg.norm(vec_principal) > 0:
                 # print("found principal")
@@ -66,17 +65,17 @@ class BrownianSampler(Sampler):
     def sample_directions(
         self,
         mean: np.ndarray,
-        std: np.ndarray,
+        total_var: float,
         eigval_thold: float = 1e-3,
     ) -> tuple[np.ndarray, np.ndarray]:
         metric_matrix = self.metric.metric_matrix(mean[None, ...])[0]
-        inv_metric_principal, inv_metric_perp = self.inv_split(
+        inv_metric_principal, inv_metric_perp, n_comp = self.inv_split(
             metric_matrix, eigval_thold=eigval_thold
         )
-        gauss_sample = self._sample(np.zeros_like(mean), std)
+        dim_var = total_var / n_comp if n_comp > 0 else 0
+        gauss_sample = self._sample(np.zeros_like(mean), np.sqrt(dim_var))
         vec_principal, vec_perp = [
-            np.matmul(m, gauss_sample[..., None])[..., 0]
-            for m in (inv_metric_principal, inv_metric_perp)
+            m @ gauss_sample for m in (inv_metric_principal, inv_metric_perp)
         ]
         return vec_principal, vec_perp
 
@@ -95,7 +94,7 @@ class BrownianSampler(Sampler):
     @staticmethod
     def inv_split(
         matrix: np.ndarray, eigval_thold: float
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, int]:
         """Inverse then split a batch of Hermitian matrices into principal and perpendicular subspaces."""
         _EPS = 1e-9
 
@@ -106,6 +105,7 @@ class BrownianSampler(Sampler):
         U, S, Vh = np.linalg.svd(matrix, hermitian=True)
         # prevent warnings: evaluation is eager
         inv_S_principal = np.where(S > eigval_thold, 1 / np.maximum(S, _EPS), 0)
+        n_components = np.sum(S > eigval_thold)
         # print(f"principal components: {np.sum(S > eigval_thold)}")
 
         # avoid infinities
@@ -117,9 +117,14 @@ class BrownianSampler(Sampler):
         diag_inv_S_principal = __diagonalize(inv_S_principal)
         diag_inv_S_perp = __diagonalize(inv_S_perp_normalized)
 
-        return tuple(
-            [Vh.T @ diag @ U.T for diag in (diag_inv_S_principal, diag_inv_S_perp)]
+        return (
+            Vh.T @ diag_inv_S_principal @ U.T,
+            Vh.T @ diag_inv_S_perp @ U.T,
+            n_components,
         )
 
-        # U @ S @ Vh
-        # Vh.T @ inv_S @ A.T
+    @staticmethod
+    def adjust_std(std: float, n_now: int, n_desired) -> float:
+        if n_samples == 0:
+            return 0
+        return std / np.sqrt(n_samples)
