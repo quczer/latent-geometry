@@ -122,9 +122,3 @@ class BrownianSampler(Sampler):
             Vh.T @ diag_inv_S_perp @ U.T,
             n_components,
         )
-
-    @staticmethod
-    def adjust_std(std: float, n_now: int, n_desired) -> float:
-        if n_samples == 0:
-            return 0
-        return std / np.sqrt(n_samples)
