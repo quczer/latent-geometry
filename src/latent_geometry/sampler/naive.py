@@ -9,4 +9,4 @@ class NaiveSampler(Sampler):
     def sample_gaussian(
         self, mean: np.ndarray, total_var: float, seed: Optional[int] = None
     ) -> np.ndarray:
-        return self._sample(mean, np.sqrt(total_var / mean.size), seed)
+        return self._sample_normal(mean, np.sqrt(total_var / mean.size), seed)

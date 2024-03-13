@@ -1,6 +1,7 @@
 from typing import Optional
 
 import numpy as np
+from scipy.stats import chi
 
 from latent_geometry.metric import Metric
 from latent_geometry.sampler.abstract import Sampler
@@ -21,82 +22,72 @@ class BrownianSampler(Sampler):
         steps: int = 1,
         seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
-        perp_alpha: float = 0.5,
+        perp_eps: float = 1e-5,
     ) -> np.ndarray:
-        return self.sample_gaussian_with_history(
+        history, outcomes = self.sample_gaussian_with_history(
             mean=mean,
             total_var=total_var,
             steps=steps,
             seed=seed,
             eigval_thold=eigval_thold,
-            perp_alpha=perp_alpha,
-        )[-1]
+            perp_eps=perp_eps,
+        )
+        return history[-1]
 
     def sample_gaussian_with_history(
         self,
         mean: np.ndarray,
         total_var: float,
         steps: int = 1,
+        perp_eps: float = 1e-5,
         seed: Optional[int] = None,
         eigval_thold: float = 1e-3,
-        perp_alpha: float = 0.5,
-    ) -> list[np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         self.set_seed(seed)
         step_var = total_var / steps
         means = [mean]
         cnt = 0
+        n_components = []
         while cnt < steps:
             if len(means) > self.max_samples:
                 print(f"reached maximum number of samples {self.max_samples}")
                 break
-            vec_principal, vec_perp = self.sample_directions(
-                means[-1], step_var, eigval_thold
+            vec, n_comp = self.sample_directions(
+                means[-1], step_var, eigval_thold, perp_eps=perp_eps
             )
-            if np.linalg.norm(vec_principal) > 0:
-                # print("found principal")
+            if n_comp > 0:
                 cnt += 1
-                means.append(means[-1] + vec_principal)
-            else:
-                # print("went perp")
-                means.append(means[-1] + perp_alpha * vec_perp)
-
-        return means
+            means.append(means[-1] + vec)
+            n_components.append(n_comp)
+        return np.stack(means), np.array(n_components)
 
     def sample_directions(
         self,
         mean: np.ndarray,
-        total_var: float,
+        var: float,
         eigval_thold: float = 1e-3,
-    ) -> tuple[np.ndarray, np.ndarray]:
+        perp_eps: float = 1e-5,
+    ) -> tuple[np.ndarray, int]:
         metric_matrix = self.metric.metric_matrix(mean[None, ...])[0]
-        inv_metric_principal, inv_metric_perp, n_comp = self.inv_split(
-            metric_matrix, eigval_thold=eigval_thold
+        cometric_star, n_components = self.hermitian_inv_star(
+            metric_matrix, eigval_thold, perp_eps=perp_eps
         )
-        dim_var = total_var / n_comp if n_comp > 0 else 0
-        gauss_sample = self._sample(np.zeros_like(mean), np.sqrt(dim_var))
-        vec_principal, vec_perp = [
-            m @ gauss_sample for m in (inv_metric_principal, inv_metric_perp)
-        ]
-        return vec_principal, vec_perp
-
-    """
-    robić 100 nieeksplorujących, kombinacja liniowa
-    eskperyment:
-    N peptydów - podobne
-    100 trajektorii (zapamiętanych)
-    tsne
-    step: 0.1 - popróbować
-    std: 1, 2, 5, 10
-    dystanse levensteina - można wrzucic do tsne/umap
-    histogram dystansów w ambiencie - ma być chi2
-    """
+        success = n_components > 0
+        if success:
+            scale_squared = var
+        else:
+            scale_squared = var / chi.mean(df=n_components) ** 2
+        sample = self._sample_multivariate_normal(
+            np.zeros_like(mean), cometric_star * scale_squared
+        )
+        return sample, n_components
 
     @staticmethod
-    def inv_split(
-        matrix: np.ndarray, eigval_thold: float
-    ) -> tuple[np.ndarray, np.ndarray, int]:
-        """Inverse then split a batch of Hermitian matrices into principal and perpendicular subspaces."""
+    def hermitian_inv_star(
+        matrix: np.ndarray, eigval_thold: float, perp_eps: float
+    ) -> tuple[np.ndarray, int]:
         _EPS = 1e-9
+        NULL_RESULT = np.eye(matrix.shape[0]) * perp_eps, 0
 
         def __diagonalize(vec: np.ndarray) -> np.ndarray:
             assert len(vec.shape) == 1
@@ -104,21 +95,18 @@ class BrownianSampler(Sampler):
 
         U, S, Vh = np.linalg.svd(matrix, hermitian=True)
         # prevent warnings: evaluation is eager
-        inv_S_principal = np.where(S > eigval_thold, 1 / np.maximum(S, _EPS), 0)
-        n_components = np.sum(S > eigval_thold)
-        # print(f"principal components: {np.sum(S > eigval_thold)}")
+        principal_mask = S > eigval_thold
+        n_components = np.sum(principal_mask)
+        inv_S_principal = np.where(principal_mask, 1 / np.maximum(S, _EPS), 0)
 
-        # avoid infinities
-        inv_S_perp = np.where(S <= eigval_thold, 1 / np.maximum(S, _EPS), 0)
-        inv_S_perp_norm = max(np.linalg.norm(inv_S_perp), _EPS)
-        # same norm as an identity matrix
-        inv_S_perp_normalized = inv_S_perp / inv_S_perp_norm * np.sqrt(S.shape[0])
+        if n_components == 0:
+            print("no principal components")
+            return NULL_RESULT
 
-        diag_inv_S_principal = __diagonalize(inv_S_principal)
-        diag_inv_S_perp = __diagonalize(inv_S_perp_normalized)
+        # put epsilons on the diagonal
+        inv_S_perp = np.where(~principal_mask, perp_eps, 0)
 
-        return (
-            Vh.T @ diag_inv_S_principal @ U.T,
-            Vh.T @ diag_inv_S_perp @ U.T,
-            n_components,
-        )
+        diag = inv_S_principal + inv_S_perp
+        diag = __diagonalize(diag)
+
+        return Vh.T @ diag @ U.T, n_components
