@@ -3,6 +3,8 @@ Master's thesis python package allowing for the exploration of latent spaces of 
 
 By employing a pull-back metric from the observation space one can reveal nuanced geometrical structures in hidden spaces. The framework is agnostic to the automatic differetiation backend e.g. PyTorch, TensorFlow. It works even with custom, hand-made differentiable mappings.
 
+[Master Thesis PDF](https://smallpdf.com/file#s=5a36cf0c-5886-4cc8-8056-f71159916b62)
+
 [![CI - Test](https://github.com/quczer/latent-geometry/actions/workflows/tests.yaml/badge.svg)](https://github.com/quczer/latent-geometry/actions/workflows/tests.yaml)
 [![PyPI Latest Release](https://img.shields.io/pypi/v/latent-geometry.svg)](https://pypi.org/project/latent-geometry/)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/latent-geometry.svg)](https://pypi.org/project/latent-geometry/)
