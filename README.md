@@ -60,7 +60,7 @@ geodesic: ManifoldPath = latent_manifold.geodesic(z=z_0, velocity_vec=v_0)
 z_a = np.zeros(8)
 z_b = np.zeros(8) + 3
 
-shortest_path: ManifoldPath = shortest_path.geodesic(z_a=z_a, z_b=z_b)
+shortest_path: ManifoldPath = latent_manifold.shortest_path(z_a=z_a, z_b=z_b)
 # shortest_path(0.0), shortest_path(1.0) == z_a, z_b
 
 ```
