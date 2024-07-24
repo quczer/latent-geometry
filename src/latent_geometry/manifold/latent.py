@@ -53,7 +53,7 @@ class LatentManifold(Manifold):
         )
 
     def set_solver_tols(self, tol: float) -> None:
-        self._exp_solver.tolerance = tol
+        self._exp_solver.atol = tol
         self._log_solver.tolerance = tol
 
     @property
